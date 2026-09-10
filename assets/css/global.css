@@ -607,3 +607,18 @@ ul {
     grid-template-columns: 1fr;
   }
 }
+/* Styling bổ sung đồng bộ toàn trang */
+.user-profile {
+    position: relative;
+}
+.user-profile:hover .dropdown-menu {
+    display: flex !important;
+}
+.dropdown-menu a:hover {
+    background-color: #f8fafc;
+}
+@media (max-width: 768px) {
+    .d-none-mobile {
+        display: none;
+    }
+}

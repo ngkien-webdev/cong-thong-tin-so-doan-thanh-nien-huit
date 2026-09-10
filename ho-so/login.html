@@ -3,74 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - Cổng thông tin số Đoàn - Hội HUIT</title>
+    <title>Đăng nhập hệ thống - Cổng thông tin số Đoàn - Hội HUIT</title>
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="login.css">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="login-page-body">
 
-    <!-- Back to home button -->
-    <a href="../index.html" class="back-home"><i class="fas fa-arrow-left"></i> Quay lại trang chủ</a>
+    <!-- Nút về trang chủ -->
+    <a href="../index.html" class="back-home"><i class="fas fa-arrow-left"></i> Trang chủ HUIT</a>
 
     <div class="login-wrapper">
-        <div class="login-container">
+        <div class="login-card">
+            <!-- Header Logo -->
             <div class="login-header">
-                <img src="../assets/images/logo-huit-doan.png" alt="Logo HUIT" class="login-logo">
-                <h2>CỔNG THÔNG TIN ĐIỆN TỬ</h2>
-                <p>Đăng nhập để quản lý hồ sơ và điểm rèn luyện</p>
+                <img src="../assets/images/logo-huit-doan.png" alt="Logo Đoàn HUIT" class="login-logo">
+                <h2>CỔNG THÔNG TIN SỐ</h2>
+                <p>Đoàn Thanh niên - Hội Sinh viên HUIT</p>
             </div>
 
-            <div class="login-tabs">
-                <button class="tab-btn active" data-tab="student">Sinh viên</button>
-                <button class="tab-btn" data-tab="admin">Cán bộ / Admin</button>
+            <!-- Hệ thống Tab chuyển đổi -->
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" data-tab="student-pane">Sinh viên</button>
+                <button class="auth-tab-btn" data-tab="account-pane">Tài khoản</button>
+                <button class="auth-tab-btn" data-tab="admin-pane">Cán bộ</button>
             </div>
 
-            <!-- Tab Sinh Viên -->
-            <div class="tab-content active" id="student-tab">
-                <p class="tab-desc">Sinh viên sử dụng email trường (@huit.edu.vn hoặc @student.huit.edu.vn) để đăng nhập vào hệ thống.</p>
-                <button class="google-login-btn" onclick="mockGoogleLogin()">
-                    <img src="https://freelogopng.com/images/all_img/1657952440google-logo-png-transparent.png" alt="Google Logo">
-                    Đăng nhập bằng Google
+            <!-- TAB 1: SINH VIÊN (Google & Khách) -->
+            <div class="auth-pane active" id="student-pane">
+                <p class="pane-desc">Đăng nhập nhanh chóng và bảo mật bằng tài khoản sinh viên liên kết Google.</p>
+                
+                <button class="btn-google" onclick="loginWithGoogle()">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.15 21.32 7.22 24 12 24z"/>
+                        <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.18C.43 8.13 0 9.87 0 11.7c0 1.83.43 3.57 1.18 5.09l4.09-3.15z"/>
+                        <path fill="#EA4335" d="M12 4.75c1.76 0 3.34.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.22 0 3.15 2.68 1.18 6.61l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
+                    </svg>
+                    <span>Tiếp tục với Google</span>
                 </button>
-                <div class="security-note">
-                    <i class="fas fa-shield-alt"></i> Hệ thống sử dụng Google OAuth để bảo mật thông tin.
-                </div>
+
+                <div class="divider"><span>hoặc</span></div>
+
+                <button class="btn-guest" onclick="loginAsGuest()">
+                    <i class="fas fa-user-secret"></i> Trải nghiệm nhanh với tài khoản Khách
+                </button>
             </div>
 
-            <!-- Tab Cán Bộ -->
-            <div class="tab-content" id="admin-tab">
-                <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
-                    <div class="form-group">
-                        <label for="username">Tài khoản / Email cán bộ</label>
-                        <div class="input-icon">
-                            <i class="fas fa-user"></i>
-                            <input type="text" id="username" placeholder="Nhập tài khoản" required>
+            <!-- TAB 2: TÀI KHOẢN NỘI BỘ (Email / Password) -->
+            <div class="auth-pane" id="account-pane">
+                <form id="emailAuthForm" onsubmit="handleEmailAuth(event)">
+                    <div class="input-group">
+                        <label>Email trường</label>
+                        <div class="input-field">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="authEmail" placeholder="mssv@student.huit.edu.vn" required>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="password">Mật khẩu</label>
-                        <div class="input-icon">
+                    <div class="input-group">
+                        <label>Mật khẩu</label>
+                        <div class="input-field">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="password" placeholder="Nhập mật khẩu" required>
-                            <i class="fas fa-eye toggle-password" onclick="togglePassword()"></i>
+                            <input type="password" id="authPassword" placeholder="••••••••" required>
                         </div>
                     </div>
-                    <div class="form-options">
-                        <label class="remember-me">
-                            <input type="checkbox"> Ghi nhớ đăng nhập
-                        </label>
-                        <a href="#" class="forgot-pwd">Quên mật khẩu?</a>
+                    <div class="auth-actions-row">
+                        <button type="submit" class="btn-submit-primary">Đăng nhập</button>
+                        <button type="button" class="btn-submit-secondary" onclick="handleRegisterEmail()">Đăng ký mới</button>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Đăng nhập hệ thống</button>
+                </form>
+            </div>
+
+            <!-- TAB 3: CÁN BỘ / ADMIN -->
+            <div class="auth-pane" id="admin-pane">
+                <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+                    <div class="input-group">
+                        <label>Tài khoản quản trị</label>
+                        <div class="input-field">
+                            <i class="fas fa-user-shield"></i>
+                            <input type="text" id="username" placeholder="Nhập tên đăng nhập" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Mật khẩu</label>
+                        <div class="input-field">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="password" placeholder="Nhập mật khẩu" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit-primary w-100" style="margin-top: 10px;">Truy cập Hệ thống</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification (Mô phỏng backend) -->
-    <div id="toast" class="toast">Đang xử lý đăng nhập...</div>
+    <!-- Toast thông báo -->
+    <div id="toast" class="toast">Đang xử lý...</div>
 
+    <!-- Script dạng module kết nối Firebase -->
     <script type="module" src="login.js"></script>
 </body>
 </html>

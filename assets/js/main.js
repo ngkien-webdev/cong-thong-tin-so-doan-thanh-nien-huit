@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     
     /* ==========================================================================
-       1. STICKY HEADER
+       1. STICKY HEADER & MOBILE TOGGLE (Dùng chung toàn trang)
        ========================================================================== */
     const header = document.getElementById('header');
     
@@ -13,16 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    /* ==========================================================================
-       2. MOBILE MENU TOGGLE
-       ========================================================================== */
     const mobileToggle = document.getElementById('mobileToggle');
     const mainNav = document.getElementById('mainNav');
     
     if (mobileToggle && mainNav) {
         mobileToggle.addEventListener('click', () => {
             mainNav.classList.toggle('active');
-            // Đổi icon từ bars sang times (dấu X)
             const icon = mobileToggle.querySelector('i');
             if (mainNav.classList.contains('active')) {
                 icon.classList.remove('fa-bars');
@@ -35,87 +31,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ==========================================================================
-       3. NUMBER COUNTER ANIMATION (Trang chủ)
+       2. ĐỒNG BỘ TRẠNG THÁI ĐĂNG NHẬP TRÊN TOÀN BỘ CÁC TRANG
        ========================================================================== */
-    const counters = document.querySelectorAll('.stat-number');
-    const speed = 100; // Tốc độ đếm, càng nhỏ càng nhanh
+    const token = localStorage.getItem('userToken');
+    const userName = localStorage.getItem('userName') || 'Thành viên HUIT';
 
-    const animateCounters = () => {
-        counters.forEach(counter => {
-            const target = +counter.getAttribute('data-target');
-            const count = +counter.innerText.replace(/\+/g, '');
-            
-            // Tính toán khoảng tăng mỗi frame
-            const inc = target / speed;
-
-            if (count < target) {
-                counter.innerText = Math.ceil(count + inc);
-                setTimeout(animateCounters, 20);
-            } else {
-                // Thêm dấu + để hiển thị (ví dụ: +10.000)
-                counter.innerText = '+' + target.toLocaleString('vi-VN');
-            }
-        });
-    }
-
-    // Sử dụng Intersection Observer để chỉ chạy animation khi cuộn tới phần Stats
-    const statsSection = document.querySelector('.stats');
+    // Tìm khối chứa nút đăng nhập trong header của các trang
+    const headerActions = document.querySelector('.header-actions');
     
-    if (statsSection && counters.length > 0) {
-        const observer = new IntersectionObserver((entries, observer) => {
-            const [entry] = entries;
-            if (entry.isIntersecting) {
-                animateCounters();
-                observer.unobserve(statsSection); // Chỉ chạy 1 lần
-            }
-        }, {
-            root: null,
-            threshold: 0.5 // Kích hoạt khi hiện được 50% section
-        });
+    if (headerActions && token) {
+        // Tìm và xóa nút "Đăng nhập" cũ nếu có
+        const loginBtn = headerActions.querySelector('.btn-primary');
+        if (loginBtn && !loginBtn.classList.contains('user-profile-injected')) {
+            loginBtn.remove();
+        }
 
-        observer.observe(statsSection);
-    }
-});
-/* ==========================================================================
-   4. MODAL & LIGHTBOX FUNCTIONS (Dành cho phần Vinh Danh)
-   ========================================================================== */
-function openModal(modalId) { 
-    document.getElementById(modalId).style.display = "flex"; 
-    document.body.style.overflow = "hidden"; // Khóa scroll trang khi mở modal
-}
+        // Kiểm tra xem đã inject Avatar chưa để tránh lặp
+        if (!document.getElementById('globalUserProfile')) {
+            const profileDiv = document.createElement('div');
+            profileDiv.id = 'globalUserProfile';
+            profileDiv.className = 'user-profile';
+            profileDiv.style.cssText = 'display: flex; align-items: center; gap: 10px; cursor: pointer; position: relative; font-weight: 600; font-size: 0.9rem;';
+            
+            // Tạo avatar chữ cái đầu hoặc ảnh mặc định
+            profileDiv.innerHTML = `
+                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=c90000&color=fff" alt="Avatar" style="width: 38px; height: 38px; border-radius: 50%; border: 2px solid #ffc107;">
+                <span style="color: #333;" class="d-none-mobile">${userName}</span>
+                <div class="dropdown-menu" style="display: none; position: absolute; top: 120%; right: 0; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-radius: 8px; width: 200px; flex-direction: column; overflow: hidden; z-index: 1100;">
+                    <a href="${window.location.pathname.includes('/ho-so/') ? 'index.html' : 'ho-so/index.html'}" style="padding: 12px 20px; color: #333; text-decoration: none; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px;"><i class="fas fa-id-card"></i> Quản lý hồ sơ</a>
+                    <a href="#" id="globalLogoutBtn" style="padding: 12px 20px; color: #c90000; text-decoration: none; display: flex; align-items: center; gap: 10px;"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            `;
 
-function closeModal(modalId) { 
-    document.getElementById(modalId).style.display = "none"; 
-    document.body.style.overflow = "auto";
-}
-
-function closeOutside(event, modalId) { 
-    if (event.target.id === modalId) { 
-        closeModal(modalId); 
-    } 
-}
-
-// Lightbox logic
-document.addEventListener('DOMContentLoaded', () => {
-    const galleryImages = document.querySelectorAll('.image-gallery img');
-    const lightbox = document.getElementById('image-lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-
-    if (galleryImages.length > 0 && lightbox) {
-        galleryImages.forEach(img => {
-            img.addEventListener('click', function() {
-                lightboxImg.src = this.src;
-                lightbox.style.display = 'flex';
+            // Thêm sự kiện hover/click mở dropdown
+            profileDiv.addEventListener('mouseenter', () => {
+                profileDiv.querySelector('.dropdown-menu').style.display = 'flex';
             });
-        });
+            profileDiv.addEventListener('mouseleave', () => {
+                profileDiv.querySelector('.dropdown-menu').style.display = 'none';
+            });
+
+            headerActions.insertBefore(profileDiv, headerActions.firstChild);
+
+            // Xử lý sự kiện đăng xuất toàn trang
+            document.getElementById('globalLogoutBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.clear();
+                window.location.reload(); // Tải lại trang để khôi phục nút đăng nhập
+            });
+        }
     }
 });
-
-function closeLightbox(event) {
-    const lightbox = document.getElementById('image-lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    if (event.target.id === 'image-lightbox' || event.target.classList.contains('lightbox-close')) {
-        lightbox.style.display = 'none';
-        lightboxImg.src = ''; 
-    }
-}

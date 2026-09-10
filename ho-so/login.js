@@ -1,64 +1,105 @@
-// Import Firebase SDK (Module dạng ES6 cho Browser)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { 
+    getAuth, 
+    signInWithPopup, 
+    GoogleAuthProvider, 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    signInAnonymously 
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-// CẤU HÌNH FIREBASE CỦA BẠN (Lấy từ Firebase Console ở Bước 3)
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyCBb9d1i-syb6cL0y_N6nC0Wi23GKlDoVs",
     authDomain: "huit-youth-portal.firebaseapp.com",
     projectId: "huit-youth-portal",
     storageBucket: "huit-youth-portal.firebasestorage.app",
     messagingSenderId: "78373587861",
     appId: "1:78373587861:web:1b831d502820f23558c49c"
-  };
+};
 
-// Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Chỉ cho phép email thuộc domain trường (Tùy chọn bảo mật)
-// provider.setCustomParameters({ hd: "huit.edu.vn" }); 
-
-// Chuyển Tab (Giữ nguyên logic cũ)
-const tabBtns = document.querySelectorAll('.tab-btn');
-const tabContents = document.querySelectorAll('.tab-content');
-tabBtns.forEach(btn => {
+// Chuyển tab giao diện
+document.querySelectorAll('.auth-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabContents.forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.auth-pane').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById(`${btn.dataset.tab}-tab`).classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
     });
 });
 
 function showToast(message, isSuccess = true) {
     const toast = document.getElementById('toast');
+    if(!toast) return;
     toast.innerText = message;
-    toast.style.backgroundColor = isSuccess ? '#4caf50' : '#f44336';
+    toast.style.background = isSuccess ? '#10b981' : '#ef4444';
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// XỬ LÝ ĐĂNG NHẬP GOOGLE THẬT
-window.mockGoogleLogin = function() {
-    showToast('Đang kết nối với Google...', true);
-    
-    signInWithPopup(auth, provider)
-        .then((result) => {
-            const user = result.user;
-            // Lưu thông tin người dùng thực tế vào LocalStorage
-            localStorage.setItem('userToken', user.accessToken);
-            localStorage.setItem('userName', user.displayName);
-            localStorage.setItem('userEmail', user.email);
-            localStorage.setItem('userUid', user.uid);
-            
-            showToast('Đăng nhập thành công!', true);
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
-        }).catch((error) => {
-            console.error("Lỗi đăng nhập:", error);
-            showToast('Đăng nhập thất bại: ' + error.message, false);
-        });
+// 1. Google Login
+window.loginWithGoogle = function() {
+    showToast("Đang kết nối Google...", true);
+    signInWithPopup(auth, provider).then((result) => {
+        saveSession(result.user.accessToken, result.user.displayName || "Sinh viên HUIT", result.user.uid);
+    }).catch(err => showToast(err.message, false));
+};
+
+// 2. Guest Login
+window.loginAsGuest = function() {
+    signInAnonymously(auth).then((result) => {
+        saveSession("guest_token", "Khách tham quan", result.user.uid);
+    }).catch(err => showToast("Lỗi tài khoản khách: " + err.message, false));
+};
+
+// 3. Email Login
+window.handleEmailAuth = function(e) {
+    e.preventDefault();
+    const email = document.getElementById('authEmail').value;
+    const pass = document.getElementById('authPassword').value;
+
+    signInWithEmailAndPassword(auth, email, pass).then((result) => {
+        saveSession(result.user.accessToken, email.split('@')[0], result.user.uid);
+    }).catch(err => showToast("Sai email hoặc mật khẩu!", false));
+};
+
+// 4. Register Email
+window.handleRegisterEmail = function() {
+    const email = document.getElementById('authEmail').value;
+    const pass = document.getElementById('authPassword').value;
+
+    if(!email || !pass) {
+        showToast("Vui lòng nhập đầy đủ thông tin!", false);
+        return;
+    }
+
+    createUserWithEmailAndPassword(auth, email, pass).then((result) => {
+        showToast("Đăng ký thành công!", true);
+        saveSession(result.user.accessToken, email.split('@')[0], result.user.uid);
+    }).catch(err => showToast("Lỗi đăng ký: " + err.message, false));
+};
+
+function saveSession(token, name, uid) {
+    localStorage.clear();
+    localStorage.setItem('userToken', token);
+    localStorage.setItem('userName', name);
+    localStorage.setItem('userUid', uid);
+    showToast("Đăng nhập thành công!", true);
+    setTimeout(() => { window.location.href = 'index.html'; }, 800);
+}
+
+// Admin login tĩnh
+window.handleAdminLogin = function(e) {
+    e.preventDefault();
+    if(document.getElementById('username').value === 'admin' && document.getElementById('password').value === '123456') {
+        localStorage.setItem('userToken', 'admin_token');
+        localStorage.setItem('userName', 'Quản trị viên');
+        localStorage.setItem('userUid', 'admin_uid');
+        window.location.href = 'index.html';
+    } else {
+        showToast("Sai tài khoản quản trị!", false);
+    }
 };

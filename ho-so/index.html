@@ -207,35 +207,12 @@
                 </div>
             </div>
 
-            <!-- TAB 3: THÔNG BÁO -->
+        <!-- TAB 3: THÔNG BÁO THẬT TỪ DATABASE -->
             <div id="noti-tab" class="dashboard-tab">
                 <div class="card">
                     <h2 class="card-title">Hộp thư thông báo</h2>
-                    <ul class="noti-list">
-                        <li class="noti-item unread">
-                            <div class="noti-icon"><i class="fas fa-file-signature"></i></div>
-                            <div class="noti-content">
-                                <h4>Hồ sơ HS202609001 đã được tiếp nhận</h4>
-                                <p>Hồ sơ Xét danh hiệu Sinh viên 5 Tốt của bạn đã được chuyển cho cán bộ phụ trách xử lý.</p>
-                                <span class="noti-time">2 giờ trước</span>
-                            </div>
-                        </li>
-                        <li class="noti-item unread">
-                            <div class="noti-icon alert"><i class="fas fa-exclamation"></i></div>
-                            <div class="noti-content">
-                                <h4>Yêu cầu bổ sung hồ sơ HS202608055</h4>
-                                <p>Hồ sơ Tiếp nhận Sổ Đoàn viên của bạn cần bổ sung hình ảnh mộc đỏ. Vui lòng cập nhật trước 20/09/2026.</p>
-                                <span class="noti-time">1 ngày trước</span>
-                            </div>
-                        </li>
-                        <li class="noti-item">
-                            <div class="noti-icon success"><i class="fas fa-check"></i></div>
-                            <div class="noti-content">
-                                <h4>Cập nhật Điểm rèn luyện thành công</h4>
-                                <p>Điểm chiến dịch Mùa hè xanh (+10 điểm) đã được cộng vào hệ thống.</p>
-                                <span class="noti-time">3 ngày trước</span>
-                            </div>
-                        </li>
+                    <ul class="noti-list" id="notiList">
+                        <!-- Dữ liệu thông báo sẽ được load động từ Firestore dựa vào UID user -->
                     </ul>
                 </div>
             </div>

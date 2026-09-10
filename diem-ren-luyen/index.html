@@ -26,35 +26,38 @@
 <body class="min-h-screen flex flex-col">
 
     <!-- HEADER CHUẨN DÙNG CHUNG -->
-    <header class="site-header" id="header" style="position: relative; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
-        <div class="container header-inner" style="display: flex; justify-content: space-between; align-items: center; height: 80px;">
+<!-- HEADER CHUẨN ĐỒNG BỘ -->
+    <header class="site-header scrolled" id="header">
+        <div class="container header-inner">
             <div class="logo-container">
-                <a href="../index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-                    <img src="../assets/images/logo-huit-doan.png" alt="Logo" style="height: 45px;">
-                    <div class="logo-text" style="font-weight: 800; font-size: 0.95rem; color: var(--primary-red); line-height: 1.2;">
+                <a href="../index.html">
+                    <img src="../assets/images/logo-huit-doan.png" alt="Logo">
+                    <div class="logo-text">
                         ĐOÀN THANH NIÊN - HỘI SINH VIÊN
-                        <span style="display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">TRƯỜNG ĐẠI HỌC CÔNG THƯƠNG TP.HCM</span>
+                        <span>TRƯỜNG ĐẠI HỌC CÔNG THƯƠNG TP.HCM</span>
                     </div>
                 </a>
             </div>
 
             <nav class="main-nav" id="mainNav">
-                <ul style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; align-items: center;">
-                    <li><a href="../index.html" style="font-weight: 600; color: #333; text-decoration: none;">Trang chủ</a></li>
-                    <li><a href="../van-hoa-hcm/index.html" style="font-weight: 600; color: #333; text-decoration: none;">Không gian VH HCM</a></li>
-                    <li><a href="../ho-so/index.html" style="font-weight: 600; color: #333; text-decoration: none;">Hồ sơ</a></li>
-                    <li><a href="../faq/index.html" style="font-weight: 600; color: #333; text-decoration: none;">FAQ</a></li>
-                    <li><a href="index.html" class="active" style="font-weight: 600; color: var(--primary-red); text-decoration: none;">Điểm rèn luyện</a></li>
-                    <li><a href="../vinh-quang/index.html" style="font-weight: 600; color: #333; text-decoration: none;">Vinh quang</a></li>
+                <ul>
+                    <li><a href="../index.html">Trang chủ</a></li>
+                    <li><a href="../van-hoa-hcm/index.html">Không gian VH HCM</a></li>
+                    <li><a href="../ho-so/index.html">Hồ sơ</a></li>
+                    <li><a href="../faq/index.html">FAQ</a></li>
+                    <li><a href="index.html" class="active">Điểm rèn luyện</a></li>
+                    <li><a href="../vinh-quang/index.html">Vinh quang</a></li>
                 </ul>
             </nav>
 
             <div class="header-actions">
-                <a href="../ho-so/login.html" class="btn btn-primary" style="padding: 8px 20px; background: var(--primary-red); color: white; border-radius: 6px; font-weight: 600; text-decoration: none;">Đăng nhập</a>
+                <a href="../ho-so/login.html" class="btn btn-primary">Đăng nhập</a>
+                <button class="mobile-toggle" id="mobileToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
         </div>
     </header>
-
     <!-- MAIN CONTENT -->
     <main class="max-w-4xl mx-auto px-4 py-10 w-full flex-grow">
         
