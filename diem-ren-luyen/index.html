@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra cứu Điểm rèn luyện - Cổng thông tin số Đoàn - Hội HUIT</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Global CSS & Fonts -->
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Đồng bộ font và style chung */
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-light); color: var(--text-main); }
+        .fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- HEADER CHUẨN DÙNG CHUNG -->
+    <header class="site-header" id="header" style="position: relative; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+        <div class="container header-inner" style="display: flex; justify-content: space-between; align-items: center; height: 80px;">
+            <div class="logo-container">
+                <a href="../index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                    <img src="../assets/images/logo-huit-doan.png" alt="Logo" style="height: 45px;">
+                    <div class="logo-text" style="font-weight: 800; font-size: 0.95rem; color: var(--primary-red); line-height: 1.2;">
+                        ĐOÀN THANH NIÊN - HỘI SINH VIÊN
+                        <span style="display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">TRƯỜNG ĐẠI HỌC CÔNG THƯƠNG TP.HCM</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="main-nav" id="mainNav">
+                <ul style="display: flex; gap: 20px; list-style: none; margin: 0; padding: 0; align-items: center;">
+                    <li><a href="../index.html" style="font-weight: 600; color: #333; text-decoration: none;">Trang chủ</a></li>
+                    <li><a href="../van-hoa-hcm/index.html" style="font-weight: 600; color: #333; text-decoration: none;">Không gian VH HCM</a></li>
+                    <li><a href="../ho-so/index.html" style="font-weight: 600; color: #333; text-decoration: none;">Hồ sơ</a></li>
+                    <li><a href="../faq/index.html" style="font-weight: 600; color: #333; text-decoration: none;">FAQ</a></li>
+                    <li><a href="index.html" class="active" style="font-weight: 600; color: var(--primary-red); text-decoration: none;">Điểm rèn luyện</a></li>
+                    <li><a href="../vinh-quang/index.html" style="font-weight: 600; color: #333; text-decoration: none;">Vinh quang</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                <a href="../ho-so/login.html" class="btn btn-primary" style="padding: 8px 20px; background: var(--primary-red); color: white; border-radius: 6px; font-weight: 600; text-decoration: none;">Đăng nhập</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-4xl mx-auto px-4 py-10 w-full flex-grow">
+        
+        <!-- TIÊU ĐỀ TRANG -->
+        <div class="text-center mb-8">
+            <span class="bg-red-100 text-red-700 text-xs font-extrabold uppercase px-3 py-1 rounded-full tracking-wider">Hệ thống tra cứu trực tuyến</span>
+            <h1 class="text-3xl font-black text-slate-900 mt-2 uppercase">Tra Cứu Điểm Rèn Luyện</h1>
+            <p class="text-slate-500 text-sm mt-1">Tra cứu tổng điểm và chi tiết các tiêu chí rèn luyện từ hoạt động Đoàn - Hội sinh viên.</p>
+        </div>
+
+        <!-- Ô TÌM KIẾM -->
+        <div class="bg-white rounded-2xl shadow-md p-6 mb-8 border border-slate-100">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        placeholder="Nhập Mã số sinh viên (VD: 2008220017) hoặc Họ tên..." 
+                        class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-red-600 font-medium text-slate-800 transition"
+                        onkeypress="if(event.key === 'Enter') handleSearch()"
+                    >
+                </div>
+                <button 
+                    onclick="handleSearch()"
+                    class="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2"
+                >
+                    <i class="fa-solid fa-search"></i> Tra Cứu
+                </button>
+            </div>
+        </div>
+
+        <!-- TRẠNG THÁI LOADING -->
+        <div id="loadingArea" class="hidden text-center py-12">
+            <div class="w-10 h-10 border-4 border-red-200 border-t-red-600 rounded-full animate-spin mx-auto mb-3"></div>
+            <p class="text-red-600 text-sm font-semibold">Đang truy vấn cơ sở dữ liệu...</p>
+        </div>
+
+        <!-- KẾT QUẢ TRA CỨU -->
+        <div id="resultArea" class="hidden space-y-6 fade-in-up">
+            <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h3 id="studentName" class="text-2xl font-extrabold text-slate-900 mb-1">---</h3>
+                    <p class="text-sm font-semibold text-slate-500">MSSV: <span id="studentMSSV" class="text-slate-800 font-bold">---</span> | Lớp: <span id="studentClass" class="text-slate-800 font-bold">---</span></p>
+                </div>
+                <div class="bg-red-50 px-6 py-3.5 rounded-xl border border-red-100 text-center min-w-[160px]">
+                    <span class="text-[11px] uppercase tracking-wider text-red-600 font-extrabold block">Tổng điểm rèn luyện</span>
+                    <div class="text-3xl font-black text-red-700 mt-0.5" id="totalScore">0</div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
+                <h4 class="font-bold text-slate-800 text-base mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-red-600"></i> Chi tiết điểm số các tiêu chí
+                </h4>
+
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    <div class="bg-slate-50 p-4 rounded-xl border text-center">
+                        <div class="text-[11px] font-bold text-slate-500">Tiêu chí 1</div>
+                        <div class="text-2xl font-black text-slate-800 mt-1" id="valTc1">0</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border text-center">
+                        <div class="text-[11px] font-bold text-slate-500">Tiêu chí 2</div>
+                        <div class="text-2xl font-black text-slate-800 mt-1" id="valTc2">0</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border text-center">
+                        <div class="text-[11px] font-bold text-slate-500">Tiêu chí 3</div>
+                        <div class="text-2xl font-black text-slate-800 mt-1" id="valTc3">0</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border text-center">
+                        <div class="text-[11px] font-bold text-slate-500">Tiêu chí 4</div>
+                        <div class="text-2xl font-black text-slate-800 mt-1" id="valTc4">0</div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border text-center col-span-2 sm:col-span-1">
+                        <div class="text-[11px] font-bold text-slate-500">Tiêu chí 5</div>
+                        <div class="text-2xl font-black text-slate-800 mt-1" id="valTc5">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KHÔNG TÌM THẤY -->
+        <div id="notFound" class="hidden bg-white rounded-2xl shadow-md p-10 text-center">
+            <i class="fa-solid fa-triangle-exclamation text-amber-500 text-3xl mb-3"></i>
+            <p class="text-slate-600 text-sm font-semibold">Không tìm thấy thông tin sinh viên phù hợp với từ khóa bạn vừa nhập.</p>
+            <p class="text-slate-400 text-xs mt-1">Vui lòng kiểm tra lại Mã số sinh viên hoặc Họ tên.</p>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs">
+        <p>&copy; 2026 - Bản quyền thuộc về Đoàn Thanh Niên - Hội Sinh Viên Trường Đại học Công Thương Thành phố Hồ Chí Minh</p>
+    </footer>
+
+    <!-- SCRIPT XỬ LÝ DỮ LIỆU -->
+    <script>
+        let mockDatabase = {};
+
+        async function loadData() {
+            try {
+                const response = await fetch('data.json');
+                mockDatabase = await response.json();
+            } catch (error) {
+                console.error('Lỗi tải file data.json:', error);
+            }
+        }
+        
+        window.onload = () => {
+            loadData();
+            document.getElementById('searchInput').focus();
+        };
+
+        function handleSearch() {
+            const input = document.getElementById('searchInput');
+            const query = input.value.trim().toLowerCase();
+            if (!query) return;
+
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('notFound').classList.add('hidden');
+            const loading = document.getElementById('loadingArea');
+            loading.classList.remove('hidden');
+
+            setTimeout(() => {
+                loading.classList.add('hidden');
+                processSearch(query);
+            }, 350);
+        }
+
+        function processSearch(query) {
+            const resultArea = document.getElementById('resultArea');
+            const notFound = document.getElementById('notFound');
+
+            let student = mockDatabase[query];
+            if (!student) {
+                student = Object.values(mockDatabase).find(s => 
+                    s.ho_ten.toLowerCase().includes(query) || s.mssv.toLowerCase().includes(query)
+                );
+            }
+
+            if (student) {
+                resultArea.classList.remove('hidden');
+                document.getElementById('studentName').innerText = student.ho_ten;
+                document.getElementById('studentMSSV').innerText = student.mssv;
+                document.getElementById('studentClass').innerText = student.lop || "Chưa cập nhật";
+                document.getElementById('totalScore').innerText = student.tong_diem;
+
+                document.getElementById('valTc1').innerText = student.tc1 || 0;
+                document.getElementById('valTc2').innerText = student.tc2 || 0;
+                document.getElementById('valTc3').innerText = student.tc3 || 0;
+                document.getElementById('valTc4').innerText = student.tc4 || 0;
+                document.getElementById('valTc5').innerText = student.tc5 || 0;
+            } else {
+                notFound.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+.hcm-space-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 120px 0 60px;
+    background: linear-gradient(135deg, var(--bg-light) 0%, #fff 100%);
+}
+
+.hcm-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+}
+
+.hcm-text {
+    flex: 1;
+    max-width: 600px;
+}
+
+.badge {
+    display: inline-block;
+    background-color: rgba(201, 0, 0, 0.1);
+    color: var(--primary-red);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.hcm-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary-red);
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.hcm-desc {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 30px;
+    line-height: 1.8;
+}
+
+.hcm-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.feature-item i {
+    color: var(--accent-yellow);
+    font-size: 1.2rem;
+}
+
+.btn-hcm {
+    font-size: 1.1rem;
+    padding: 15px 30px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow-md);
+}
+
+.hcm-image {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.hero-img {
+    width: 100%;
+    max-width: 450px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 2;
+    filter: sepia(30%); /* Tạo màu cổ điển nhẹ */
+}
+
+.img-backdrop {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 500px;
+    height: 100%;
+    background: var(--accent-yellow);
+    border-radius: 30px;
+    z-index: 1;
+    opacity: 0.2;
+    filter: blur(40px);
+}
+
+@media (max-width: 992px) {
+    .hcm-content {
+        flex-direction: column-reverse;
+        text-align: center;
+    }
+    .hcm-title { font-size: 2.2rem; }
+    .hcm-features { justify-content: center; }
+}

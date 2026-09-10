@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Sinh viên - Cổng thông tin số Đoàn - Hội HUIT</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- HEADER (Đã đăng nhập) -->
+    <header class="site-header" id="header">
+        <div class="container header-inner">
+            <div class="logo-container">
+                <a href="../index.html">
+                    <img src="../assets/images/logo-huit-doan.png" alt="Logo">
+                    <div class="logo-text">
+                        ĐOÀN THANH NIÊN - HỘI SINH VIÊN
+                        <span>TRƯỜNG ĐẠI HỌC CÔNG THƯƠNG TP.HCM</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="main-nav" id="mainNav">
+                <ul>
+                    <li><a href="../index.html">Trang chủ</a></li>
+                    <li><a href="../van-hoa-hcm/index.html">Không gian VH HCM</a></li>
+                    <li><a href="index.html" class="active">Hồ sơ</a></li>
+                    <li><a href="../faq/index.html">FAQ</a></li>
+                    <li><a href="../diem-ren-luyen/index.html">Điểm rèn luyện</a></li>
+                    <li><a href="../vinh-quang/index.html">Vinh quang</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                <!-- Chuông thông báo -->
+                <div class="notification-bell">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notiCount">3</span>
+                </div>
+                <!-- User Profile Menu -->
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=Sinh+Vien&background=c90000&color=fff" alt="Avatar" id="userAvatar">
+                    <span id="userNameDisplay">Đang tải...</span>
+                    <div class="dropdown-menu">
+                        <a href="#"><i class="fas fa-id-card"></i> Thông tin cá nhân</a>
+                        <a href="#" onclick="handleLogout(event)"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                    </div>
+                </div>
+                <button class="mobile-toggle" id="mobileToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- DASHBOARD LAYOUT -->
+    <main class="dashboard-container container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" data-target="submit-tab">
+                    <i class="fas fa-file-upload"></i> Nộp hồ sơ mới
+                </a>
+                <a href="#" class="menu-item" data-target="history-tab">
+                    <i class="fas fa-history"></i> Lịch sử & Trạng thái
+                </a>
+                <a href="#" class="menu-item" data-target="noti-tab">
+                    <i class="fas fa-envelope"></i> Hộp thư thông báo
+                    <span class="noti-badge">3</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <section class="dashboard-content">
+            
+            <!-- TAB 1: FORM NỘP HỒ SƠ -->
+            <div id="submit-tab" class="dashboard-tab active">
+                <div class="card">
+                    <h2 class="card-title">Tiếp nhận Hồ sơ Đoàn - Hội</h2>
+                    <p class="card-desc">Vui lòng điền đầy đủ thông tin và đính kèm minh chứng cần thiết. Các trường có dấu (*) là bắt buộc.</p>
+                    
+                    <form id="applicationForm" onsubmit="submitApplication(event)">
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label>Loại hồ sơ <span class="text-danger">*</span></label>
+                                <select required id="docType">
+                                    <option value="">-- Chọn loại hồ sơ --</option>
+                                    <option value="ho-so-doan">Tiếp nhận Sổ Đoàn</option>
+                                    <option value="danh-hieu">Xét danh hiệu Sinh viên 5 Tốt</option>
+                                    <option value="tinh-nguyen">Đăng ký Chiến dịch tình nguyện</option>
+                                    <option value="khac">Khác</option>
+                                </select>
+                            </div>
+                            <div class="form-group half">
+                                <label>Họ và tên <span class="text-danger">*</span></label>
+                                <input type="text" id="studentName" value="Nguyễn Văn A" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label>Mã số sinh viên <span class="text-danger">*</span></label>
+                                <input type="text" id="studentId" required placeholder="Ví dụ: 2001210001">
+                            </div>
+                            <div class="form-group half">
+                                <label>Khoa <span class="text-danger">*</span></label>
+                                <select required>
+                                    <option value="">-- Chọn Khoa --</option>
+                                    <option value="cntt">Công nghệ Thông tin</option>
+                                    <option value="qtkd">Quản trị Kinh doanh</option>
+                                    <option value="cntp">Công nghệ Thực phẩm</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nội dung/Lý do nộp hồ sơ <span class="text-danger">*</span></label>
+                            <textarea rows="4" required placeholder="Trình bày ngắn gọn nội dung..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tài liệu đính kèm (PDF, JPG, PNG) <span class="text-danger">*</span></label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" id="fileUpload" multiple required accept=".pdf, .jpg, .png, .jpeg">
+                                <div class="upload-placeholder">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Kéo thả hoặc click để chọn file</p>
+                                    <span>Dung lượng tối đa 5MB/file</span>
+                                </div>
+                            </div>
+                            <ul class="file-list" id="fileList"></ul>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+                                <i class="fas fa-paper-plane"></i> Gửi hồ sơ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB 2: LỊCH SỬ & TRẠNG THÁI -->
+            <div id="history-tab" class="dashboard-tab">
+                <div class="card">
+                    <h2 class="card-title">Hồ sơ của tôi</h2>
+                    
+                    <!-- Lịch sử hồ sơ -->
+                    <div class="history-list" id="historyList">
+                        <!-- Item 1 -->
+                        <div class="history-item">
+                            <div class="history-header">
+                                <div>
+                                    <span class="hs-id">Mã HS: HS202609001</span>
+                                    <h3 class="hs-title">Xét danh hiệu Sinh viên 5 Tốt cấp Trường</h3>
+                                    <span class="hs-date">Gửi ngày: 10/09/2026</span>
+                                </div>
+                                <div class="status-badge processing">Đang xử lý</div>
+                            </div>
+                            <!-- Timeline trạng thái -->
+                            <div class="status-timeline">
+                                <div class="timeline-step completed">
+                                    <div class="step-icon"><i class="fas fa-check"></i></div>
+                                    <div class="step-text">Đã gửi<br><small>10/09 08:30</small></div>
+                                </div>
+                                <div class="timeline-step completed">
+                                    <div class="step-icon"><i class="fas fa-user-check"></i></div>
+                                    <div class="step-text">Đã tiếp nhận<br><small>10/09 10:15</small></div>
+                                </div>
+                                <div class="timeline-step active">
+                                    <div class="step-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                                    <div class="step-text">Đang xử lý</div>
+                                </div>
+                                <div class="timeline-step">
+                                    <div class="step-icon"><i class="fas fa-flag-checkered"></i></div>
+                                    <div class="step-text">Hoàn thành</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item 2 -->
+                        <div class="history-item">
+                            <div class="history-header">
+                                <div>
+                                    <span class="hs-id">Mã HS: HS202608055</span>
+                                    <h3 class="hs-title">Tiếp nhận Sổ Đoàn viên</h3>
+                                    <span class="hs-date">Gửi ngày: 15/08/2026</span>
+                                </div>
+                                <div class="status-badge requires-action">Yêu cầu bổ sung</div>
+                            </div>
+                            <div class="alert-box">
+                                <strong><i class="fas fa-exclamation-triangle"></i> Yêu cầu từ Cán bộ:</strong> 
+                                Vui lòng chụp lại trang 3 của sổ Đoàn vì hình ảnh bị mờ không rõ mộc đỏ.
+                                <br><button class="btn btn-outline btn-small mt-2">Bổ sung ngay</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: THÔNG BÁO -->
+            <div id="noti-tab" class="dashboard-tab">
+                <div class="card">
+                    <h2 class="card-title">Hộp thư thông báo</h2>
+                    <ul class="noti-list">
+                        <li class="noti-item unread">
+                            <div class="noti-icon"><i class="fas fa-file-signature"></i></div>
+                            <div class="noti-content">
+                                <h4>Hồ sơ HS202609001 đã được tiếp nhận</h4>
+                                <p>Hồ sơ Xét danh hiệu Sinh viên 5 Tốt của bạn đã được chuyển cho cán bộ phụ trách xử lý.</p>
+                                <span class="noti-time">2 giờ trước</span>
+                            </div>
+                        </li>
+                        <li class="noti-item unread">
+                            <div class="noti-icon alert"><i class="fas fa-exclamation"></i></div>
+                            <div class="noti-content">
+                                <h4>Yêu cầu bổ sung hồ sơ HS202608055</h4>
+                                <p>Hồ sơ Tiếp nhận Sổ Đoàn viên của bạn cần bổ sung hình ảnh mộc đỏ. Vui lòng cập nhật trước 20/09/2026.</p>
+                                <span class="noti-time">1 ngày trước</span>
+                            </div>
+                        </li>
+                        <li class="noti-item">
+                            <div class="noti-icon success"><i class="fas fa-check"></i></div>
+                            <div class="noti-content">
+                                <h4>Cập nhật Điểm rèn luyện thành công</h4>
+                                <p>Điểm chiến dịch Mùa hè xanh (+10 điểm) đã được cộng vào hệ thống.</p>
+                                <span class="noti-time">3 ngày trước</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Modal Success -->
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-content success-modal">
+            <div class="modal-icon-large"><i class="fas fa-check-circle"></i></div>
+            <h2>ĐÃ TIẾP NHẬN HỒ SƠ</h2>
+            <p>Hồ sơ của bạn đã được gửi thành công lên hệ thống.</p>
+            <div class="mock-id" id="mockHsId">Mã HS: HS202609XXX</div>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">Vui lòng theo dõi tab "Lịch sử & Trạng thái" hoặc kiểm tra email để cập nhật tiến độ.</p>
+            <button class="btn btn-primary" onclick="closeSuccessModal()">Đóng</button>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>

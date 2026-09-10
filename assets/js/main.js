@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
        3. NUMBER COUNTER ANIMATION (Trang chủ)
        ========================================================================== */
     const counters = document.querySelectorAll('.stat-number');
-    const speed = 200; // Tốc độ đếm, càng nhỏ càng nhanh
+    const speed = 100; // Tốc độ đếm, càng nhỏ càng nhanh
 
     const animateCounters = () => {
         counters.forEach(counter => {
