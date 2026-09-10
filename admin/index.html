@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Trị Hồ Sơ - HUIT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #c90000; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --text-light: #64748b; --border: #e2e8f0; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--text); }
+        
+        .header { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 18px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .container { max-width: 1350px; margin: 35px auto; padding: 0 20px; }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); border: 1px solid var(--border); }
+        
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; margin-top: 20px; }
+        th, td { padding: 16px 18px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        th { background: #f8fafc; color: var(--text-light); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; }
+        tr:hover { background: #fdf2f2; }
+        
+        .btn { padding: 8px 14px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: transform 0.1s ease; }
+        .btn:active { transform: scale(0.96); }
+        .btn-success { background: #10b981; color: #fff; box-shadow: 0 2px 4px rgba(16,185,129,0.2); }
+        .btn-warning { background: #f59e0b; color: #fff; box-shadow: 0 2px 4px rgba(245,158,11,0.2); }
+        .btn-primary { background: var(--primary); color: #fff; padding: 10px 20px; font-size: 0.9rem; border-radius: 10px; }
+        .badge { padding: 6px 14px; border-radius: 30px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+
+        /* CSS POPUP XÁC NHẬN (MODAL) */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-box { background: #fff; padding: 30px; border-radius: 16px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); animation: scaleUp 0.2s ease; }
+        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 10px; height: 32px; background: var(--primary); border-radius: 4px;"></div>
+            <div>
+                <div style="font-weight: 800; font-size: 1.15rem; color: var(--primary);">QUẢN TRỊ ĐOÀN - HỘI HUIT</div>
+                <div style="font-size: 0.8rem; color: var(--text-light); font-weight: 500;">Hệ thống tiếp nhận & duyệt hồ sơ trực tuyến</div>
+            </div>
+        </div>
+        <div>
+            <button onclick="fetchData()" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Làm mới dữ liệu</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h1 style="font-size: 1.3rem; font-weight: 700; margin: 0; color: #0f172a;">Danh sách hồ sơ sinh viên gửi về</h1>
+                <span id="totalCount" style="color: var(--text-light); font-weight: 600; font-size: 0.9rem; background: #f1f5f9; padding: 6px 14px; border-radius: 20px;">Đang tải...</span>
+            </div>
+            <p style="color: var(--text-light); font-size: 0.9rem; margin-top: 0; margin-bottom: 20px;">Xử lý, duyệt hồ sơ và gửi thông báo tự động tới sinh viên.</p>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã HS</th>
+                            <th>Sinh viên</th>
+                            <th>Loại hồ sơ</th>
+                            <th>Tệp đính kèm</th>
+                            <th>Nội dung</th>
+                            <th>Trạng thái</th>
+                            <th style="text-align: center;">Thao tác duyệt Web</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-light);"><i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i><p style="margin-top:10px;">Đang đồng bộ dữ liệu...</p></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL POPUP XÁC NHẬN -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box">
+            <div id="modalIcon" style="font-size: 3rem; margin-bottom: 15px;"></div>
+            <h3 id="modalTitle" style="font-size: 1.25rem; font-weight: 700; margin: 0 0 10px 0;">Xác nhận thao tác</h3>
+            <p id="modalDesc" style="color: var(--text-light); font-size: 0.95rem; margin-bottom: 25px;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="closeModal()" class="btn" style="flex: 1; justify-content: center; background: #e2e8f0; color: #334155; padding: 12px;">Hủy bỏ</button>
+                <button id="modalConfirmBtn" class="btn btn-primary" style="flex: 1; justify-content: center; padding: 12px;">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIC XỬ LÝ JAVASCRIPT & FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBb9d1i-syb6cL0y_N6nC0Wi23GKlDoVs",
+            authDomain: "huit-youth-portal.firebaseapp.com",
+            projectId: "huit-youth-portal",
+            storageBucket: "huit-youth-portal.firebasestorage.app",
+            messagingSenderId: "78373587861",
+            appId: "1:78373587861:web:1b831d502820f23558c49c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const API_URL = "https://script.google.com/macros/s/AKfycbwRHgVVKJWFq0HCpEQkEyhse0WDL8tDx23HD8wZwEo5oxzGYTN1qYoz099MJ4ThsQKL/exec";
+
+        let currentSelectedId = null;
+        let currentSelectedStatus = null;
+
+        // Tải danh sách hồ sơ từ Google Sheet lên bảng quản trị
+        window.fetchData = async function() {
+            const tbody = document.getElementById('tableBody');
+            const totalCount = document.getElementById('totalCount');
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px; color: #0284c7;"><i class="fas fa-spinner fa-spin fa-2x"></i><p style="margin-top:10px;">Đang tải danh sách...</p></td></tr>`;
+
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+
+                if (!result || result.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 40px; color: #888;">Chưa có hồ sơ nào.</td></tr>`;
+                    totalCount.innerText = "Tổng số: 0 hồ sơ";
+                    return;
+                }
+
+                totalCount.innerText = `Tổng số: ${result.length} hồ sơ`;
+                tbody.innerHTML = '';
+
+                result.reverse().forEach(item => {
+                    let badgeBg = "#e0f2fe", badgeColor = "#0369a1", icon = "fa-clock";
+                    if (item.status === "Hoàn thành") { badgeBg = "#dcfce7"; badgeColor = "#15803d"; icon = "fa-check-circle"; }
+                    else if (item.status === "Yêu cầu bổ sung") { badgeBg = "#fef3c7"; badgeColor = "#b45309"; icon = "fa-exclamation-triangle"; }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="font-weight: 700; color: var(--primary); font-family: monospace; font-size: 0.95rem;">${item.id}</td>
+                            <td>
+                                <div style="font-weight: 600; color: var(--text);">${item.name}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-light);">MSSV: ${item.studentId}</div>
+                                <div style="font-size: 0.75rem; color: #94a3b8;">${item.email}</div>
+                            </td>
+                            <td style="font-weight: 500; color: #334155;">${item.docType}</td>
+                            <td><div style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; display: inline-block; font-size: 0.85rem;"><i class="fas fa-paperclip" style="color: var(--text-light);"></i> ${item.fileName || 'Không'}</div></td>
+                            <td style="max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #475569;" title="${item.reason}">${item.reason}</td>
+                            <td><span class="badge" style="background: ${badgeBg}; color: ${badgeColor};"><i class="fas ${icon}"></i> ${item.status}</span></td>
+                            <td style="text-align: center;">
+                                <button onclick="openModal('${item.id}', 'Hoàn thành')" class="btn btn-success"><i class="fas fa-check"></i> Hoàn thành</button>
+                                <button onclick="openModal('${item.id}', 'Yêu cầu bổ sung')" class="btn btn-warning"><i class="fas fa-exclamation-triangle"></i> Bổ sung</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red; padding: 40px;">Lỗi tải dữ liệu: ${err.message}</td></tr>`;
+            }
+        };
+
+        // Mở khung Popup xác nhận
+        window.openModal = function(id, status) {
+            currentSelectedId = id;
+            currentSelectedStatus = status;
+            
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDesc = document.getElementById('modalDesc');
+            const modalIcon = document.getElementById('modalIcon');
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+
+            if (status === 'Hoàn thành') {
+                modalIcon.innerHTML = '<i class="fas fa-check-circle" style="color: #10b981;"></i>';
+                modalTitle.innerText = "Xác nhận hoàn thành hồ sơ";
+                modalDesc.innerHTML = `Hồ sơ <b>${id}</b> sẽ được chuyển sang trạng thái <b>Hoàn thành</b>.<br>Hệ thống sẽ đồng thời gửi Email tự động cho sinh viên.`;
+                confirmBtn.style.background = "#10b981";
+            } else {
+                modalIcon.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>';
+                modalTitle.innerText = "Yêu cầu bổ sung hồ sơ";
+                modalDesc.innerHTML = `Hồ sơ <b>${id}</b> sẽ được chuyển sang trạng thái <b>Yêu cầu bổ sung</b>.`;
+                confirmBtn.style.background = "#f59e0b";
+            }
+
+            document.getElementById('confirmModal').style.display = 'flex';
+        };
+
+        // Đóng khung Popup xác nhận
+        window.closeModal = function() {
+            document.getElementById('confirmModal').style.display = 'none';
+        };
+
+        // Khi người dùng bấm nút Xác nhận trong Popup
+        document.getElementById('modalConfirmBtn').onclick = async function() {
+            closeModal();
+            const id = currentSelectedId;
+            const newStatus = currentSelectedStatus;
+
+            try {
+                // 1. Cập nhật Google Sheet và kích hoạt gửi Email thông báo tự động
+                await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: "updateStatus", id: id, newStatus: newStatus })
+                });
+
+                // 2. Đồng thời cập nhật trạng thái trên Firebase Firestore để tab Lịch sử của sinh viên đổi theo chuẩn xác
+                const querySnapshot = await getDocs(collection(db, "applications"));
+                querySnapshot.forEach(async (document) => {
+                    const docId = document.id;
+                    const generatedShortId = "HS" + docId.substring(0, 8).toUpperCase();
+                    
+                    if (generatedShortId === id) {
+                        const docRef = doc(db, "applications", docId);
+                        await updateDoc(docRef, { status: newStatus });
+                    }
+                });
+
+                alert(`Đã duyệt thành công hồ sơ ${id} thành "${newStatus}"! (Google Sheet, Email và Lịch sử sinh viên đã được đồng bộ).`);
+                window.fetchData();
+            } catch (err) {
+                alert("Lỗi khi cập nhật: " + err.message);
+                window.fetchData();
+            }
+        };
+
+        // Tự động load dữ liệu ngay khi mở trang Admin
+        window.onload = window.fetchData;
+    </script>
+</body>
+</html>

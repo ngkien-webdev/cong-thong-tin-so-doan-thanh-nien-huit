@@ -3,380 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đoàn Thanh niên HUIT - Cổng thông tin điện tử</title>
-    <meta name="description" content="Cổng thông tin điện tử chính thức của Đoàn Thanh niên Trường Đại học Công Thương TP.HCM (HUIT).">
+    <title>Cổng thông tin số - Đoàn Thanh niên - Hội Sinh viên HUIT</title>
     
-    <!-- CSS -->
+    <!-- CSS Toàn cục & Trang chủ -->
     <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     
-    <!-- Icons (FontAwesome) -->
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- HEADER UPDATE -->
-<header class="site-header" id="header">
-    <div class="container header-inner">
-        <div class="logo-container">
-            <a href="/">
-                <!-- Thêm logo thật vào src -->
-                <img src="assets/images/logo-huit-doan.png" alt="Logo">
-                <div class="logo-text">
-                    ĐOÀN THANH NIÊN - HỘI SINH VIÊN
-                    <span>TRƯỜNG ĐẠI HỌC CÔNG THƯƠNG TP.HCM</span>
-                </div>
-            </a>
+    <!-- HEADER CHÍNH -->
+    <header class="site-header" id="header">
+        <div class="container header-inner">
+            <div class="logo-container">
+                <a href="index.html">
+                    <img src="assets/images/logo-huit-doan.png" alt="Logo Đoàn HUIT">
+                    <div class="logo-text">
+                        ĐOÀN THANH NIÊN - HỘI SINH VIÊN
+                        <span>TRƯỜNG ĐẠI HỌC CÔNG THƯƠNG TP.HCM</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="main-nav" id="mainNav">
+                <ul>
+                    <li><a href="index.html" class="active">Trang chủ</a></li>
+                    <li><a href="van-hoa-hcm/index.html">Không gian VH HCM</a></li>
+                    <li><a href="ho-so/index.html">Hồ sơ</a></li>
+                    <li><a href="faq/index.html">FAQ</a></li>
+                    <li><a href="diem-ren-luyen/index.html">Điểm rèn luyện</a></li>
+                    <li><a href="vinh-quang/index.html">Vinh quang</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                <a href="ho-so/login.html" class="btn btn-primary">Đăng nhập</a>
+                <button class="mobile-toggle" id="mobileToggle"><i class="fas fa-bars"></i></button>
+            </div>
         </div>
+    </header>
 
-        <nav class="main-nav" id="mainNav">
-            <ul>
-                <li><a href="/" class="active">Trang chủ</a></li>
-                <li><a href="/van-hoa-hcm">Văn hóa HCM</a></li>
-                <li><a href="/ho-so">Hồ sơ</a></li>
-                <li><a href="/faq">FAQ</a></li>
-                <li><a href="/diem-ren-luyen">Điểm rèn luyện</a></li>
-                <li><a href="/vinh-quang">Vinh quang</a></li>
-            </ul>
-        </nav>
+    <!-- HERO BANNER SECTION -->
+    <section class="hero-section">
+        <div class="container hero-content">
+            <span class="hero-badge">CỔNG THÔNG TIN SỐ CHÍNH THỨC</span>
+            <h1>ĐOÀN THANH NIÊN - HỘI SINH VIÊN HUIT</h1>
+            <p>Nền tảng chuyển đổi số toàn diện hỗ trợ sinh viên tra cứu thông tin, nộp hồ sơ trực tuyến, cập nhật điểm rèn luyện và theo dõi các phong trào tuổi trẻ HUIT.</p>
+            <div class="hero-buttons">
+                <a href="ho-so/index.html" class="btn btn-accent"><i class="fas fa-file-alt"></i> Nộp hồ sơ trực tuyến</a>
+                <a href="diem-ren-luyen/index.html" class="btn btn-outline" style="color:#fff; border-color:#fff;"><i class="fas fa-search"></i> Tra cứu điểm rèn luyện</a>
+            </div>
+        </div>
+    </section>
 
-        <div class="header-actions">
-            <button class="search-btn" aria-label="Tìm kiếm"><i class="fas fa-search"></i></button>
-            <a href="/ho-so/login.html" class="btn btn-primary">Đăng nhập</a>
-            <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
-                <i class="fas fa-bars"></i>
+    <!-- PHẦN THỐNG KÊ SỐ LIỆU (COUNTER) -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="15000">0</div>
+                    <div class="stat-label">Đoàn viên - Sinh viên</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="35">0</div>
+                    <div class="stat-label">Liên chi Đoàn trực thuộc</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="120">0</div>
+                    <div class="stat-label">Hoạt động lớn mỗi năm</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="98">0</div>
+                    <div class="stat-label">% Sinh viên hài lòng</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PHẦN TIN TỨC & THÔNG BÁO MỚI NHẤT -->
+    <section class="news-section container" style="padding: 60px 20px;">
+        <div class="section-header-flex" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
+            <div>
+                <span style="color: var(--primary-red); font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;">Cập nhật liên tục</span>
+                <h2 style="font-size: 2rem; color: #1e293b; margin-top: 5px;">Tin tức & Thông báo mới nhất</h2>
+            </div>
+            <button onclick="openAllNewsModal()" class="btn btn-outline" style="border-radius: 30px; font-size: 0.9rem;">
+                Xem tất cả <i class="fas fa-arrow-right"></i>
             </button>
         </div>
-    </div>
-</header>
 
-    <!-- MAIN CONTENT -->
-    <main>
-        <!-- HERO SECTION -->
-        <section class="hero">
-            <div class="container">
-                <div class="hero-content">
-                    <h1>Tuổi trẻ HUIT <br><span>Tiên phong - Bản lĩnh - Sáng tạo - Cống hiến</span></h1>
-                    <p>Chào mừng đến với Cổng thông tin điện tử chính thức của Đoàn Thanh niên - Hội Sinh viên Trường Đại học Công Thương TP.HCM. Nơi kết nối, hỗ trợ và phát triển toàn diện sinh viên.</p>
-                    <div class="hero-buttons">
-                        <a href="ho-so/index.html" class="btn btn-primary">Nộp hồ sơ ngay</a>
-                        <a href="faq/index.html" class="btn btn-accent">Tìm hiểu thêm</a>
-                    </div>
+        <div class="news-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px;">
+            <!-- Tin 1 -->
+            <div class="news-card" onclick="openNewsDetail(1)" style="background: #fff; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">
+                <div style="height: 200px; background: #e2e8f0; position: relative; overflow: hidden;">
+                    <img src="assets/images/hero-bg.jpg" alt="News" style="width: 100%; height: 100%; object-fit: cover;">
+                    <span style="position: absolute; top: 15px; left: 15px; background: var(--primary-red); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Thông báo</span>
+                </div>
+                <div style="padding: 20px;">
+                    <span style="font-size: 0.8rem; color: #64748b;"><i class="far fa-calendar-alt"></i> 10/09/2026</span>
+                    <h3 style="font-size: 1.15rem; color: #1e293b; margin: 10px 0; line-height: 1.4;">Kế hoạch tổ chức chiến dịch tình nguyện Mùa hè xanh HUIT năm 2026</h3>
+                    <p style="font-size: 0.9rem; color: #64748b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Thực hiện chương trình công tác Đoàn và phong trào thanh niên trường Đại học Công Thương TP.HCM...</p>
                 </div>
             </div>
-        </section>
 
-        <!-- STATS SECTION -->
-        <section class="stats">
-            <div class="container">
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number" data-target="10000">0</div>
-                        <div class="stat-label">Sinh viên</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" data-target="500">0</div>
-                        <div class="stat-label">Hoạt động/Năm</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" data-target="1200">0</div>
-                        <div class="stat-label">Hồ sơ tiếp nhận</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number" data-target="150">0</div>
-                        <div class="stat-label">Cá nhân tiêu biểu</div>
-                    </div>
+            <!-- Tin 2 -->
+            <div class="news-card" onclick="openNewsDetail(2)" style="background: #fff; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">
+                <div style="height: 200px; background: #e2e8f0; position: relative; overflow: hidden;">
+                    <img src="assets/images/hero-bg.jpg" alt="News" style="width: 100%; height: 100%; object-fit: cover;">
+                    <span style="position: absolute; top: 15px; left: 15px; background: #0284c7; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Hoạt động</span>
+                </div>
+                <div style="padding: 20px;">
+                    <span style="font-size: 0.8rem; color: #64748b;"><i class="far fa-calendar-alt"></i> 08/09/2026</span>
+                    <h3 style="font-size: 1.15rem; color: #1e293b; margin: 10px 0; line-height: 1.4;">Hội thảo hướng dẫn phương pháp nghiên cứu khoa học cho sinh viên IT</h3>
+                    <p style="font-size: 0.9rem; color: #64748b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Nhằm đẩy mạnh phong trào học tập, sáng tạo và nghiên cứu khoa học trong khối sinh viên...</p>
                 </div>
             </div>
-        </section>
 
-        <!-- NEWS SECTION -->
-        <section class="news">
-            <div class="container">
-                <h2 class="section-title">Tin tức mới nhất</h2>
-                <div class="news-grid">
-                    <!-- News Card 1 -->
-                    <article class="news-card">
-                        <div class="news-img">
-                            <span class="news-category">Phong trào</span>
-                            <img src="https://via.placeholder.com/400x250/eeeeee/333333?text=Tin+tuc+1" alt="Tin tức 1">
-                        </div>
-                        <div class="news-content">
-                            <span class="news-date"><i class="far fa-calendar-alt"></i> 05/09/2026</span>
-                            <h3 class="news-title"><a href="#">Phát động Chiến dịch Mùa hè xanh 2026 với hơn 1000 chiến sĩ</a></h3>
-                            <p class="news-desc">Sáng nay, tại Hội trường C, Ban Thường vụ Đoàn trường đã chính thức làm lễ ra quân chiến dịch Mùa hè xanh...</p>
-                        </div>
-                    </article>
-                    <!-- News Card 2 -->
-                    <article class="news-card">
-                        <div class="news-img">
-                            <span class="news-category">Học thuật</span>
-                            <img src="https://via.placeholder.com/400x250/eeeeee/333333?text=Tin+tuc+2" alt="Tin tức 2">
-                        </div>
-                        <div class="news-content">
-                            <span class="news-date"><i class="far fa-calendar-alt"></i> 02/09/2026</span>
-                            <h3 class="news-title"><a href="#">Cuộc thi Khởi nghiệp HUIT Startup 2026 chính thức nhận hồ sơ</a></h3>
-                            <p class="news-desc">Cơ hội để các bạn sinh viên hiện thực hóa ý tưởng kinh doanh và nhận được nguồn vốn đầu tư lên đến 50 triệu đồng...</p>
-                        </div>
-                    </article>
-                    <!-- News Card 3 -->
-                    <article class="news-card">
-                        <div class="news-img">
-                            <span class="news-category">Thông báo</span>
-                            <img src="https://via.placeholder.com/400x250/eeeeee/333333?text=Tin+tuc+3" alt="Tin tức 3">
-                        </div>
-                        <div class="news-content">
-                            <span class="news-date"><i class="far fa-calendar-alt"></i> 28/08/2026</span>
-                            <h3 class="news-title"><a href="#">Hướng dẫn cập nhật Điểm rèn luyện Học kỳ 2 Năm học 2025-2026</a></h3>
-                            <p class="news-desc">Sinh viên theo dõi hướng dẫn chi tiết về quy trình và thời gian nộp minh chứng điểm rèn luyện trực tuyến...</p>
-                        </div>
-                    </article>
+            <!-- Tin 3 -->
+            <div class="news-card" onclick="openNewsDetail(3)" style="background: #fff; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); cursor: pointer; transition: var(--transition);">
+                <div style="height: 200px; background: #e2e8f0; position: relative; overflow: hidden;">
+                    <img src="assets/images/hero-bg.jpg" alt="News" style="width: 100%; height: 100%; object-fit: cover;">
+                    <span style="position: absolute; top: 15px; left: 15px; background: #10b981; color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Sinh viên 5 tốt</span>
                 </div>
-                <div class="text-center">
-                    <a href="#" class="btn btn-outline">Xem tất cả tin tức</a>
+                <div style="padding: 20px;">
+                    <span style="font-size: 0.8rem; color: #64748b;"><i class="far fa-calendar-alt"></i> 05/09/2026</span>
+                    <h3 style="font-size: 1.15rem; color: #1e293b; margin: 10px 0; line-height: 1.4;">Triển khai xét chọn danh hiệu "Sinh viên 5 tốt" cấp trường năm học 2025-2026</h3>
+                    <p style="font-size: 0.9rem; color: #64748b; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Hội Sinh viên trường thông báo tiêu chuẩn và tiến độ nộp hồ sơ xét chọn danh hiệu Sinh viên 5 tốt...</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- ACTIVITIES SECTION -->
-        <section class="activities">
-            <div class="container">
-                <h2 class="section-title">Hoạt động nổi bật</h2>
-                <div class="activity-grid">
-                    <div class="activity-card">
-                        <img src="https://via.placeholder.com/300x400/dddddd/333333?text=Tinh+nguyen" alt="Tình nguyện">
-                        <div class="activity-overlay">
-                            <h3>Tình nguyện</h3>
-                        </div>
-                    </div>
-                    <div class="activity-card">
-                        <img src="https://via.placeholder.com/300x400/dddddd/333333?text=Hoc+thuat" alt="Học thuật">
-                        <div class="activity-overlay">
-                            <h3>Học thuật & Sáng tạo</h3>
-                        </div>
-                    </div>
-                    <div class="activity-card">
-                        <img src="https://via.placeholder.com/300x400/dddddd/333333?text=Van+The+My" alt="Văn thể mỹ">
-                        <div class="activity-overlay">
-                            <h3>Văn - Thể - Mỹ</h3>
-                        </div>
-                    </div>
-                    <div class="activity-card">
-                        <img src="https://via.placeholder.com/300x400/dddddd/333333?text=Hoi+nhap" alt="Hội nhập">
-                        <div class="activity-overlay">
-                            <h3>Hội nhập quốc tế</h3>
-                        </div>
-                    </div>
-                </div>
+    <!-- MODAL XEM CHI TIẾT TIN TỨC (POPUP NHỎ) -->
+    <div id="newsModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #fff; border-radius: 16px; max-width: 650px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 30px; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+            <button onclick="closeNewsModal()" style="position: absolute; top: 20px; right: 20px; background: #f1f5f9; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fas fa-times"></i></button>
+            <span id="modalCategory" style="background: var(--primary-red); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Thông báo</span>
+            <h2 id="modalTitle" style="font-size: 1.5rem; color: #1e293b; margin: 15px 0 10px 0; line-height: 1.3;">Tiêu đề bài viết chi tiết</h2>
+            <p id="modalDate" style="font-size: 0.85rem; color: #64748b; margin-bottom: 20px;"><i class="far fa-calendar-alt"></i> Ngày đăng: 10/09/2026</p>
+            <div id="modalContent" style="font-size: 0.95rem; color: #334155; line-height: 1.7;">
+                Nội dung chi tiết bài viết sẽ được load tại đây...
             </div>
-        </section>
-
- <!-- HALL OF FAME SECTION (Cập nhật giao diện mới) -->
-        <section class="fame" style="padding: 80px 0; background-color: var(--bg-light);">
-            <div class="container">
-                <h2 class="section-title">Vinh quang thành tích</h2>
-                
-                <div class="grid-container">
-                    <!-- Thẻ 1 -->
-                    <div class="honor-card card-bac" onclick="openModal('modal-bac')">
-                        <div class="sunburst"></div>
-                        <svg class="card-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#gold-grad)"/>
-                            <defs><linearGradient id="gold-grad" x1="12" y1="2" x2="12" y2="21" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF59D"/><stop offset="0.5" stop-color="#FFD54F"/><stop offset="1" stop-color="#F57F17"/></linearGradient></defs>
-                        </svg>
-                        <h3 class="card-title">Thanh Niên Tiên Tiến<br>Làm Theo Lời Bác</h3>
-                        <div class="card-action">Xem danh sách &raquo;</div>
-                    </div>
-
-                    <!-- Thẻ 2 -->
-                    <div class="honor-card card-doan" onclick="openModal('modal-doan')">
-                        <div class="sunburst"></div>
-                        <img src="https://upload.wikimedia.org/wikipedia/vi/0/09/Huy_Hi%E1%BB%87u_%C4%90o%C3%A0n.png" alt="Huy hiệu Đoàn" class="card-logo">
-                        <h3 class="card-title">Cán Bộ Đoàn - Hội<br>Tiêu Biểu</h3>
-                        <div class="card-action">Xem danh sách &raquo;</div>
-                    </div>
-
-                    <!-- Thẻ 3 -->
-                    <div class="honor-card card-hoi" onclick="openModal('modal-hoi')">
-                        <div class="sunburst"></div>
-                        <img src="https://upload.wikimedia.org/wikipedia/vi/thumb/d/dd/Huy_hi%E1%BB%87u_H%E1%BB%99i_SVVN.svg/1280px-Huy_hi%E1%BB%87u_H%E1%BB%99i_SVVN.svg.png" alt="Huy hiệu Hội Sinh viên" class="card-logo">
-                        <h3 class="card-title">Sinh Viên 5 Tốt Tiêu Biểu<br>Cấp Trường</h3>
-                        <div class="card-action">Xem danh sách &raquo;</div>
-                    </div>
-
-                    <!-- Thẻ 4 -->
-                    <div class="honor-card card-giaovien" onclick="openModal('modal-giaovien')">
-                        <div class="sunburst"></div>
-                        <svg class="card-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 3L1 9L5 11.18V17.18L12 21L19 17.18V11.18L21 10.09V17H23V9L12 3ZM18.82 9L12 12.72L5.18 9L12 5.28L18.82 9ZM17 15.95L12 18.72L7 15.95V12.27L12 15L17 12.27V15.95Z" fill="url(#purple-grad)"/>
-                            <defs>
-                                <linearGradient id="purple-grad" x1="12" y1="3" x2="12" y2="21" gradientUnits="userSpaceOnUse">
-                                    <stop stop-color="#E1BEE7"/>
-                                    <stop offset="0.5" stop-color="#BA68C8"/>
-                                    <stop offset="1" stop-color="#F3E5F5"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <h3 class="card-title">Nhà Giáo Trẻ<br>Tiêu Biểu</h3>
-                        <div class="card-action">Xem danh sách &raquo;</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- MODAL & LIGHTBOX (Đặt ngay dưới section.fame) -->
-        <!-- CÁC POPUP (MODALS) -->
-    <div id="modal-bac" class="modal-overlay" onclick="closeOutside(event, 'modal-bac')">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-bac')">&times;</span>
-            <h2 class="modal-header">Thanh Niên Tiên Tiến Làm Theo Lời Bác</h2>
-            <div class="image-gallery">
-                <img src="https://i.postimg.cc/GpPgNkSY/1.png" alt="Thanh niên tiên tiến 1">
-                <img src="https://i.postimg.cc/8ccyjxkf/10.png" alt="Thanh niên tiên tiến 2">
-                <img src="https://i.postimg.cc/7hhBfjPM/11.png" alt="Thanh niên tiên tiến 3">
-                <img src="https://i.postimg.cc/5yrsvpjB/12.png" alt="Thanh niên tiên tiến 4">
-                <img src="https://i.postimg.cc/BZ7YdZNS/13.png" alt="Thanh niên tiên tiến 5">
-                <img src="https://i.postimg.cc/qqF1nQgP/14.png" alt="Thanh niên tiên tiến 6">
-                <img src="https://i.postimg.cc/J7Y697KG/15.png" alt="Thanh niên tiên tiến 7">
-                <img src="https://i.postimg.cc/026WxgHH/16.png" alt="Thanh niên tiên tiến 8">
-                <img src="https://i.postimg.cc/13wvnGS2/17.png" alt="Thanh niên tiên tiến 9">
-                <img src="https://i.postimg.cc/hGnp9XPS/18.png" alt="Thanh niên tiên tiến 10">
-                <img src="https://i.postimg.cc/MGwdynK6/19.png" alt="Thanh niên tiên tiến 11">
-                <img src="https://i.postimg.cc/hjSZqfHj/2.png" alt="Thanh niên tiên tiến 12">
-                <img src="https://i.postimg.cc/MGwdynKG/20.png" alt="Thanh niên tiên tiến 13">
-                <img src="https://i.postimg.cc/PqMKKdPt/21.png" alt="Thanh niên tiên tiến 14">
-                <img src="https://i.postimg.cc/pTXC63Fg/22.png" alt="Thanh niên tiên tiến 15">
-                <img src="https://i.postimg.cc/Y9qRsTW5/23.png" alt="Thanh niên tiên tiến 16">
-                <img src="https://i.postimg.cc/x8XR0Hg8/24.png" alt="Thanh niên tiên tiến 17">
-                <img src="https://i.postimg.cc/0jzf8mZm/25.png" alt="Thanh niên tiên tiến 18">
-                <img src="https://i.postimg.cc/sfLmT6Dw/26.png" alt="Thanh niên tiên tiến 19">
-                <img src="https://i.postimg.cc/4Nh5q6YN/27.png" alt="Thanh niên tiên tiến 20">
-                <img src="https://i.postimg.cc/15NH2G8Q/28.png" alt="Thanh niên tiên tiến 21">
-                <img src="https://i.postimg.cc/GhsQVF4t/29.png" alt="Thanh niên tiên tiến 22">
-                <img src="https://i.postimg.cc/XJV10pTX/3.png" alt="Thanh niên tiên tiến 23">
-                <img src="https://i.postimg.cc/9Q5phD9X/30.png" alt="Thanh niên tiên tiến 24">
-                <img src="https://i.postimg.cc/B6q7GXdP/4.png" alt="Thanh niên tiên tiến 25">
-                <img src="https://i.postimg.cc/d1qNKLzX/5.png" alt="Thanh niên tiên tiến 26">
-                <img src="https://i.postimg.cc/zB0tDqrp/6.png" alt="Thanh niên tiên tiến 27">
-                <img src="https://i.postimg.cc/vB3q8Gs2/7.png" alt="Thanh niên tiên tiến 28">
-                <img src="https://i.postimg.cc/sXw6f3zs/8.png" alt="Thanh niên tiên tiến 29">
-                <img src="https://i.postimg.cc/cCCDrP1n/9.png" alt="Thanh niên tiên tiến 30">
+            <div style="margin-top: 30px; text-align: right;">
+                <button onclick="closeNewsModal()" class="btn btn-primary" style="padding: 8px 20px; font-size: 0.9rem;">Đóng</button>
             </div>
         </div>
     </div>
 
-    <div id="modal-doan" class="modal-overlay" onclick="closeOutside(event, 'modal-doan')">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-doan')">&times;</span>
-            <h2 class="modal-header" style="color: #1976d2;">Cán Bộ Đoàn - Hội Tiêu Biểu</h2>
-            <div class="image-gallery">
-                <img src="https://i.postimg.cc/YCnxZdtZ/1.png" alt="Cán bộ Đoàn Hội 1">
-                <img src="https://i.postimg.cc/HxC8hM87/10.png" alt="Cán bộ Đoàn Hội 2">
-                <img src="https://i.postimg.cc/V6c0Vt02/11.png" alt="Cán bộ Đoàn Hội 3">
-                <img src="https://i.postimg.cc/QNmKfH8T/12.png" alt="Cán bộ Đoàn Hội 4">
-                <img src="https://i.postimg.cc/ncLjgprg/13.png" alt="Cán bộ Đoàn Hội 5">
-                <img src="https://i.postimg.cc/cLgK1hQ8/14.png" alt="Cán bộ Đoàn Hội 6">
-                <img src="https://i.postimg.cc/MpMcZ5yb/15.png" alt="Cán bộ Đoàn Hội 7">
-                <img src="https://i.postimg.cc/Hn9w22Sn/2.png" alt="Cán bộ Đoàn Hội 8">
-                <img src="https://i.postimg.cc/5Nfqth0Y/3.png" alt="Cán bộ Đoàn Hội 9">
-                <img src="https://i.postimg.cc/NG6kBsg9/4.png" alt="Cán bộ Đoàn Hội 10">
-                <img src="https://i.postimg.cc/Sxs66cc2/6.png" alt="Cán bộ Đoàn Hội 12">
-                <img src="https://i.postimg.cc/85hMp4gH/7.png" alt="Cán bộ Đoàn Hội 13">
-                <img src="https://i.postimg.cc/NjSHRSgb/8.png" alt="Cán bộ Đoàn Hội 14">
-                <img src="https://i.postimg.cc/Z5CNB4hN/9.png" alt="Cán bộ Đoàn Hội 15">
-                <img src="https://i.postimg.cc/jqB2gPVN/16.png" alt="Cán bộ Đoàn Hội 16">
-                <img src="https://i.postimg.cc/RFySY5Dp/17.png" alt="Cán bộ Đoàn Hội 17">
-                <img src="https://i.postimg.cc/HnMYDvG8/18.png" alt="Cán bộ Đoàn Hội 18">
-                <img src="https://i.postimg.cc/7PJY2hCY/19.png" alt="Cán bộ Đoàn Hội 19">
-                <img src="https://i.postimg.cc/8PVDfHQm/20.png" alt="Cán bộ Đoàn Hội 20">
-                <img src="https://i.postimg.cc/jdQTH7RS/21.png" alt="Cán bộ Đoàn Hội 21">
-                <img src="https://i.postimg.cc/43MRfvQd/22.png" alt="Cán bộ Đoàn Hội 22">
-                <img src="https://i.postimg.cc/SK5bSLf3/23.png" alt="Cán bộ Đoàn Hội 23">
+    <!-- MODAL XEM TẤT CẢ TIN TỨC -->
+    <div id="allNewsModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #fff; border-radius: 16px; max-width: 900px; width: 100%; height: 80vh; overflow-y: auto; padding: 30px; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;">
+                <h2 style="font-size: 1.4rem; color: #1e293b;"><i class="fas fa-newspaper" style="color: var(--primary-red);"></i> Tất cả Tin tức & Thông báo</h2>
+                <button onclick="closeAllNewsModal()" style="background: #f1f5f9; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="allNewsList" style="display: flex; flex-direction: column; gap: 15px; overflow-y: auto; flex-grow: 1;">
+                <!-- Danh sách đầy đủ tin tức -->
             </div>
         </div>
     </div>
 
-    <div id="modal-hoi" class="modal-overlay" onclick="closeOutside(event, 'modal-hoi')">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-hoi')">&times;</span>
-            <h2 class="modal-header" style="color: #00acc1;">Sinh Viên 5 Tốt Tiêu Biểu Cấp Trường</h2>
-            <div class="image-gallery">
-                <img src="https://i.postimg.cc/5N6CRbkx/1.png" alt="Sinh viên 5 tốt 1">
-                <img src="https://i.postimg.cc/QN67mHmP/2.png" alt="Sinh viên 5 tốt 2">
-                <img src="https://i.postimg.cc/kMjSsBw3/3.png" alt="Sinh viên 5 tốt 3">
-                <img src="https://i.postimg.cc/2jHWGVTY/4.png" alt="Sinh viên 5 tốt 4">
-                <img src="https://i.postimg.cc/bvjSrbYy/5.png" alt="Sinh viên 5 tốt 5">
-                <img src="https://i.postimg.cc/1zZVX6R4/6.png" alt="Sinh viên 5 tốt 6">
-                <img src="https://i.postimg.cc/TPX51m2K/7.png" alt="Sinh viên 5 tốt 7">
-                <img src="https://i.postimg.cc/7LyJh7P2/8.png" alt="Sinh viên 5 tốt 8">
-                <img src="https://i.postimg.cc/YSfGW9j3/9.png" alt="Sinh viên 5 tốt 9">
-                <img src="https://i.postimg.cc/j5xWQb7L/10.png" alt="Sinh viên 5 tốt 10">
-                <img src="https://i.postimg.cc/C1hZHgqy/11.png" alt="Sinh viên 5 tốt 11">
-            </div>
-        </div>
-    </div>
-
-    <div id="modal-giaovien" class="modal-overlay" onclick="closeOutside(event, 'modal-giaovien')">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-giaovien')">&times;</span>
-            <h2 class="modal-header" style="color: #9c27b0;">Nhà Giáo Trẻ Tiêu Biểu</h2>
-            <div class="image-gallery">
-                <img src="https://i.postimg.cc/3Rq6Fn0X/1.png" alt="Nhà giáo trẻ 1">
-                <img src="https://i.postimg.cc/KzWVDJ3n/2.png" alt="Nhà giáo trẻ 2">
-                <img src="https://i.postimg.cc/V6hTWD0W/3.png" alt="Nhà giáo trẻ 3">
-                <img src="https://i.postimg.cc/ZRQgxVvL/4.png" alt="Nhà giáo trẻ 4">
-                <img src="https://i.postimg.cc/br25Ck13/5.png" alt="Nhà giáo trẻ 5">
-            </div>
-        </div>
-    </div>
-
-    <!-- KHUNG XEM ẢNH PHÓNG TO (LIGHTBOX) -->
-    <div id="image-lightbox" class="lightbox-overlay" onclick="closeLightbox(event)">
-        <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
-        <img id="lightbox-img" src="" alt="Ảnh phóng to">
-    </div>
-
-        <!-- Lightbox xem ảnh -->
-        <div id="image-lightbox" class="lightbox-overlay" onclick="closeLightbox(event)">
-            <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
-            <img id="lightbox-img" src="" alt="Ảnh phóng to">
-        </div>
-    </main>
-
-    <!-- FOOTER -->
+    <!-- FOOTER CHÍNH -->
     <footer class="site-footer">
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <h4>Đoàn Thanh niên - Hội Sinh viên HUIT</h4>
-                    <p><i class="fas fa-map-marker-alt"></i> 140 Lê Trọng Tấn, P. Tây Thạnh, Q. Tân Phú, TP.HCM</p>
-                    <p><i class="fas fa-phone"></i> (028) 3816 1673 </p>
-                    <p><i class="fas fa-envelope"></i> doanthanhnien@huit.edu.vn</p>
+                    <h4>Đoàn TN - Hội SV Trường Đại học Công Thương TP.HCM</h4>
+                    <p>Cổng thông tin chính thức kết nối đoàn viên, sinh viên HUIT với các phong trào Đoàn và hoạt động tình nguyện.</p>
                 </div>
                 <div class="footer-col">
                     <h4>Liên kết nhanh</h4>
                     <ul>
-                        <li><a href="https://huit.edu.vn" target="_blank">Trang chủ HUIT</a></li>
                         <li><a href="ho-so/index.html">Nộp hồ sơ trực tuyến</a></li>
                         <li><a href="diem-ren-luyen/index.html">Tra cứu điểm rèn luyện</a></li>
                         <li><a href="faq/index.html">Văn bản & Biểu mẫu</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Mạng xã hội</h4>
-                    <div style="display: flex; gap: 15px; font-size: 1.5rem; margin-top: 10px;">
-                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                        <a href="#" aria-label="Tiktok"><i class="fab fa-tiktok"></i></a>
-                    </div>
+                    <h4>Liên hệ</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> 140 Lê Trọng Tấn, P. Tây Thạnh, Q. Tân Phú, TP.HCM</p>
+                    <p><i class="fas fa-envelope"></i> doanthanhnien@huit.edu.vn</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                &copy; 2026 Bản quyền thuộc về Đoàn Thanh niên Trường Đại học Công Thương TP.HCM.
+                &copy; 2026 Bản quyền thuộc về Đoàn Thanh niên - Hội Sinh viên Trường Đại học Công Thương TP.HCM.
             </div>
         </div>
     </footer>
 
-    <!-- JS -->
+    <!-- Scripts -->
     <script src="assets/js/main.js"></script>
+    <script>
+        const newsData = [
+            { id: 1, category: "Thông báo", title: "Kế hoạch tổ chức chiến dịch tình nguyện Mùa hè xanh HUIT năm 2026", date: "10/09/2026", content: "Thực hiện chương trình công tác Đoàn và phong trào thanh niên trường Đại học Công Thương TP.HCM, Ban Thường vụ Đoàn trường triển khai kế hoạch tổ chức chiến dịch tình nguyện Mùa hè xanh năm 2026 với các mặt trận trọng điểm tại TP.HCM và các tỉnh miền Tây. Kính mời toàn thể đoàn viên, sinh viên đăng ký tham gia." },
+            { id: 2, category: "Hoạt động", title: "Hội thảo hướng dẫn phương pháp nghiên cứu khoa học cho sinh viên IT", date: "08/09/2026", content: "Nhằm đẩy mạnh phong trào học tập, sáng tạo và nghiên cứu khoa học trong khối sinh viên Khoa Công nghệ Thông tin, Đoàn khoa phối hợp cùng Liên chi hội tổ chức buổi hội thảo chuyên đề với sự góp mặt của các giảng viên chuyên môn cao và các gương mặt NCKH xuất sắc." },
+            { id: 3, category: "Sinh viên 5 tốt", title: "Triển khai xét chọn danh hiệu 'Sinh viên 5 tốt' cấp trường năm học 2025-2026", date: "05/09/2026", content: "Hội Sinh viên trường thông báo tiêu chuẩn và tiến độ nộp hồ sơ xét chọn danh hiệu Sinh viên 5 tốt các cấp năm học 2025-2026. Sinh viên đạt đủ 5 tiêu chí: Học tập tốt, Đạo đức tốt, Thể lực tốt, Tình nguyện tốt và Hội nhập tốt có thể nộp minh chứng trực tuyến qua cổng thông tin." },
+            { id: 4, category: "Đoàn - Hội", title: "Phát động cuộc thi thiết kế đồ họa 'Tự hào màu áo xanh' chào mừng ngày truyền thống", date: "01/09/2026", content: "Cuộc thi thiết kế poster và ấn phẩm truyền thông số với chủ đề 'Tự hào màu áo xanh' chính thức được phát động từ ngày 01/09 đến 25/09/2026 với tổng giải thưởng trị giá hơn 5.000.000 đồng dành cho tất cả các bạn sinh viên yêu thích đồ họa." },
+            { id: 5, category: "Học bổng", title: "Chương trình trao học bổng 'Thắp sáng ước mơ tuổi trẻ HUIT' học kỳ 1", date: "28/08/2026", content: "Đoàn Thanh niên trường phối hợp với các doanh nghiệp đối tác trao tặng 50 suất học bổng trị giá 2.000.000đ/suất cho các bạn sinh viên có hoàn cảnh đặc biệt khó khăn nhưng đã nỗ lực vươn lên đạt thành tích cao trong học tập và công tác Đoàn." }
+        ];
+
+        // Hiệu ứng đếm số liệu thống kê ổn định
+        document.addEventListener("DOMContentLoaded", () => {
+            const counters = document.querySelectorAll('.stat-number');
+            const speed = 150;
+
+            counters.forEach(counter => {
+                const updateCount = () => {
+                    const target = +counter.getAttribute('data-target');
+                    const count = +counter.innerText;
+                    const inc = target / speed;
+
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + inc);
+                        setTimeout(updateCount, 20);
+                    } else {
+                        counter.innerText = target.toLocaleString();
+                    }
+                };
+                updateCount();
+            });
+        });
+
+        window.openNewsDetail = function(id) {
+            const item = newsData.find(n => n.id === id);
+            if(!item) return;
+
+            document.getElementById('modalCategory').innerText = item.category;
+            document.getElementById('modalTitle').innerText = item.title;
+            document.getElementById('modalDate').innerHTML = `<i class="far fa-calendar-alt"></i> Ngày đăng: ${item.date}`;
+            document.getElementById('modalContent').innerText = item.content;
+            document.getElementById('newsModal').style.display = 'flex';
+        };
+
+        window.closeNewsModal = function() {
+            document.getElementById('newsModal').style.display = 'none';
+        };
+
+        window.openAllNewsModal = function() {
+            const listContainer = document.getElementById('allNewsList');
+            listContainer.innerHTML = '';
+
+            newsData.forEach(item => {
+                listContainer.innerHTML += `
+                    <div onclick="closeAllNewsModal(); openNewsDetail(${item.id});" style="padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+                        <span style="font-size: 0.75rem; color: var(--primary-red); font-weight: 700; text-transform: uppercase;">${item.category}</span>
+                        <h4 style="font-size: 1.05rem; color: #1e293b; margin: 5px 0;">${item.title}</h4>
+                        <span style="font-size: 0.8rem; color: #64748b;"><i class="far fa-calendar-alt"></i> ${item.date}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('allNewsModal').style.display = 'flex';
+        };
+
+        window.closeAllNewsModal = function() {
+            document.getElementById('allNewsModal').style.display = 'none';
+        };
+    </script>
 </body>
 </html>

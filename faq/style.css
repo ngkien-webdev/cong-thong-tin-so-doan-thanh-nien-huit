@@ -1,247 +1,264 @@
-.faq-page {
-    background-color: var(--bg-light);
+/* --- FAQ & VĂN BẢN STYLES --- */
+.faq-hero {
+    text-align: center;
+    margin-bottom: 40px;
+    background: linear-gradient(135deg, #fef2f2 0%, #fff 100%);
+    padding: 40px 20px;
+    border-radius: 16px;
+    border: 1px solid #fee2e2;
+}
+.faq-hero h1 {
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: #c90000;
+    margin-bottom: 10px;
+}
+.faq-hero p {
+    color: #64748b;
+    font-size: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-/* Search bar FAQ */
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.section-heading h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+.faq-count {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Thanh tìm kiếm FAQ */
 .search-box-container {
     position: relative;
-    max-width: 600px;
-    margin: 0 auto 30px;
+    margin-bottom: 25px;
 }
 .search-box-container input {
     width: 100%;
-    padding: 15px 20px 15px 50px;
-    border-radius: 30px;
-    border: 1px solid var(--border-color);
-    font-size: 1rem;
-    box-shadow: var(--shadow-sm);
+    padding: 14px 20px 14px 45px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s;
+    background: #fff;
+}
+.search-box-container input:focus {
+    border-color: #c90000;
+    box-shadow: 0 0 0 3px rgba(201, 0, 0, 0.1);
 }
 .search-box-container i {
     position: absolute;
+    left: 16px;
     top: 50%;
-    left: 20px;
     transform: translateY(-50%);
-    color: var(--text-muted);
-    font-size: 1.1rem;
+    color: #94a3b8;
 }
-/* Documents Grid */
+
+/* Accordion FAQ */
+.faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.faq-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+.faq-item:hover {
+    border-color: #cbd5e1;
+}
+.faq-question {
+    padding: 18px 20px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    color: #1e293b;
+}
+.faq-question:hover {
+    color: #c90000;
+    background: #fdf2f2;
+}
+.faq-question i {
+    transition: transform 0.3s ease;
+    color: #64748b;
+}
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 20px;
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    background: #f8fafc;
+    border-top: 1px solid transparent;
+}
+.faq-item.active .faq-answer {
+    max-height: 250px;
+    padding: 16px 20px;
+    border-top-color: #e2e8f0;
+}
+.faq-item.active .faq-question i {
+    transform: rotate(180deg);
+    color: #c90000;
+}
+
+/* Kho văn bản & Biểu mẫu */
 .doc-search-bar {
-    max-width: 600px;
-    margin: 0 auto 25px;
+    position: relative;
+    margin-bottom: 20px;
 }
 .doc-search-bar input {
     width: 100%;
-    padding: 12px 20px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
+    padding: 12px 20px 12px 45px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
     font-size: 0.95rem;
+    outline: none;
+    background: #fff;
+}
+.doc-search-bar input:focus {
+    border-color: #c90000;
+    box-shadow: 0 0 0 3px rgba(201, 0, 0, 0.1);
+}
+.search-doc-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
 }
 
 .doc-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 20px;
-    max-width: 1100px;
-    margin: 0 auto;
 }
 .doc-card {
-    background: var(--bg-white);
-    border-radius: var(--border-radius);
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
     padding: 20px;
-    box-shadow: var(--shadow-sm);
     display: flex;
-    align-items: center;
-    gap: 15px;
-    border: 1px solid var(--border-color);
-    transition: var(--transition);
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 .doc-card:hover {
     transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary-red);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    border-color: #cbd5e1;
 }
 .doc-icon {
-    font-size: 2.5rem;
-    color: #e53935;
-    flex-shrink: 0;
+    font-size: 2.2rem;
+    margin-bottom: 12px;
 }
-.doc-info {
-    flex: 1;
-}
+.doc-icon.pdf { color: #ef4444; }
+.doc-icon.word { color: #3b82f6; }
+
 .doc-code {
+    display: inline-block;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 3px 8px;
+    border-radius: 4px;
     font-size: 0.75rem;
     font-weight: 700;
-    color: var(--text-muted);
-    background: var(--bg-light);
-    padding: 2px 8px;
-    border-radius: 4px;
+    margin-bottom: 6px;
+    font-family: monospace;
 }
 .doc-name {
-    font-size: 0.95rem;
-    color: var(--text-main);
-    margin: 6px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 8px 0;
     line-height: 1.4;
 }
 .doc-date {
     font-size: 0.8rem;
-    color: #888;
-}
-.btn-small {
-    padding: 6px 12px;
-    font-size: 0.85rem;
-}
-/* ==========================================================================
-   FIX LỖI FAQ ACCORDION (Ấn vào hiện câu trả lời)
-   ========================================================================== */
-.faq-accordion {
-    max-width: 900px;
-    margin: 0 auto;
-}
-.faq-item {
-    background: var(--bg-white);
-    border-radius: 12px;
+    color: #94a3b8;
+    display: block;
     margin-bottom: 15px;
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
-}
-.faq-question {
-    padding: 20px 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: 600;
-    font-size: 1.05rem;
-    cursor: pointer;
-    background-color: #fff;
-    transition: var(--transition);
-}
-.faq-question:hover {
-    color: var(--primary-red);
-    background-color: rgba(201, 0, 0, 0.02);
-}
-.faq-question i {
-    transition: transform 0.3s ease;
-    color: #666;
-}
-.faq-item.active .faq-question i {
-    transform: rotate(180deg);
-    color: var(--primary-red);
 }
 
-/* Định nghĩa vùng hiển thị câu trả lời */
-.faq-answer {
-    max-height: 0;
-    overflow: hidden;
-    padding: 0 25px;
-    background-color: #fcfcfc;
-    transition: max-height 0.4s ease, padding 0.4s ease;
-    border-top: 1px solid transparent;
-}
-.faq-item.active .faq-answer {
-    max-height: 300px; /* Đủ lớn để chứa nội dung câu trả lời */
-    padding: 20px 25px;
-    border-top-color: #eee;
-}
-.faq-answer p {
-    color: var(--text-muted);
-    line-height: 1.7;
-    margin: 0;
-    font-size: 0.95rem;
-}
-
-/* ==========================================================================
-   NÂNG CẤP GIAO DIỆN FORM GÓP Ý & PHẢN HỒI (Modern Form)
-   ========================================================================== */
+/* Góp ý form */
 .feedback-card-modern {
-    background: var(--bg-white);
+    background: #fff;
     border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    padding: 40px;
-    border: 1px solid var(--border-color);
-    max-width: 900px;
-    margin: 0 auto;
+    padding: 35px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
 }
-
 .feedback-header {
-    margin-bottom: 30px;
-    border-bottom: 2px solid var(--bg-light);
-    padding-bottom: 15px;
+    margin-bottom: 25px;
 }
-
 .feedback-header h2 {
-    font-size: 1.6rem;
-    color: var(--primary-red);
-    font-weight: 800;
-    text-transform: uppercase;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1e293b;
     margin-bottom: 8px;
 }
-
 .feedback-header p {
-    color: var(--text-muted);
+    color: #64748b;
     font-size: 0.95rem;
-    line-height: 1.5;
 }
-
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+}
+.form-group {
     margin-bottom: 20px;
 }
-
-.feedback-card-modern .form-group {
-    margin-bottom: 20px;
-}
-
-.feedback-card-modern label {
+.form-group label {
     display: block;
     font-weight: 600;
+    font-size: 0.9rem;
+    color: #334155;
     margin-bottom: 8px;
-    color: var(--text-main);
-    font-size: 0.95rem;
 }
-
-.feedback-card-modern input[type="text"],
-.feedback-card-modern input[type="email"],
-.feedback-card-modern select,
-.feedback-card-modern textarea {
+.form-group input, .form-group select, .form-group textarea {
     width: 100%;
-    padding: 14px 18px;
-    border: 1px solid var(--border-color);
+    padding: 12px 16px;
+    border: 1px solid #cbd5e1;
     border-radius: 8px;
-    font-family: inherit;
-    font-size: 1rem;
-    background-color: #fafafa;
-    transition: all 0.3s ease;
-}
-
-.feedback-card-modern input:focus,
-.feedback-card-modern select:focus,
-.feedback-card-modern textarea:focus {
-    border-color: var(--primary-red);
-    background-color: #fff;
+    font-size: 0.95rem;
     outline: none;
-    box-shadow: 0 0 0 4px rgba(201, 0, 0, 0.08);
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: #c90000;
+    box-shadow: 0 0 0 3px rgba(201, 0, 0, 0.1);
+}
+.text-danger { color: #ef4444; }
+.btn-large {
+    padding: 12px 25px;
+    font-size: 1rem;
+    border-radius: 8px;
 }
 
-.feedback-card-modern textarea {
-    resize: vertical;
-    min-height: 120px;
-}
-
-.form-actions {
-    margin-top: 30px;
-}
-
-/* Responsive cho màn hình nhỏ */
-@media (max-width: 768px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-    .feedback-card-modern {
-        padding: 20px;
-    }
+@media(max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr; }
 }

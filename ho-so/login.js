@@ -21,7 +21,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Chuyển tab giao diện
 document.querySelectorAll('.auth-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
@@ -40,7 +39,6 @@ function showToast(message, isSuccess = true) {
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// 1. Google Login
 window.loginWithGoogle = function() {
     showToast("Đang kết nối Google...", true);
     signInWithPopup(auth, provider).then((result) => {
@@ -48,14 +46,12 @@ window.loginWithGoogle = function() {
     }).catch(err => showToast(err.message, false));
 };
 
-// 2. Guest Login
 window.loginAsGuest = function() {
     signInAnonymously(auth).then((result) => {
         saveSession("guest_token", "Khách tham quan", result.user.uid);
     }).catch(err => showToast("Lỗi tài khoản khách: " + err.message, false));
 };
 
-// 3. Email Login
 window.handleEmailAuth = function(e) {
     e.preventDefault();
     const email = document.getElementById('authEmail').value;
@@ -66,7 +62,6 @@ window.handleEmailAuth = function(e) {
     }).catch(err => showToast("Sai email hoặc mật khẩu!", false));
 };
 
-// 4. Register Email
 window.handleRegisterEmail = function() {
     const email = document.getElementById('authEmail').value;
     const pass = document.getElementById('authPassword').value;
@@ -87,19 +82,18 @@ function saveSession(token, name, uid) {
     localStorage.setItem('userToken', token);
     localStorage.setItem('userName', name);
     localStorage.setItem('userUid', uid);
-    showToast("Đăng nhập thành công!", true);
-    setTimeout(() => { window.location.href = 'index.html'; }, 800);
+    showToast("Đăng nhập thành công! Đang về trang chủ...", true);
+    setTimeout(() => { window.location.href = '../index.html'; }, 800);
 }
 
-// Admin login tĩnh
 window.handleAdminLogin = function(e) {
     e.preventDefault();
     if(document.getElementById('username').value === 'admin' && document.getElementById('password').value === '123456') {
         localStorage.setItem('userToken', 'admin_token');
         localStorage.setItem('userName', 'Quản trị viên');
         localStorage.setItem('userUid', 'admin_uid');
-        window.location.href = 'index.html';
+        window.location.href = '../index.html';
     } else {
-        showToast("Sai tài khoản quản trị!", false);
+        showToast("Sai thông tin quản trị!", false);
     }
 };

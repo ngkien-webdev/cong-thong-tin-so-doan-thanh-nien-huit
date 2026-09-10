@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAQ & Văn bản - Cổng thông tin số Đoàn - Hội HUIT</title>
+    <title>FAQ & Kho Văn bản - Cổng thông tin số Đoàn - Hội HUIT</title>
     
     <!-- CSS -->
     <link rel="stylesheet" href="../assets/css/global.css">
     <link rel="stylesheet" href="style.css">
     
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -50,9 +50,18 @@
     <main class="faq-page">
         <div class="container" style="padding-top: 100px; padding-bottom: 60px;">
             
-<!-- SECTION 1: FAQ & TÌM KIẾM -->
+            <!-- HERO BANNER TIÊU ĐỀ -->
+            <div class="faq-hero">
+                <h1>Trung tâm Trợ giúp & Văn bản Đoàn - Hội</h1>
+                <p>Nơi giải đáp mọi thắc mắc, cung cấp biểu mẫu và tiếp nhận ý kiến đóng góp chính thức từ sinh viên HUIT.</p>
+            </div>
+
+            <!-- SECTION 1: FAQ & TÌM KIẾM THÔNG MINH -->
             <section class="faq-section">
-                <h2 class="section-title">Câu hỏi thường gặp (FAQ)</h2>
+                <div class="section-heading">
+                    <h2><i class="fas fa-question-circle" style="color: var(--primary-red);"></i> Câu hỏi thường gặp (FAQ)</h2>
+                    <span class="faq-count">4 câu hỏi phổ biến</span>
+                </div>
                 
                 <div class="search-box-container">
                     <input type="text" id="faqSearch" placeholder="Nhập từ khóa cần tìm (ví dụ: điểm rèn luyện, sổ đoàn, sinh viên 5 tốt...)" onkeyup="filterFaq()">
@@ -61,13 +70,13 @@
 
                 <div class="faq-accordion" id="faqAccordion">
                     <!-- Item 1 -->
-                    <div class="faq-item" data-category="hồ sơ">
+                    <div class="faq-item" data-category="hồ sơ sổ đoàn">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>Thủ tục chuyển sinh hoạt Đoàn về trường được thực hiện như thế nào?</span>
                             <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="faq-answer">
-                            <p>Sinh viên nộp Sổ Đoàn viên gốc trực tiếp tại Văn phòng Đoàn trường hoặc đăng ký chuyển sinh hoạt trực tuyến qua cổng thông tin. Thời gian tiếp nhận trong giờ hành chính các ngày từ thứ Hai đến thứ Sáu hằng tuần.</p>
+                            <p>Sinh viên nộp Sổ Đoàn viên gốc trực tiếp tại Văn phòng Đoàn trường hoặc đăng ký chuyển sinh hoạt trực tuyến qua cổng thông tin hồ sơ. Thời gian tiếp nhận trong giờ hành chính các ngày từ thứ Hai đến thứ Sáu hằng tuần.</p>
                         </div>
                     </div>
                     <!-- Item 2 -->
@@ -81,7 +90,7 @@
                         </div>
                     </div>
                     <!-- Item 3 -->
-                    <div class="faq-item" data-category="danh hiệu">
+                    <div class="faq-item" data-category="danh hiệu sinh viên 5 tốt">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>Tiêu chuẩn xét chọn danh hiệu "Sinh viên 5 tốt" cấp trường gồm những gì?</span>
                             <i class="fas fa-chevron-down"></i>
@@ -91,7 +100,7 @@
                         </div>
                     </div>
                     <!-- Item 4 -->
-                    <div class="faq-item" data-category="tình nguyện">
+                    <div class="faq-item" data-category="tình nguyện mùa hè xanh">
                         <div class="faq-question" onclick="toggleFaq(this)">
                             <span>Làm thế nào để đăng ký tham gia Chiến dịch Tình nguyện Mùa hè xanh?</span>
                             <i class="fas fa-chevron-down"></i>
@@ -101,55 +110,64 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="noFaqResult" style="display: none; text-align: center; padding: 30px; color: #64748b;">
+                    <i class="fas fa-search fa-2x" style="margin-bottom: 10px; color: #cbd5e1;"></i>
+                    <p>Không tìm thấy câu hỏi phù hợp với từ khóa của bạn.</p>
+                </div>
             </section>
 
             <!-- SECTION 2: KHO VĂN BẢN VÀ BIỂU MẪU -->
             <section class="documents-section" style="margin-top: 60px;">
-                <h2 class="section-title">Kho văn bản & Biểu mẫu</h2>
+                <div class="section-heading">
+                    <h2><i class="fas fa-folder-open" style="color: var(--primary-red);"></i> Kho văn bản & Biểu mẫu</h2>
+                    <span class="faq-count">Tài liệu chính thống</span>
+                </div>
                 
                 <div class="doc-search-bar">
-                    <input type="text" id="docSearch" placeholder="Tìm kiếm theo tên văn bản hoặc số hiệu..." onkeyup="filterDocs()">
+                    <input type="text" id="docSearch" placeholder="Tìm kiếm theo tên văn bản hoặc số hiệu (ví dụ: 15/HD-ĐTN)..." onkeyup="filterDocs()">
+                    <i class="fas search-doc-icon fa-search"></i>
                 </div>
 
                 <div class="doc-grid" id="docGrid">
                     <!-- Doc 1 -->
                     <div class="doc-card">
-                        <div class="doc-icon"><i class="fas fa-file-pdf"></i></div>
+                        <div class="doc-icon pdf"><i class="fas fa-file-pdf"></i></div>
                         <div class="doc-info">
                             <span class="doc-code">Số: 15/HD-ĐTN</span>
                             <h4 class="doc-name">Hướng dẫn đánh giá điểm rèn luyện sinh viên năm học 2025-2026</h4>
-                            <span class="doc-date">Ban hành: 15/08/2026</span>
+                            <span class="doc-date"><i class="far fa-calendar-alt"></i> Ban hành: 15/08/2026</span>
                         </div>
-                        <a href="https://drive.google.com/file/d/1DO1BAHM4h015kqLZk74B0fTIw1t26-aG/view?usp=sharing" class="btn btn-outline btn-small"><i class="fas fa-download"></i> Tải về</a>
+                        <a href="https://drive.google.com/file/d/1DO1BAHM4h015kqLZk74B0fTIw1t26-aG/view?usp=sharing" target="_blank" class="btn btn-outline btn-small"><i class="fas fa-download"></i> Tải về</a>
                     </div>
                     <!-- Doc 2 -->
                     <div class="doc-card">
-                        <div class="doc-icon"><i class="fas fa-file-word"></i></div>
+                        <div class="doc-icon word"><i class="fas fa-file-word"></i></div>
                         <div class="doc-info">
                             <span class="doc-code">Số: 08/QĐ-HSV</span>
                             <h4 class="doc-name">Quy định chuẩn xét chọn danh hiệu Sinh viên 5 tốt các cấp</h4>
-                            <span class="doc-date">Ban hành: 10/07/2026</span>
+                            <span class="doc-date"><i class="far fa-calendar-alt"></i> Ban hành: 10/07/2026</span>
                         </div>
-                        <a href="#" class="btn btn-outline btn-small"><i class="fas fa-download"></i> Tải về</a>
+                        <a href="#" onclick="alert('File đang được cập nhật.'); return false;" class="btn btn-outline btn-small"><i class="fas fa-download"></i> Tải về</a>
                     </div>
                     <!-- Doc 3 -->
                     <div class="doc-card">
-                        <div class="doc-icon"><i class="fas fa-file-pdf"></i></div>
+                        <div class="doc-icon pdf"><i class="fas fa-file-pdf"></i></div>
                         <div class="doc-info">
                             <span class="doc-code">Số: 12/TB-ĐTN</span>
                             <h4 class="doc-name">Thông báo kế hoạch tổ chức Đại hội Đại biểu Đoàn TNCS Hồ Chí Minh HUIT</h4>
-                            <span class="doc-date">Ban hành: 02/06/2026</span>
+                            <span class="doc-date"><i class="far fa-calendar-alt"></i> Ban hành: 02/06/2026</span>
                         </div>
-                        <a href="#" class="btn btn-outline btn-small"><i class="fas fa-download"></i> Tải về</a>
+                        <a href="#" onclick="alert('File đang được cập nhật.'); return false;" class="btn btn-outline btn-small"><i class="fas fa-download"></i> Tải về</a>
                     </div>
                 </div>
             </section>
 
-                       <!-- SECTION 3: FORM GÓP Ý & PHẢN HỒI (Đã nâng cấp giao diện chuẩn) -->
+            <!-- SECTION 3: FORM GÓP Ý & PHẢN HỒI -->
             <section class="feedback-section" style="margin-top: 60px;">
                 <div class="card feedback-card-modern">
                     <div class="feedback-header">
-                        <h2>Góp ý & Phản hồi sinh viên</h2>
+                        <h2><i class="fas fa-comments" style="color: var(--primary-red);"></i> Góp ý & Phản hồi sinh viên</h2>
                         <p>Đoàn Thanh niên - Hội Sinh viên luôn lắng nghe mọi ý kiến đóng góp, phản ánh hoặc đề xuất từ các bạn sinh viên để xây dựng môi trường học tập và rèn luyện tốt hơn.</p>
                     </div>
                     
@@ -181,7 +199,7 @@
                             <textarea id="fbContent" rows="5" required placeholder="Nhập nội dung ý kiến đóng góp chi tiết của bạn vào đây..."></textarea>
                         </div>
 
-                        <div class="form-actions">
+                        <div class="form-actions" style="text-align: right;">
                             <button type="submit" class="btn btn-primary btn-large" id="fbSubmitBtn">
                                 <i class="fas fa-paper-plane"></i> Gửi ý kiến
                             </button>
@@ -190,10 +208,13 @@
                 </div>
             </section>
 
+        </div>
+    </main>
+
     <!-- FOOTER -->
     <footer class="site-footer">
         <div class="container">
-            <div class="footer-bottom" style="border:none; padding: 0;">
+            <div class="footer-bottom" style="border:none; padding: 0; text-align: center;">
                 &copy; 2026 Bản quyền thuộc về Đoàn Thanh niên - Hội Sinh viên Trường Đại học Công Thương TP.HCM.
             </div>
         </div>
