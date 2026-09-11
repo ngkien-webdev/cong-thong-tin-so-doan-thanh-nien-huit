@@ -2,7 +2,7 @@
 function toggleFaq(element) {
     const item = element.parentElement;
     
-    // Nếu muốn mở độc lập từng câu, bật đoạn lọc bên dưới:
+    // Nếu muốn mở độc lập từng câu (tùy chọn), có thể bật đoạn lọc này:
     // document.querySelectorAll('.faq-item').forEach(i => {
     //     if (i !== item) i.classList.remove('active');
     // });
@@ -31,9 +31,9 @@ function filterFaq() {
     });
 
     if (visibleCount === 0) {
-        noResult.style.display = 'block';
+        if (noResult) noResult.style.display = 'block';
     } else {
-        noResult.style.display = 'none';
+        if (noResult) noResult.style.display = 'none';
     }
 }
 
@@ -54,24 +54,47 @@ function filterDocs() {
     });
 }
 
-// 4. Xử lý gửi Form Góp ý & Phản hồi
-function submitFeedback(e) {
+// 4. Xử lý gửi Form Góp ý & Phản hồi (Đã tích hợp API Google Sheet riêng biệt)
+async function submitFeedback(e) {
     e.preventDefault();
     
-    const name = document.getElementById('fbName').value;
-    const email = document.getElementById('fbEmail').value;
+    const name = document.getElementById('fbName').value.trim();
+    const email = document.getElementById('fbEmail').value.trim();
     const type = document.getElementById('fbType').value;
-    const content = document.getElementById('fbContent').value;
+    const content = document.getElementById('fbContent').value.trim();
     const btn = document.getElementById('fbSubmitBtn');
 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+    if (!name || !email || !type || !content) {
+        alert("Vui lòng điền đầy đủ các thông tin bắt buộc!");
+        return;
+    }
+
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi về hệ thống...';
     btn.disabled = true;
 
-    // Giả lập gửi thành công (hoặc bạn có thể tích hợp API Firebase/Google Sheet tại đây nếu muốn)
-    setTimeout(() => {
-        alert(`Cảm ơn bạn [${name}], ý kiến phân loại "${type}" của bạn đã được ghi nhận và gửi đến Ban chấp hành Đoàn - Hội HUIT!`);
+    // Đường dẫn API Web App RIÊNG BIỆT cho phần Góp ý của bạn
+    const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycbxlCUG3FCDEBanlmV1JRJmVD3qwodGfRq5CqZ-HJKofxo7w3sAqjhM_xYL63ED5k-IUpw/exec";
+
+    try {
+        await fetch(GOOGLE_SHEET_API, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                feedbackType: type,
+                content: content
+            })
+        });
+
+        alert(`Cảm ơn bạn [${name}], ý kiến của bạn đã được gửi thành công đến Ban chấp hành Đoàn - Hội HUIT!`);
         document.getElementById('feedbackForm').reset();
+    } catch (err) {
+        console.error("Lỗi gửi góp ý:", err);
+        alert("Có lỗi xảy ra khi gửi ý kiến. Vui lòng thử lại sau.");
+    } finally {
         btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi ý kiến';
         btn.disabled = false;
-    }, 1000);
+    }
 }
