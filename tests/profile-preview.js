@@ -1,0 +1,3 @@
+import {mountDossierProfile} from '/assets/js/dossier-profile.js';
+const profile=mountDossierProfile({user:{displayName:'Sinh viên kiểm thử'},request:async(action,payload)=>action==='saveMyProfile'?{profile:payload.profile}:{profile:{studentName:'Sinh viên kiểm thử',studentId:'202600001',phone:'0912345678'},membership:null,capabilities:{profile:1,delivery:1}}});
+document.getElementById('applicationForm').onsubmit=e=>{e.preventDefault();document.getElementById('profileStatus').textContent=JSON.stringify(profile.values());};

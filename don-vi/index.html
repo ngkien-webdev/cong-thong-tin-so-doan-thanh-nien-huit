@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <base href="/don-vi/">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#075b79">
+  <title>Không gian đơn vị · Đoàn – Hội HUIT</title>
+  <link rel="icon" href="../assets/images/logo-huit-doan.png">
+  <link rel="stylesheet" href="../assets/css/global.css?v=20260924-1">
+  <link rel="stylesheet" href="../assets/css/upgrade.css?v=20260924-1">
+  <link rel="stylesheet" href="style.css?v=20260924-1">
+  <link rel="stylesheet" href="../assets/css/header.css?v=20260924-1">
+</head>
+<body data-page="unit">
+  <a class="skip-link" href="#main-content">Đến nội dung chính</a>
+  <header class="site-header" id="header">
+    <div class="header-inner">
+      <div class="logo-container"><a href="../"><img src="../assets/images/logo-huit-doan.png" alt="Đoàn – Hội HUIT" width="46" height="46"><span class="logo-text">CỔNG THÔNG TIN SỐ ĐOÀN – HỘI HUIT<span>Không gian làm việc của khoa & câu lạc bộ</span></span></a></div>
+      <nav class="main-nav" id="mainNav" aria-label="Điều hướng chính"><ul>
+        <li><a href="../">Trang chủ</a></li><li><a href="./" class="active" aria-current="page">Đơn vị</a></li><li><a href="../ho-so/">Nộp hồ sơ</a></li><li><a href="../tin-tuc/">Tin tức</a></li><li><a href="../faq/">Hướng dẫn</a></li>
+      </ul></nav>
+      <div class="header-actions"><a class="btn btn-primary" href="../ho-so/login.html?next=%2Fdon-vi%2F&tab=unit" data-auth-login hidden>Đăng nhập</a><button class="mobile-toggle" id="mobileToggle" type="button" aria-label="Mở menu">☰</button></div>
+    </div>
+  </header>
+  <main id="main-content" class="unit-shell">
+    <div id="unitGate" class="unit-gate" role="status"><span class="unit-loader" aria-hidden="true"></span><h1>Đang mở không gian đơn vị</h1><p>Đang xác nhận tài khoản và quyền truy cập của bạn.</p></div>
+    <div id="unitWorkspace" hidden>
+      <section class="unit-hero" aria-labelledby="unitName">
+        <div class="unit-hero-copy"><span class="unit-eyebrow" id="unitType">KHÔNG GIAN ĐƠN VỊ</span><h1 id="unitName"></h1><p>Mỗi hồ sơ, một tiến độ rõ ràng. Theo dõi công việc của đơn vị và phối hợp cùng Văn phòng Đoàn.</p><div class="unit-hero-actions"><a id="newUnitApplication" class="unit-button unit-button-light" href="../ho-so/">＋ Nộp hồ sơ mới</a><a href="#unitApplications" class="unit-hero-link">Xem trạng thái hồ sơ ↓</a></div></div>
+        <div class="unit-hero-mark" aria-hidden="true"><span>HUIT</span><strong>Kết nối.<br>Phối hợp.<br>Hành động.</strong><span>ĐOÀN THANH NIÊN · HỘI SINH VIÊN</span></div>
+      </section>
+      <section class="unit-stats" aria-label="Tổng quan trạng thái hồ sơ">
+        <button type="button" class="unit-stat" data-filter="all" aria-pressed="true"><span>Tất cả hồ sơ</span><strong id="countTotal">—</strong><small>Công việc của đơn vị</small></button>
+        <button type="button" class="unit-stat unit-stat-blue" data-filter="Đang xử lý" aria-pressed="false"><span>Đang xử lý</span><strong id="countPending">—</strong><small>Theo dõi tiến độ</small></button>
+        <button type="button" class="unit-stat unit-stat-amber" data-filter="Yêu cầu bổ sung" aria-pressed="false"><span>Cần bổ sung</span><strong id="countSupplement">—</strong><small>Ưu tiên hoàn thiện</small></button>
+        <button type="button" class="unit-stat unit-stat-green" data-filter="Hoàn thành" aria-pressed="false"><span>Hoàn thành</span><strong id="countCompleted">—</strong><small>Đã có kết quả xử lý</small></button>
+      </section>
+      <div class="unit-content-grid">
+        <section class="unit-panel unit-applications" id="unitApplications" aria-labelledby="unitListTitle">
+          <div class="unit-panel-head"><div><span class="unit-eyebrow">BẢNG THEO DÕI</span><h2 id="unitListTitle">Hồ sơ của đơn vị</h2></div><button type="button" id="refreshUnit" class="unit-button unit-button-outline">↻ Làm mới</button></div>
+          <div class="unit-filters"><label><span class="sr-only">Tìm hồ sơ</span><input id="unitSearch" type="search" maxlength="150" placeholder="Tìm mã hồ sơ, loại hồ sơ, người gửi…"></label><label><span class="sr-only">Lọc trạng thái</span><select id="unitStatus"><option value="all">Tất cả trạng thái</option><option>Đang xử lý</option><option>Yêu cầu bổ sung</option><option>Hoàn thành</option><option>Từ chối</option></select></label></div>
+          <p id="unitLoadStatus" class="unit-load-status" role="status"></p>
+          <div id="unitApplicationList" class="unit-application-list"></div>
+          <button id="showMoreUnit" class="unit-button unit-button-outline unit-more" type="button" hidden>Xem thêm hồ sơ</button>
+        </section>
+        <aside class="unit-aside">
+          <section class="unit-panel"><span class="unit-aside-icon" aria-hidden="true">✓</span><h2>Phối hợp thuận tiện hơn</h2><ol class="unit-guide"><li><strong>Gửi đúng đơn vị</strong><p>Hồ sơ mới được gắn với khoa hoặc câu lạc bộ đã cấp cho tài khoản.</p></li><li><strong>Ưu tiên mục cần bổ sung</strong><p>Đọc ghi chú của cán bộ và chuẩn bị lại hồ sơ theo hướng dẫn.</p></li><li><strong>Theo dõi đến khi hoàn thành</strong><p>Kiểm tra trạng thái trước khi đến văn phòng nhận kết quả.</p></li></ol><a class="unit-text-link" href="../faq/">Hướng dẫn & biểu mẫu →</a></section>
+          <section class="unit-panel unit-support"><span class="unit-eyebrow">TÀI KHOẢN ĐƠN VỊ</span><h2>Đúng người, đúng công việc</h2><p id="unitAccount"></p><p>Muốn thay đổi người phụ trách hoặc đơn vị, liên hệ quản trị viên để cập nhật quyền.</p><button id="unitSignOut" class="unit-text-link" type="button">Đăng xuất tài khoản →</button></section>
+        </aside>
+      </div>
+    </div>
+  </main>
+  <footer class="unit-footer">Đoàn Thanh niên · Hội Sinh viên HUIT</footer>
+  <script src="../assets/js/main.js?v=20260924-1" defer></script><script type="module" src="../assets/js/portal.js?v=20260924-1"></script><script type="module" src="script.js?v=20260924-1"></script>
+</body>
+</html>

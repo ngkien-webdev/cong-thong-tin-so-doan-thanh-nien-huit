@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#123b62">
+  <title>Quản trị hồ sơ · Đoàn - Hội HUIT</title>
+  <link rel="icon" href="../assets/images/logo-huit-doan.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../admin/style.css">
+</head>
+<body>
+<div class="fixture-banner">BẢN KIỂM TRA GIAO DIỆN · DỮ LIỆU GIẢ LẬP · KHÔNG GỬI EMAIL THẬT</div>
+  <a class="skip-link" href="#admin-main">Đến nội dung chính</a>
+  <aside class="sidebar">
+    <a class="brand" href="../"><img src="../assets/images/logo-huit-doan.png" alt="Logo Đoàn - Hội HUIT"><span><strong>HUIT YOUTH</strong><small>Không gian quản trị</small></span></a>
+    <span class="nav-label">ĐIỀU HÀNH</span>
+    <nav aria-label="Quản trị"><button type="button" class="nav-item active" data-view="applications" aria-current="page"><span aria-hidden="true">▦</span> Quản lý hồ sơ</button><button type="button" class="nav-item" data-view="mail"><span aria-hidden="true">✉</span> Email nhắc bản cứng</button></nav>
+    <div class="sidebar-note"><span class="note-icon" aria-hidden="true">◷</span><strong>Nhắc nộp bản cứng</strong><p>Hồ sơ kế hoạch được lên lịch email lúc 08:00 ngày hôm sau, theo giờ Việt Nam.</p></div>
+    <div class="sidebar-bottom"><a href="../dang-bai/">✎ Biên tập tin tức</a><a href="../">← Về cổng thông tin</a><button id="logoutButton" type="button">Đăng xuất</button></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><div><span class="breadcrumb">Đoàn - Hội HUIT / Quản trị</span><span id="connectionStatus" class="connection" role="status">Đang xác thực…</span></div><div class="admin-account"><span class="avatar" aria-hidden="true">QT</span><span id="adminName">Tài khoản quản trị</span></div></header>
+    <main id="admin-main">
+      <div class="page-title"><div><span class="eyebrow">Trung tâm điều hành</span><h1 id="pageTitle">Quản lý hồ sơ</h1><p id="pageDescription">Tiếp nhận hồ sơ, theo dõi tiến độ và xác nhận bản cứng.</p></div><button id="refreshButton" type="button" class="button primary">↻ Làm mới dữ liệu</button></div>
+      <div id="connectionIssue" class="connection-issue" role="alert" hidden><span aria-hidden="true">!</span><div><h2 id="issueTitle">Chưa kết nối được dữ liệu</h2><p id="issueMessage"></p><details id="issueHelp" hidden><summary>Cách cập nhật kết nối quản trị</summary><ol><li>Mở dự án Apps Script đang phục vụ website.</li><li>Dùng bản mã tương thích trong backend/deploy/Code.gs theo hướng dẫn triển khai.</li><li>Chạy setupWebsiteUpgrade để bổ sung các bảng mới, rồi triển khai phiên bản mới cho URL hiện tại.</li><li>Tạo trình kích hoạt portalV3ProcessReminderQueue mỗi phút, chạy enablePortalReminderEmails và làm mới dữ liệu.</li></ol><p>Địa chỉ /exec là API; liên kết chỉnh sửa có dạng /home/projects/…/edit. Cần đối chiếu cấu trúc bảng cũ trước khi cập nhật.</p></details></div></div>
+      <section class="stats-grid" aria-label="Tổng quan hồ sơ" id="summaryCards"><div class="stat-card"><span>Tổng hồ sơ</span><strong>—</strong></div><div class="stat-card"><span>Chờ xử lý</span><strong>—</strong></div><div class="stat-card"><span>Hoàn thành</span><strong>—</strong></div><div class="stat-card"><span>Chờ bản cứng</span><strong>—</strong></div></section>
+      <section id="applicationsPanel" class="panel" aria-labelledby="list-title">
+        <div class="panel-heading"><div><h2 id="list-title">Danh sách hồ sơ</h2><p id="totalCount" role="status">Dữ liệu sẽ hiển thị sau khi xác thực.</p></div><button id="exportButton" type="button" class="button secondary" disabled>↓ Xuất trang CSV</button></div>
+        <form id="filterForm" class="filters"><label class="filter-search">Tìm hồ sơ<input id="queryInput" type="search" placeholder="Mã hồ sơ, MSSV, họ tên…" maxlength="150"></label><label>Trạng thái<select id="statusFilter"><option value="">Tất cả trạng thái</option><option>Đang xử lý</option><option>Yêu cầu bổ sung</option><option>Hoàn thành</option><option>Từ chối</option></select></label><label>Loại hồ sơ<select id="typeFilter"><option value="">Tất cả loại hồ sơ</option></select></label><label>Từ ngày<input id="fromFilter" type="date"></label><label>Đến ngày<input id="toFilter" type="date"></label><label>Sắp xếp<select id="sortFilter"><option value="newest">Mới nhất trước</option><option value="oldest">Cũ nhất trước</option></select></label><div class="filter-actions"><button class="button primary" type="submit">Áp dụng</button><button class="button secondary" type="reset">Đặt lại</button></div><label class="check-label"><input id="hardcopyFilter" type="checkbox"> Chỉ hồ sơ chờ bản cứng</label></form>
+        <div class="table-scroll"><table><thead><tr><th>Hồ sơ / Ngày nộp</th><th>Sinh viên</th><th>Loại hồ sơ</th><th>Trạng thái</th><th>Bản cứng</th><th>Thao tác</th></tr></thead><tbody id="tableBody"><tr><td colspan="6"><div class="empty-state"><span class="loader" aria-hidden="true"></span><strong>Đang xác thực tài khoản</strong><p>Vui lòng chờ kết nối tới hệ thống.</p></div></td></tr></tbody></table></div>
+        <div class="pagination"><button id="previousPage" class="button secondary" disabled>← Trước</button><span id="pageStatus" role="status">Chưa có dữ liệu</span><button id="nextPage" class="button secondary" disabled>Sau →</button></div>
+      </section>
+      <section id="mailPanel" class="panel" aria-labelledby="mail-title" hidden>
+        <div class="panel-heading"><div><h2 id="mail-title">Theo dõi email nhắc nộp bản cứng</h2><p id="mailEnabled">Đang kiểm tra lịch gửi…</p></div><label>Trạng thái<select id="mailFilter"><option value="">Tất cả email</option><option value="pending">Chờ gửi</option><option value="sent">Đã gửi</option><option value="uncertain">Cần kiểm tra</option><option value="cancelled">Đã hủy</option></select></label></div>
+        <p class="mail-explanation">Email nhắc sinh viên nộp bản cứng tại Văn phòng Đoàn trường. Hệ thống kiểm tra từ 08:00 ngày kế tiếp; thời gian thực nhận phụ thuộc dịch vụ email.</p>
+        <div class="table-scroll"><table><thead><tr><th>Sinh viên / Người nhận</th><th>Mã hồ sơ</th><th>Lịch gửi (giờ Việt Nam)</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="mailBody"></tbody></table></div>
+        <div class="pagination"><button id="mailPrevious" class="button secondary" disabled>← Trước</button><span id="mailPageStatus" role="status">Chưa có dữ liệu</span><button id="mailNext" class="button secondary" disabled>Sau →</button></div>
+      </section>
+      <footer class="workspace-footer">Đoàn Thanh niên · Hội Sinh viên HUIT <span>Dữ liệu hồ sơ được xác thực và phân quyền theo tài khoản.</span></footer>
+    </main>
+  </div>
+  <dialog id="detailDialog" class="detail-dialog" aria-labelledby="detailTitle"><div class="detail-heading"><div><span class="eyebrow">Chi tiết hồ sơ</span><h2 id="detailTitle">Thông tin hồ sơ</h2><p id="detailId"></p></div><button id="closeDetail" type="button" class="icon-button" aria-label="Đóng chi tiết">×</button></div><div id="detailLoading" class="empty-state">Đang tải thông tin…</div><div id="detailContent" hidden><dl id="detailMeta" class="detail-meta"></dl><section class="detail-section"><h3>Nội dung đề nghị</h3><p id="detailReason" class="reason"></p><a id="detailFile" class="file-link" target="_blank" rel="noopener noreferrer" hidden>Mở tệp đính kèm ↗</a></section><form id="updateForm" class="detail-section"><h3>Cập nhật xử lý</h3><label>Trạng thái<select id="detailStatus"><option>Đang xử lý</option><option>Yêu cầu bổ sung</option><option>Hoàn thành</option><option>Từ chối</option></select></label><label>Ghi chú gửi sinh viên<textarea id="detailNote" maxlength="2000" rows="3" placeholder="Nhập hướng dẫn hoặc kết quả xử lý…"></textarea></label><button id="saveDetail" type="submit" class="button primary">Lưu & thông báo sinh viên</button></form><section class="detail-section" id="paperSection"><h3>Bản cứng & email nhắc</h3><p id="paperStatus"></p><p id="reminderStatus"></p><button id="receivePaper" class="button secondary" type="button">Xác nhận đã nhận bản cứng</button></section><section class="detail-section"><h3>Lịch sử xử lý</h3><ol id="auditList" class="audit-list"></ol></section></div><p id="detailError" class="detail-error" role="alert"></p></dialog>
+  <div id="adminToast" class="toast" role="status" hidden></div>
+  <script type="module" src="admin-fixture.js"></script>
+</body>
+</html>
+

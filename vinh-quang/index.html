@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
+<head><base href="/vinh-quang/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vinh Quang Thành Tích - Cổng thông tin số Đoàn - Hội HUIT</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/global.css?v=20260924-1">
+    <link rel="stylesheet" href="style.css?v=20260924-1">
     <!-- Favicon hiển thị trên tab trình duyệt -->
     <link rel="icon" type="image/png" href="../assets/images/logo-huit-doan.png">
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/upgrade.css?v=20260924-1">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260924-1">
 </head>
 <body>
 
@@ -34,6 +36,7 @@
                     <li><a href="../index.html">Trang chủ</a></li>
                     <li><a href="../van-hoa-hcm/index.html">Văn hóa HCM</a></li>
                     <li><a href="../ho-so/index.html">Hồ sơ</a></li>
+                    <li><a href="../tin-tuc/index.html">Tin tức</a></li>
                     <li><a href="../faq/index.html">FAQ</a></li>
                     <li><a href="../diem-ren-luyen/index.html">Điểm rèn luyện</a></li>
                     <li><a href="index.html" class="active">Vinh quang</a></li>
@@ -41,8 +44,7 @@
             </nav>
 
             <div class="header-actions">
-                <button class="search-btn" aria-label="Tìm kiếm"><i class="fas fa-search"></i></button>
-                <a href="../ho-so/login.html" class="btn btn-primary">Đăng nhập</a>
+                <a href="../ho-so/login.html" class="btn btn-primary" data-auth-login hidden>Đăng nhập</a>
                 <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -292,14 +294,8 @@
             }
         }
 
-        // 3. Xử lý nút Menu trên Mobile
-        const mobileToggle = document.getElementById('mobileToggle');
-        const mainNav = document.getElementById('mainNav');
-        if (mobileToggle && mainNav) {
-            mobileToggle.addEventListener('click', () => {
-                mainNav.classList.toggle('active');
-            });
-        }
     </script>
+    <script src="../assets/js/main.js?v=20260924-1" defer></script>
+    <script type="module" src="../assets/js/portal.js?v=20260924-1"></script>
 </body>
 </html>

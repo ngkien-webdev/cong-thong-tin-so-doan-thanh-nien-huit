@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="vi">
+<head><base href="/ho-so/">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#007a55">
+    <meta name="description" content="Cổng Thông Tin Số Đoàn - Hội HUIT">
+
+    <title>Hồ sơ | Cổng Thông Tin Số Đoàn - Hội HUIT</title>
+
+    <link rel="icon" type="image/png" href="../assets/images/logo-huit-doan.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/global.css?v=20260924-1">
+    <link rel="stylesheet" href="./style.css?v=20260924-1">
+    <link rel="stylesheet" href="../assets/css/upgrade.css?v=20260924-1">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260924-1">
+</head>
+
+<body class="dashboard-body">
+    <header class="site-header" id="header">
+        <div class="container header-inner">
+            <div class="logo-container">
+                <a href="../index.html" aria-label="Về trang chủ">
+                    <img
+                        src="../assets/images/logo-huit-doan.png"
+                        alt="Logo Đoàn - Hội HUIT"
+                    >
+
+                    <div class="logo-text">
+                        CỔNG THÔNG TIN SỐ ĐOÀN - HỘI
+                        <span>
+                            TRƯỜNG ĐẠI HỌC CÔNG THƯƠNG TP.HCM
+                        </span>
+                    </div>
+                </a>
+            </div>
+
+            <nav
+                class="main-nav"
+                id="mainNav"
+                aria-label="Điều hướng chính"
+            >
+                <ul>
+                    <li>
+                        <a href="../index.html">
+                            Trang chủ
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="../van-hoa-hcm/index.html">
+                            Không gian VH HCM
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="index.html" class="active">
+                            Hồ sơ
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="../tin-tuc/index.html">
+                            Tin tức
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="../faq/index.html">
+                            FAQ
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="../diem-ren-luyen/index.html">
+                            Điểm rèn luyện
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="../vinh-quang/index.html">
+                            Vinh quang
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                <button id="mobileToggle" class="mobile-toggle" type="button" aria-label="Mở menu điều hướng" aria-controls="mainNav" aria-expanded="false">
+                    <i class="fas fa-bars" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container dashboard-main">
+        <section class="dashboard-hero">
+            <div>
+                <span class="eyebrow">
+                    <i class="fas fa-file-signature"></i>
+                    Dịch vụ trực tuyến
+                </span>
+
+                <h1>
+                    Cổng Thông Tin Số Đoàn - Hội HUIT
+                </h1>
+
+                <p>
+                    Nộp hồ sơ, theo dõi tiến độ xử lý và nhận
+                    thông báo trực tiếp từ Đoàn - Hội.
+                </p>
+            </div>
+
+            <div class="hero-security">
+                <i class="fas fa-shield-halved"></i>
+                <span>Dữ liệu được xác thực an toàn</span>
+            </div>
+        </section>
+
+        <div class="dashboard-container">
+            <aside
+                class="dashboard-sidebar"
+                aria-label="Menu hồ sơ"
+            >
+                <div class="sidebar-heading">
+                    <span class="sidebar-avatar">
+                        <i class="fas fa-user-graduate"></i>
+                    </span>
+
+                    <div>
+                        <strong>Khu vực sinh viên</strong>
+                        <small>Quản lý hồ sơ cá nhân</small>
+                    </div>
+                </div>
+
+                <nav class="sidebar-menu">
+                    <a
+                        href="#"
+                        class="menu-item active"
+                        data-target="submit-tab"
+                    >
+                        <i class="fas fa-file-circle-plus"></i>
+                        <span>Nộp hồ sơ mới</span>
+                    </a>
+
+                    <a
+                        href="#"
+                        class="menu-item"
+                        data-target="history-tab"
+                    >
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <span>Lịch sử & trạng thái</span>
+                    </a>
+
+                    <a
+                        href="#"
+                        class="menu-item"
+                        data-target="noti-tab"
+                    >
+                        <i class="fas fa-bell"></i>
+                        <span>Hộp thư thông báo</span>
+                        <span
+                            id="notiCount"
+                            class="noti-badge"
+                            hidden
+                        >
+                            0
+                        </span>
+                    </a>
+                </nav>
+
+                <div class="sidebar-note">
+                    <i class="fas fa-circle-info"></i>
+
+                    <span>
+                        Hãy kiểm tra email thường xuyên để không
+                        bỏ lỡ cập nhật.
+                    </span>
+                </div>
+            </aside>
+
+            <section class="dashboard-content">
+                <div
+                    id="submit-tab"
+                    class="dashboard-tab active"
+                >
+                    <div class="content-heading">
+                        <div>
+                            <span class="section-kicker">
+                                Bước 01
+                            </span>
+
+                            <h2>
+                                Gửi hồ sơ trực tuyến
+                            </h2>
+
+                            <p>
+                                Điền chính xác thông tin để hồ sơ
+                                được xử lý nhanh chóng.
+                            </p>
+                        </div>
+
+                        <span class="heading-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </span>
+                    </div>
+
+                    <form
+                        id="applicationForm"
+                        class="application-form"
+                        onsubmit="submitApplication(event)"
+                    >
+                        <div class="form-group">
+                            <label for="docType">
+                                Loại hồ sơ
+                                <span>*</span>
+                            </label>
+
+                            <select
+                                id="docType"
+                                required
+                            >
+                                <option value="">
+                                    -- Chọn loại hồ sơ --
+                                </option>
+
+                                <option value="Chuyển sinh hoạt Đoàn">
+                                    Chuyển sinh hoạt Đoàn
+                                </option>
+
+                                <option value="Xét danh hiệu Sinh viên 5 tốt">
+                                    Xét danh hiệu Sinh viên 5 tốt
+                                </option>
+
+                                <option value="Đăng ký cấp lại Sổ Đoàn">
+                                    Đăng ký cấp lại Sổ Đoàn
+                                </option>
+
+                                <option value="Minh chứng cộng điểm rèn luyện">
+                                    Minh chứng cộng điểm rèn luyện
+                                </option>
+
+                                <option value="Kế hoạch - Quyết định">
+                                    Kế hoạch - Quyết định
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="studentName">
+                                    Họ và tên
+                                    <span>*</span>
+                                </label>
+
+                                <input
+                                    id="studentName"
+                                    type="text"
+                                    maxlength="120"
+                                    autocomplete="name"
+                                    placeholder="Nguyễn Văn A"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="studentId">
+                                    Mã số sinh viên
+                                    <span>*</span>
+                                </label>
+
+                                <input
+                                    id="studentId"
+                                    type="text"
+                                    maxlength="30"
+                                    autocomplete="off"
+                                    placeholder="2008220017"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="studentEmail">
+                                Email nhận thông báo
+                                <span>*</span>
+                            </label>
+
+                            <input
+                                id="studentEmail"
+                                type="email"
+                                autocomplete="email"
+                                placeholder="email@student.huit.edu.vn"
+                                required
+                            >
+
+                            <small class="field-hint">
+                                <i class="fas fa-lock"></i>
+                                Email được lấy từ tài khoản đăng nhập
+                                để bảo vệ hồ sơ.
+                            </small>
+                        </div>
+
+                        <section class="contact-section" aria-labelledby="contactHeading">
+                            <div class="contact-heading"><div><span class="section-kicker">Thông tin liên hệ</span><h3 id="contactHeading">Giữ kết nối để xử lý nhanh hơn</h3></div><button type="button" id="saveProfile" class="btn btn-secondary" disabled>Lưu thông tin cá nhân</button></div>
+                            <label for="studentPhone">Số điện thoại liên hệ</label>
+                            <input id="studentPhone" type="tel" autocomplete="tel" maxlength="20" placeholder="Ví dụ: 0912 345 678" aria-describedby="profileStatus">
+                            <p id="profileStatus" class="field-hint" role="status">Đang tải thông tin cá nhân…</p>
+                        </section>
+                        <fieldset class="delivery-section">
+                            <legend>Nhận kết quả hồ sơ</legend>
+                            <p class="field-hint">Chọn cách nhận hồ sơ sau khi xử lý. Đây là địa chỉ gửi kết quả, không thay thế yêu cầu nộp bản cứng của hồ sơ kế hoạch.</p>
+                            <div class="delivery-options">
+                                <label class="delivery-option"><input type="radio" name="deliveryMethod" value="office" checked><span><strong>Nhận tại Văn phòng Đoàn</strong><small>Đến nhận khi hồ sơ đã hoàn thành</small></span></label>
+                                <label class="delivery-option"><input type="radio" name="deliveryMethod" value="post"><span><strong>Nhận qua bưu điện</strong><small>Gửi đến địa chỉ bạn cung cấp</small></span></label>
+                            </div>
+                            <div id="postalFields" hidden>
+                                <div class="form-group"><label for="deliveryPhone">Số điện thoại người nhận <span>*</span></label><input id="deliveryPhone" type="tel" autocomplete="shipping tel" maxlength="20" placeholder="Số liên hệ của người nhận" disabled></div>
+                                <div class="form-group"><label for="deliveryAddress">Địa chỉ nhận hồ sơ <span>*</span></label><textarea id="deliveryAddress" autocomplete="shipping street-address" rows="3" maxlength="500" placeholder="Số nhà, đường, phường/xã, tỉnh/thành phố" disabled></textarea></div>
+                            </div>
+                        </fieldset>
+                        <p id="unitSubmission" class="unit-submission" hidden></p>
+                        <div class="form-group">
+                            <label for="fileInput">
+                                Tệp minh chứng
+                            </label>
+
+                            <div class="file-upload-box">
+                                <i class="fas fa-cloud-arrow-up"></i>
+
+                                <div>
+                                    <strong>
+                                        Chọn tệp đính kèm
+                                    </strong>
+
+                                    <small>
+                                        PDF, DOCX, JPG hoặc PNG
+                                        · tối đa 5 MB
+                                    </small>
+                                </div>
+
+                                <input
+                                    id="fileInput"
+                                    type="file"
+                                    accept=".pdf,.docx,.jpg,.jpeg,.png"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reasonContent">
+                                Nội dung / tóm tắt yêu cầu
+                                <span>*</span>
+                            </label>
+
+                            <textarea
+                                id="reasonContent"
+                                rows="5"
+                                maxlength="3000"
+                                placeholder="Nhập chi tiết nội dung cần hỗ trợ..."
+                                required
+                            ></textarea>
+
+                            <small class="field-hint">
+                                Nội dung tối thiểu 10 ký tự.
+                            </small>
+                        </div>
+
+                        <div class="form-submit-row">
+                            <p>
+                                <i class="fas fa-circle-check"></i>
+                                Hồ sơ sẽ được ghi nhận và cấp mã tự động.
+                            </p>
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                id="submitBtn"
+                            >
+                                <i class="fas fa-paper-plane"></i>
+                                Gửi hồ sơ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div
+                    id="history-tab"
+                    class="dashboard-tab"
+                >
+                    <div class="content-heading">
+                        <div>
+                            <span class="section-kicker">
+                                Bước 02
+                            </span>
+
+                            <h2>
+                                Lịch sử & trạng thái
+                            </h2>
+
+                            <p>
+                                Theo dõi toàn bộ hồ sơ đã gửi
+                                và ghi chú xử lý.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="btn btn-outline"
+                            onclick="loadUserApplications()"
+                        >
+                            <i class="fas fa-rotate"></i>
+                            Tải lại
+                        </button>
+                    </div>
+
+                    <div
+                        id="historyList"
+                        class="result-list"
+                    ></div>
+                </div>
+
+                <div
+                    id="noti-tab"
+                    class="dashboard-tab"
+                >
+                    <div class="content-heading">
+                        <div>
+                            <span class="section-kicker">
+                                Bước 03
+                            </span>
+
+                            <h2>
+                                Hộp thư thông báo
+                            </h2>
+
+                            <p>
+                                Thông báo trạng thái và yêu cầu
+                                bổ sung từ bộ phận phụ trách.
+                            </p>
+                        </div>
+
+                        <span class="heading-icon">
+                            <i class="fas fa-bell"></i>
+                        </span>
+                    </div>
+
+                    <ul
+                        id="notiList"
+                        class="notification-list"
+                    ></ul>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div
+        id="successModal"
+        class="success-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="successTitle"
+    >
+        <div class="success-card">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+
+            <h2 id="successTitle">
+                Gửi hồ sơ thành công
+            </h2>
+
+            <p>
+                Hồ sơ đã được ghi nhận trên hệ thống.
+            </p>
+
+            <strong id="mockHsId"></strong>
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                onclick="closeSuccessModal()"
+            >
+                Xem lịch sử hồ sơ
+            </button>
+        </div>
+    </div>
+
+    <footer class="dashboard-footer">
+        <i class="fas fa-shield-halved"></i>
+
+        Cổng Thông Tin Số Đoàn - Hội HUIT ·
+        Hỗ trợ trực tuyến cho sinh viên
+    </footer>
+
+    
+
+    
+    
+<script type="module" src="/tests/profile-preview.js"></script></body>
+</html>

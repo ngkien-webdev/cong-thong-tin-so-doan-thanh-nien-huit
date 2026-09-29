@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
+<head><base href="/faq/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FAQ & Kho Văn bản - Cổng thông tin số Đoàn - Hội HUIT</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/global.css?v=20260924-1">
+    <link rel="stylesheet" href="style.css?v=20260924-1">
     <!-- Favicon hiển thị trên tab trình duyệt -->
     <link rel="icon" type="image/png" href="../assets/images/logo-huit-doan.png">
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/upgrade.css?v=20260924-1">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260924-1">
 </head>
 <body>
 
@@ -34,6 +36,7 @@
                     <li><a href="../index.html">Trang chủ</a></li>
                     <li><a href="../van-hoa-hcm/index.html">Không gian VH HCM</a></li>
                     <li><a href="../ho-so/index.html">Hồ sơ</a></li>
+                    <li><a href="../tin-tuc/index.html">Tin tức</a></li>
                     <li><a href="index.html" class="active">FAQ & Hướng dẫn</a></li>
                     <li><a href="../diem-ren-luyen/index.html">Điểm rèn luyện</a></li>
                     <li><a href="../vinh-quang/index.html">Vinh quang</a></li>
@@ -41,7 +44,7 @@
             </nav>
 
             <div class="header-actions">
-                <a href="../ho-so/login.html" class="btn btn-primary">Đăng nhập</a>
+                <a href="../ho-so/login.html" class="btn btn-primary" data-auth-login hidden>Đăng nhập</a>
                 <button class="mobile-toggle" id="mobileToggle"><i class="fas fa-bars"></i></button>
             </div>
         </div>
@@ -175,17 +178,17 @@
                     <form id="feedbackForm" onsubmit="submitFeedback(event)">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label>Họ và tên <span class="text-danger">*</span></label>
-                                <input type="text" id="fbName" required placeholder="Nhập họ và tên của bạn...">
+                                <label for="fbName">Họ và tên <span class="text-danger">*</span></label>
+                                <input type="text" id="fbName" maxlength="100" required placeholder="Nhập họ và tên của bạn...">
                             </div>
                             <div class="form-group">
-                                <label>Email liên hệ <span class="text-danger">*</span></label>
+                                <label for="fbEmail">Email liên hệ <span class="text-danger">*</span></label>
                                 <input type="email" id="fbEmail" required placeholder="mssv@student.huit.edu.vn">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Loại ý kiến <span class="text-danger">*</span></label>
+                            <label for="fbType">Loại ý kiến <span class="text-danger">*</span></label>
                             <select id="fbType" required>
                                 <option value="">-- Chọn phân loại ý kiến --</option>
                                 <option value="Góp ý">Góp ý cải tiến hoạt động</option>
@@ -196,8 +199,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Nội dung chi tiết <span class="text-danger">*</span></label>
-                            <textarea id="fbContent" rows="5" required placeholder="Nhập nội dung ý kiến đóng góp chi tiết của bạn vào đây..."></textarea>
+                            <label for="fbContent">Nội dung chi tiết <span class="text-danger">*</span></label>
+                            <textarea id="fbContent" rows="5" maxlength="3000" required placeholder="Nhập nội dung ý kiến đóng góp chi tiết của bạn vào đây..."></textarea>
                         </div>
 
                         <div class="form-actions" style="text-align: right;">
@@ -222,6 +225,8 @@
     </footer>
 
     <!-- Script -->
-    <script src="script.js"></script>
+    <script src="script.js?v=20260924-1"></script>
+    <script src="../assets/js/main.js?v=20260924-1" defer></script>
+    <script type="module" src="../assets/js/portal.js?v=20260924-1"></script>
 </body>
 </html>

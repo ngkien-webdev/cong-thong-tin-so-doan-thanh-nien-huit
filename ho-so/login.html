@@ -1,81 +1,504 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
+<head><base href="/ho-so/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập hệ thống - Cổng thông tin số Đoàn - Hội HUIT</title>
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="login.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="login-page-body">
-    <!-- Favicon hiển thị trên tab trình duyệt -->
+    <meta name="theme-color" content="#0068a8">
+
+    <title>Đăng nhập | Cổng Thông Tin Số Đoàn - Hội HUIT</title>
+
     <link rel="icon" type="image/png" href="../assets/images/logo-huit-doan.png">
-    <a href="../index.html" class="back-home"><i class="fas fa-arrow-left"></i> Trang chủ HUIT</a>
 
-    <div class="login-wrapper">
-        <div class="login-card">
-            <div class="login-header">
-                <img src="../assets/images/logo-huit-doan.png" alt="Logo" class="login-logo">
-                <h2>CỔNG THÔNG TIN SỐ</h2>
-                <p>Đoàn Thanh niên - Hội Sinh viên HUIT</p>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
+    <link rel="stylesheet" href="../assets/css/global.css?v=20260924-1">
+    <link rel="stylesheet" href="login.css?v=20260924-1">
+    <link rel="stylesheet" href="../assets/css/upgrade.css?v=20260924-1">
+</head>
+
+<body class="login-page-body">
+
+    <a
+        href="../index.html"
+        class="back-home"
+        aria-label="Quay lại trang chủ"
+    >
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        <span>Về trang chủ</span>
+    </a>
+
+    <main class="auth-shell">
+
+        <section
+            class="brand-panel"
+            aria-label="Giới thiệu cổng thông tin"
+        >
+            <div class="brand-grid" aria-hidden="true"></div>
+
+            <div
+                class="brand-orb brand-orb-one"
+                aria-hidden="true"
+            ></div>
+
+            <div
+                class="brand-orb brand-orb-two"
+                aria-hidden="true"
+            ></div>
+
+            <div class="brand-content">
+
+                <div class="brand-mark">
+                    <span class="logo-box">
+                        <img
+                            src="../assets/images/logo-huit-doan.png"
+                            alt="Logo Đoàn Thanh niên HUIT"
+                        >
+                    </span>
+
+                    <div>
+                        <strong>HUIT YOUTH</strong>
+                        <span>Cổng Thông Tin Số Đoàn - Hội</span>
+                    </div>
+                </div>
+
+                <div class="brand-copy">
+                    <span class="eyebrow">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        Một tài khoản · Mọi tiện ích
+                    </span>
+
+                    <h1>
+                        Kết nối sinh viên,
+                        <br>
+                        <span>lan tỏa hành động.</span>
+                    </h1>
+
+                    <p>
+                        Đăng nhập để nộp hồ sơ trực tuyến,
+                        theo dõi tiến độ, tra cứu điểm rèn luyện
+                        và nhận thông báo từ Đoàn - Hội HUIT.
+                    </p>
+                </div>
+
+                <div class="feature-list">
+
+                    <div class="feature-item">
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        <span>
+                            <b>An toàn</b>
+                            <small>Xác thực và phân quyền rõ ràng</small>
+                        </span>
+                    </div>
+
+                    <div class="feature-item">
+                        <i class="fa-solid fa-bolt"></i>
+
+                        <span>
+                            <b>Nhanh chóng</b>
+                            <small>Đồng bộ trên mọi thiết bị</small>
+                        </span>
+                    </div>
+
+                    <div class="feature-item">
+                        <i class="fa-solid fa-bell"></i>
+
+                        <span>
+                            <b>Chủ động</b>
+                            <small>Theo dõi trạng thái tức thời</small>
+                        </span>
+                    </div>
+
+                </div>
             </div>
 
-            <div class="auth-tabs">
-                <button class="auth-tab-btn active" data-tab="student-pane">Sinh viên</button>
-                <button class="auth-tab-btn" data-tab="account-pane">Tài khoản</button>
-                <button class="auth-tab-btn" data-tab="admin-pane">Cán bộ</button>
-            </div>
+            <p class="brand-footer">
+                Trường Đại học Công Thương TP. Hồ Chí Minh
+            </p>
+        </section>
 
-            <!-- TAB 1: SINH VIÊN (Google & Khách) -->
-            <div class="auth-pane active" id="student-pane">
-                <p class="pane-desc">Định danh chính thức qua tài khoản Google sinh viên hoặc trải nghiệm khách.</p>
-                <button class="btn-google" onclick="loginWithGoogle()">
-                    <i class="fab fa-google" style="color: #4285F4; font-size: 1.1rem;"></i> Tiếp tục với Google
-                </button>
-                <div class="divider"><span>hoặc</span></div>
-                <button class="btn-guest" onclick="loginAsGuest()">
-                    <i class="fas fa-user-secret"></i> Trải nghiệm nhanh với tài khoản Khách
-                </button>
-            </div>
+        <section class="auth-panel">
 
-            <!-- TAB 2: TÀI KHOẢN NỘI BỘ (Email / Password) -->
-            <div class="auth-pane" id="account-pane">
-                <form id="emailAuthForm" onsubmit="handleEmailAuth(event)">
-                    <div class="input-group">
-                        <label>Email trường</label>
-                        <div class="input-field"><i class="fas fa-envelope"></i><input type="email" id="authEmail" placeholder="mssv@student.huit.edu.vn" required></div>
-                    </div>
-                    <div class="input-group">
-                        <label>Mật khẩu</label>
-                        <div class="input-field"><i class="fas fa-lock"></i><input type="password" id="authPassword" placeholder="••••••••" required></div>
-                    </div>
-                    <div class="auth-actions-row">
-                        <button type="submit" class="btn-submit-primary">Đăng nhập</button>
-                        <button type="button" class="btn-submit-secondary" onclick="handleRegisterEmail()">Đăng ký</button>
-                    </div>
-                </form>
-            </div>
+            <div class="auth-card">
 
-            <!-- TAB 3: CÁN BỘ / ADMIN -->
-            <div class="auth-pane" id="admin-pane">
-                <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
-                    <div class="input-group">
-                        <label>Tài khoản</label>
-                        <div class="input-field"><i class="fas fa-user-shield"></i><input type="text" id="username" placeholder="admin" required></div>
+                <div class="mobile-brand">
+                    <img
+                        src="../assets/images/logo-huit-doan.png"
+                        alt="Logo HUIT"
+                    >
+
+                    <div>
+                        <strong>HUIT YOUTH</strong>
+                        <span>Cổng Thông Tin Số Đoàn - Hội</span>
                     </div>
-                    <div class="input-group">
-                        <label>Mật khẩu</label>
-                        <div class="input-field"><i class="fas fa-key"></i><input type="password" id="password" placeholder="123456" required></div>
+                </div>
+
+                <header class="auth-header">
+                    <span class="status-pill">
+                        <span></span>
+                        Hệ thống đang hoạt động
+                    </span>
+
+                    <h2>Chào mừng trở lại</h2>
+                    <p>Chọn phương thức phù hợp để tiếp tục.</p>
+                </header>
+
+                <div
+                    class="auth-tabs"
+                    role="tablist"
+                    aria-label="Phương thức đăng nhập"
+                >
+                    <button
+                        class="auth-tab-btn active"
+                        id="studentTab"
+                        data-tab="student-pane"
+                        role="tab"
+                        aria-selected="true"
+                        aria-controls="student-pane"
+                    >
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        Sinh viên
+                    </button>
+
+                    <button
+                        class="auth-tab-btn"
+                        id="accountTab"
+                        data-tab="account-pane"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="account-pane"
+                    >
+                        <i class="fa-regular fa-envelope"></i>
+                        Email
+                    </button>
+
+                    <button
+                        class="auth-tab-btn"
+                        id="adminTab"
+                        data-tab="admin-pane"
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="admin-pane"
+                    >
+                        <i class="fa-solid fa-user-shield"></i>
+                        Cán bộ
+                    </button>
+                    <button class="auth-tab-btn" id="unitTab" data-tab="unit-pane" role="tab" aria-selected="false" aria-controls="unit-pane">
+                        <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
+                        Khoa / CLB
+                    </button>
+                </div>
+
+                <div
+                    class="auth-pane active"
+                    id="student-pane"
+                    role="tabpanel"
+                    aria-labelledby="studentTab"
+                >
+                    <div class="pane-intro">
+                        <span class="pane-icon">
+                            <i class="fa-brands fa-google"></i>
+                        </span>
+
+                        <div>
+                            <h3>Đăng nhập sinh viên</h3>
+                            <p>Sử dụng tài khoản Google để kết nối nhanh.</p>
+                        </div>
                     </div>
-                    <button type="submit" class="btn-submit-primary w-100" style="margin-top: 10px;">Truy cập Hệ thống</button>
-                </form>
+
+                    <button
+                        class="auth-button google-button"
+                        id="googleLoginBtn"
+                        type="button"
+                    >
+                        <span class="google-g">G</span>
+                        <span>Tiếp tục với Google</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                    <div class="divider">
+                        <span>hoặc xem nội dung công khai</span>
+                    </div>
+
+                    <button
+                        class="auth-button guest-button"
+                        id="guestLoginBtn"
+                        type="button"
+                    >
+                        <i class="fa-regular fa-eye"></i>
+                        <span>Tiếp tục ở chế độ khách</span>
+                    </button>
+
+                    <p class="helper-note">
+                        <i class="fa-solid fa-circle-info"></i>
+                        Chế độ khách không thể nộp hoặc theo dõi hồ sơ.
+                    </p>
+                </div>
+
+                <div
+                    class="auth-pane"
+                    id="account-pane"
+                    role="tabpanel"
+                    aria-labelledby="accountTab"
+                    hidden
+                >
+                    <form id="emailAuthForm" novalidate>
+
+                        <div class="field-group">
+                            <label for="authEmail">
+                                Email sinh viên
+                            </label>
+
+                            <div class="input-control">
+                                <i class="fa-regular fa-envelope field-icon"></i>
+
+                                <input
+                                    type="email"
+                                    id="authEmail"
+                                    name="email"
+                                    autocomplete="email"
+                                    placeholder="mssv@student.huit.edu.vn"
+                                    required
+                                >
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="emailError"
+                            ></small>
+                        </div>
+
+                        <div class="field-group">
+                            <div class="label-row">
+                                <label for="authPassword">
+                                    Mật khẩu
+                                </label>
+
+                                <button
+                                    type="button"
+                                    class="link-button"
+                                    id="forgotPasswordBtn"
+                                >
+                                    Quên mật khẩu?
+                                </button>
+                            </div>
+
+                            <div class="input-control">
+                                <i class="fa-solid fa-lock field-icon"></i>
+
+                                <input
+                                    type="password"
+                                    id="authPassword"
+                                    name="password"
+                                    autocomplete="current-password"
+                                    placeholder="Tối thiểu 8 ký tự"
+                                    minlength="8"
+                                    required
+                                >
+
+                                <button
+                                    class="password-toggle"
+                                    type="button"
+                                    data-target="authPassword"
+                                    aria-label="Hiện mật khẩu"
+                                >
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+
+                            <small
+                                class="field-error"
+                                id="passwordError"
+                            ></small>
+                        </div>
+
+                        <label class="remember-row">
+                            <input
+                                type="checkbox"
+                                id="rememberMe"
+                                checked
+                            >
+
+                            <span>
+                                Ghi nhớ đăng nhập trên thiết bị này
+                            </span>
+                        </label>
+
+                        <button
+                            type="submit"
+                            class="primary-action"
+                            id="emailLoginBtn"
+                        >
+                            <span>Đăng nhập</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="secondary-action"
+                            id="registerBtn"
+                        >
+                            Tạo tài khoản sinh viên
+                        </button>
+                    </form>
+                </div>
+
+                <div
+                    class="auth-pane"
+                    id="admin-pane"
+                    role="tabpanel"
+                    aria-labelledby="adminTab"
+                    hidden
+                >
+                    <div class="security-note">
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        <div>
+                            <b>Khu vực dành cho cán bộ</b>
+                            <span>
+                                Tài khoản phải được cấp quyền quản trị trên hệ thống.
+                            </span>
+                        </div>
+                    </div>
+
+                    <form id="adminLoginForm" novalidate>
+
+                        <div class="field-group">
+                            <label for="adminEmail">
+                                Email cán bộ
+                            </label>
+
+                            <div class="input-control">
+                                <i class="fa-regular fa-envelope field-icon"></i>
+
+                                <input
+                                    type="email"
+                                    id="adminEmail"
+                                    autocomplete="username"
+                                    placeholder="katoff1959@gmail.com"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="adminPassword">
+                                Mật khẩu
+                            </label>
+
+                            <div class="input-control">
+                                <i class="fa-solid fa-key field-icon"></i>
+
+                                <input
+                                    type="password"
+                                    id="adminPassword"
+                                    autocomplete="current-password"
+                                    placeholder="Nhập mật khẩu"
+                                    required
+                                >
+
+                                <button
+                                    class="password-toggle"
+                                    type="button"
+                                    data-target="adminPassword"
+                                    aria-label="Hiện mật khẩu"
+                                >
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            class="primary-action"
+                            id="adminLoginBtn"
+                        >
+                            <span>Truy cập trang quản trị</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+
+                    <div class="divider">
+                        <span>hoặc dùng tài khoản Google</span>
+                    </div>
+
+                    <button
+                        class="auth-button google-button"
+                        id="adminGoogleLoginBtn"
+                        type="button"
+                    >
+                        <span class="google-g">G</span>
+                        <span>Đăng nhập quản trị bằng Google</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                    <p class="helper-note">
+                        <i class="fa-solid fa-circle-info"></i>
+                        Chỉ tài khoản được cấp quyền mới truy cập được.
+                    </p>
+                </div>
+
+                <div class="auth-pane" id="unit-pane" role="tabpanel" aria-labelledby="unitTab" hidden>
+                    <div class="security-note unit-login-note">
+                        <i class="fa-solid fa-building-columns" aria-hidden="true"></i>
+                        <div><b>Không gian khoa & câu lạc bộ</b><span>Theo dõi trạng thái, phối hợp xử lý và nộp hồ sơ của đơn vị.</span></div>
+                    </div>
+                    <form id="unitLoginForm">
+                        <div class="field-group"><label for="unitUsername">Tên tài khoản đơn vị</label><div class="input-control"><i class="fa-regular fa-user field-icon" aria-hidden="true"></i><input type="text" id="unitUsername" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Ví dụ: khoa-cntt" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,39}" maxlength="40" required aria-describedby="unitLoginHint"></div></div>
+                        <div class="field-group"><label for="unitPassword">Mật khẩu</label><div class="input-control"><i class="fa-solid fa-key field-icon" aria-hidden="true"></i><input type="password" id="unitPassword" autocomplete="current-password" placeholder="Mật khẩu được cấp" required><button class="password-toggle" type="button" data-target="unitPassword" aria-label="Hiện mật khẩu"><i class="fa-regular fa-eye" aria-hidden="true"></i></button></div></div>
+                        <button type="submit" class="primary-action" id="unitLoginBtn"><span>Vào không gian đơn vị</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                    </form>
+                    <p class="helper-note" id="unitLoginHint"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>Dùng tên tài khoản và mật khẩu do quản trị viên cấp. Liên hệ Văn phòng Đoàn nếu cần cấp mới hoặc đặt lại mật khẩu.</p>
+                </div>
+                <footer class="auth-footer">
+                    <span>
+                        <i class="fa-solid fa-lock"></i>
+                        Kết nối được bảo vệ
+                    </span>
+
+                    <a href="../faq/index.html">
+                        Cần hỗ trợ?
+                    </a>
+                </footer>
             </div>
-        </div>
+        </section>
+    </main>
+
+    <div
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+    >
+        <span class="toast-icon">
+            <i class="fa-solid fa-circle-check"></i>
+        </span>
+
+        <span id="toastMessage">
+            Đang xử lý...
+        </span>
+
+        <button
+            type="button"
+            id="toastClose"
+            aria-label="Đóng thông báo"
+        >
+            <i class="fa-solid fa-xmark"></i>
+        </button>
     </div>
 
-    <div id="toast" class="toast">Đang xử lý...</div>
-    <script type="module" src="login.js"></script>
+    <script type="module" src="login.js?v=20260924-1"></script>
+    <script type="module" src="../assets/js/portal.js?v=20260924-1"></script>
 </body>
 </html>

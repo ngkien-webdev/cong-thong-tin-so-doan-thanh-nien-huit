@@ -1,0 +1,120 @@
+/* One shared header layout, loaded after page styles. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background: rgba(255, 255, 255, .97);
+  border-bottom: 1px solid #dce6ef;
+}
+.site-header [hidden] { display: none !important; }
+.site-header .header-inner {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) max-content max-content;
+  align-items: center;
+  gap: 20px;
+  width: min(1440px, calc(100% - 48px));
+  max-width: 1440px;
+  min-height: 88px;
+  margin-inline: auto;
+  padding-block: 12px;
+}
+.site-header .logo-container { min-width: 0; }
+.site-header .logo-container > a { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.site-header .logo-container img { flex: 0 0 46px; width: 46px; height: 46px; object-fit: contain; }
+.site-header .logo-text {
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  color: #075884;
+  font-size: .82rem;
+  line-height: 1.5;
+  letter-spacing: 0;
+  overflow-wrap: normal;
+}
+.site-header .logo-text span { font-size: .6rem; line-height: 1.5; white-space: normal; }
+.site-header .main-nav { display: block; flex: none; min-width: max-content; }
+.site-header .main-nav ul { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.site-header .main-nav a { padding: 10px 8px; min-height: 42px; font-size: .78rem; border-radius: 10px; white-space: nowrap; }
+.site-header .main-nav a:hover, .site-header .main-nav a.active, .site-header .main-nav a[aria-current=page] { background: #eaf5fc; color: #006ca8; }
+.site-header .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
+.site-header .header-actions > .btn { white-space: nowrap; font-size: .8rem; padding: 11px 16px; }
+.site-header .portal-search-button, .site-header .mobile-toggle {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #dce6ef;
+  border-radius: 12px;
+  background: #fff;
+  color: #155275;
+}
+.site-header .portal-search-button { display: inline-flex; align-items: center; justify-content: center; }
+.site-header .portal-search-button:hover, .site-header .mobile-toggle:hover { background: #edf7fc; border-color: #b4d7ed; }
+.site-header .mobile-toggle { display: none; }
+.site-header .global-account { min-width: 0; }
+.site-header .global-account-trigger { max-width: 210px; min-height: 46px; padding: 4px 10px 4px 5px; }
+.site-header .global-account-copy { max-width: 126px; }
+.site-header .global-account-copy strong { font-size: .8rem; }
+.site-header .global-account-copy small { font-size: .65rem; }
+.site-header .global-account-menu { max-height: calc(100dvh - 108px); overflow-y: auto; }
+
+@media (min-width: 1280px) and (max-width: 1399px) {
+  .site-header .header-inner { gap: 12px; width: calc(100% - 32px); }
+  .site-header .main-nav a { padding-inline: 6px; font-size: .74rem; }
+  .site-header .logo-text { font-size: .76rem; }
+  .site-header .global-account-trigger { max-width: 188px; }
+  .site-header .global-account-copy { max-width: 108px; }
+}
+@media (max-width: 1279px) {
+  .site-header .header-inner { grid-template-columns: minmax(0, 1fr) max-content; min-height: 80px; }
+  .site-header .mobile-toggle { display: inline-grid; place-items: center; }
+  .site-header .main-nav {
+    position: absolute;
+    top: calc(100% + 1px);
+    right: 24px;
+    left: 24px;
+    display: block;
+    min-width: 0;
+    max-height: calc(100dvh - 115px);
+    overflow: auto;
+    padding: 12px;
+    border: 1px solid #dce6ef;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 18px 40px #15364e20;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+  }
+  .site-header .main-nav.active { max-height: calc(100dvh - 115px); padding: 12px; opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
+  .site-header .main-nav ul { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .site-header .main-nav a { display: flex; padding: 12px; min-height: 46px; font-size: .86rem; }
+  .site-header .main-nav a::after { display: none; }
+}
+@media (max-width: 700px) {
+  .site-header .header-inner { width: calc(100% - 24px); gap: 10px; min-height: 72px; padding-block: 10px; }
+  .site-header .logo-text { max-width: 195px; font-size: .73rem; }
+  .site-header .logo-text span { display: none; }
+  .site-header .logo-container img { flex-basis: 38px; width: 38px; height: 38px; }
+  .site-header .header-actions { gap: 6px; }
+  .site-header .header-actions > .btn { padding: 10px 12px; font-size: .74rem; }
+  .site-header .header-actions > .btn i { display: none; }
+  .site-header .portal-search-button, .site-header .mobile-toggle { flex-basis: 38px; width: 38px; height: 40px; min-height: 40px; }
+  .site-header .global-account-trigger { width: 42px; max-width: 42px; min-height: 42px; padding: 3px; }
+  .site-header .global-account-copy, .site-header .global-account-chevron { display: none !important; }
+  .site-header .global-account-avatar { flex-basis: 34px !important; width: 34px !important; min-width: 34px !important; max-width: 34px !important; height: 34px !important; min-height: 34px !important; max-height: 34px !important; }
+  .site-header .main-nav { right: 12px; left: 12px; }
+  .site-header .main-nav ul { grid-template-columns: 1fr; }
+  .site-header .global-account-menu { right: 0; min-width: 215px; max-width: calc(100vw - 24px); }
+}
+@media (max-width: 480px) {
+  .site-header .logo-text { display: none; }
+  .site-header .header-inner { min-height: 66px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header *, .site-header *::after { transition: none !important; }
+}

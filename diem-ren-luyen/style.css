@@ -1,0 +1,37 @@
+/* Page-local layout: no runtime utility framework or global resets. */
+.training-page{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.training-main{width:min(960px,calc(100% - 40px));margin:0 auto;padding:48px 0 36px;flex:1;min-width:0}
+#resultArea,#matchesArea{scroll-margin-top:100px}
+#studentName:focus{outline:none}
+.training-heading{margin-bottom:28px}
+.training-eyebrow{display:block;color:#0969ab;font-size:.73rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.training-heading h1{color:var(--portal-navy);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;line-height:1.25;letter-spacing:-.035em;margin:12px 0}
+.training-heading p,.training-help,.training-section-heading p,.training-state p,.training-support{font-size:.88rem;line-height:1.7;color:var(--portal-muted);margin:0}
+.training-panel{padding:28px;background:#fff;border:1px solid var(--portal-line);border-radius:20px;box-shadow:0 6px 24px #17384d05;margin-bottom:20px;min-width:0}
+.training-panel h2{color:var(--portal-navy);font-size:1.08rem;line-height:1.5;margin:0 0 18px;font-weight:750}
+.training-search-form{display:flex;align-items:flex-end;gap:14px}
+.training-search-field{flex:1;min-width:0}
+.training-search-field label{display:block;font-size:.8rem;font-weight:600;color:#41566e;margin-bottom:8px}
+.training-search-field input{display:block;width:100%;min-width:0;height:50px;padding:12px 16px;border:1px solid #cbd9e6;border-radius:12px;background:#f8fafc;color:#183b56;font:inherit;appearance:none}
+.training-search-field input::placeholder{color:#74869a;font-size:.87rem}
+.training-search-field input:focus{background:white;border-color:#1686c8}
+.training-search-form .btn{height:50px;min-width:130px;border-radius:12px;padding:12px 24px;flex-shrink:0}
+.training-help{margin-top:14px;font-size:.78rem}
+.training-state{padding:42px 24px;text-align:center;border:1px dashed #d2dfeb;border-radius:18px;margin-bottom:20px;background:#f8fbfe}
+.training-state h2{font-size:1.08rem;color:var(--portal-navy);margin:12px 0 6px}
+.training-state-symbol{display:grid;place-items:center;width:50px;height:50px;border-radius:15px;background:#e7f2fc;color:#0874c7;font-size:2rem;margin:0 auto}
+.training-spinner{display:block;width:30px;height:30px;border:3px solid #d9eaf7;border-top-color:#0874c7;border-radius:50%;margin:0 auto 16px;animation:training-spin .8s linear infinite}
+@keyframes training-spin{to{transform:rotate(360deg)}}
+.training-section-heading{margin-bottom:18px}.training-section-heading h2{margin-bottom:4px}
+.training-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.training-choice{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;text-align:left;padding:16px;border:1px solid var(--portal-line);border-radius:12px;background:white;color:var(--portal-navy);transition:background .15s,border-color .15s}
+.training-choice:hover{background:#f0f7ff;border-color:#92bddf}.training-choice>span:first-child{min-width:0;overflow-wrap:anywhere}.training-choice strong{display:block;font-size:.88rem}.training-choice small{display:block;color:var(--portal-muted);font-size:.76rem;margin-top:6px}.training-choice-arrow{color:#0874c7;flex-shrink:0}
+.training-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:22px}.training-pagination span{font-size:.8rem;color:var(--portal-muted)}.training-pagination button:disabled{cursor:default}
+.training-result-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:12px;margin:0 0 14px}.training-result-actions #backToMatches{margin-right:auto}
+.training-student{display:flex;justify-content:space-between;align-items:center;gap:24px}.training-student-copy{min-width:0;flex:1}.training-student h2{font-size:1.5rem;margin:9px 0 14px;overflow-wrap:anywhere}.training-student-meta{display:flex;flex-wrap:wrap;gap:14px 28px;margin:0}.training-student-meta>div{display:grid;gap:3px}.training-student-meta dt{color:var(--portal-muted);font-size:.74rem}.training-student-meta dd{color:var(--portal-navy);font-size:.9rem;font-weight:650;margin:0;overflow-wrap:anywhere}
+.training-total{flex:0 0 180px;text-align:center;padding:20px 24px;background:#edf7ff;border:1px solid #d2e8fa;border-radius:16px;color:#0969ab}.training-total span{display:block;font-size:.72rem;font-weight:700}.training-total strong{display:block;font-size:2.75rem;font-weight:800;line-height:1.2;margin-top:6px}.training-total small{font-size:.75rem}
+.training-criteria{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.training-criterion{border:1px solid var(--portal-line);border-radius:12px;padding:18px 8px;text-align:center;background:#f8fafc}.training-criterion span,.training-criterion small{display:block;color:var(--portal-muted);font-size:.75rem}.training-criterion strong{display:block;font-size:1.65rem;line-height:1.3;color:var(--portal-navy);margin:8px 0 3px;font-weight:750}
+.training-support{text-align:center;margin:26px 0 0;font-size:.79rem}.training-support a{color:#086eae;font-weight:650}
+.training-footer{padding:24px 20px;border-top:1px solid var(--portal-line);text-align:center;background:#eef3f8;color:var(--portal-muted);font-size:.73rem;line-height:1.7}.training-footer p{margin:0}.training-footer p:first-child{font-weight:650;color:#40576d}
+@media(max-width:600px){.training-main{width:calc(100% - 28px);padding-top:30px}.training-heading{margin-bottom:22px}.training-heading h1{font-size:1.85rem}.training-panel{padding:20px;border-radius:16px}.training-search-form{flex-direction:column;align-items:stretch;gap:12px}.training-search-form .btn{width:100%}.training-help{font-size:.75rem}.training-student{align-items:stretch;flex-direction:column;gap:20px}.training-total{flex-basis:auto;padding:16px}.training-total strong{font-size:2.3rem}.training-criteria{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.training-criterion:last-child{grid-column:1/-1}.training-choices{grid-template-columns:1fr}.training-pagination{gap:8px}.training-pagination button{padding:10px 12px}.training-pagination span{font-size:.74rem}.training-state{padding:32px 18px}.training-result-actions .portal-secondary{font-size:.78rem}.training-support a{display:block}}
+@media print{.training-search,.training-heading,.training-support,.training-footer,.training-result-actions,#matchesArea,#initialState{display:none!important}.training-main{width:100%;padding:0}.training-panel{box-shadow:none;break-inside:avoid}}

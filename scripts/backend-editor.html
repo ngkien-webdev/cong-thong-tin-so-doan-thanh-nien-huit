@@ -1,0 +1,2232 @@
+<!doctype html><meta charset="utf-8"><title>Bản cập nhật máy chủ đã kiểm tra</title><h1>Mã cập nhật máy chủ</h1><textarea aria-label="Mã cập nhật" style="width:95%;height:80vh">/**
+ * Cổng Thông Tin Số Đoàn - Hội HUIT
+ * API tiếp nhận và xử lý hồ sơ
+ * Firebase Authentication + Google Sheets + Google Drive + MailApp
+ *
+ * Script Properties bắt buộc:
+ * ADMIN_EMAILS
+ * DRIVE_FOLDER_ID
+ * SPREADSHEET_ID
+ * SHEET_NAME
+ * FIREBASE_API_KEY
+ */
+
+var CONFIG = {
+  SYSTEM_NAME: "Cổng Thông Tin Số Đoàn - Hội HUIT",
+  TIME_ZONE: "Asia/Ho_Chi_Minh",
+  APPLICATION_SHEET: "Hồ sơ",
+  NOTIFICATION_SHEET: "Thông báo",
+  LOG_SHEET: "Nhật ký",
+  MAX_FILE_BYTES: 5 * 1024 * 1024,
+  MAX_ROWS_RETURNED: 500,
+  STATUSES: [
+    "Đang xử lý",
+    "Hoàn thành",
+    "Yêu cầu bổ sung"
+  ]
+};
+
+var APPLICATION_HEADERS = [
+  "Mã hồ sơ",
+  "UID",
+  "Họ và tên",
+  "MSSV",
+  "Email",
+  "Loại hồ sơ",
+  "Nội dung",
+  "Tên tệp",
+  "File ID",
+  "Link tệp",
+  "Trạng thái",
+  "Ngày gửi",
+  "Ngày cập nhật",
+  "Ghi chú xử lý",
+  "Người xử lý",
+  "Email thông báo",
+  "Số lần cập nhật"
+];
+
+var NOTIFICATION_HEADERS = [
+  "Mã thông báo",
+  "Mã hồ sơ",
+  "UID",
+  "Email",
+  "Tiêu đề",
+  "Nội dung",
+  "Trạng thái hồ sơ",
+  "Ngày tạo"
+];
+
+var LOG_HEADERS = [
+  "Thời gian",
+  "Hành động",
+  "Mã hồ sơ",
+  "UID người thực hiện",
+  "Email người thực hiện",
+  "Chi tiết"
+];
+
+/**
+ * Kiểm tra Apps Script runtime.
+ */
+function testRuntime() {
+  var result = {
+    success: true,
+    service: CONFIG.SYSTEM_NAME,
+    message: "Apps Script runtime hoạt động bình thường.",
+    timestamp: new Date().toISOString()
+  };
+
+  Logger.log(JSON.stringify(result));
+  return result;
+}
+
+/**
+ * Kiểm tra doPost không cần đăng nhập.
+ * Kết quả đúng phải có code AUTH_REQUIRED.
+ */
+function testDoPostNoToken() {
+  var response = doPost({
+    postData: {
+      contents: JSON.stringify({
+        action: "verifyAdmin"
+      })
+    }
+  });
+
+  var result = JSON.parse(response.getContent());
+  Logger.log(JSON.stringify(result));
+  return result;
+}
+
+/**
+ * Endpoint kiểm tra API.
+ */
+function doGet(e) {
+  portalV4BeginRequest_();
+  try {
+    const params=e&amp;&amp;e.parameter||{},action=params.action||'';
+    if(['listPublicNews','getPublicNews','getNewsImage'].includes(action))return jsonOutput_(Object.assign({success:true},newsPublicRoute_(action,params)));
+    if(action)throw apiError_('UNKNOWN_ACTION','Thao tác không hợp lệ.');
+    return jsonOutput_({success:true,service:CONFIG.SYSTEM_NAME,version:3,newsVersion:1,accountsVersion:1,capabilities:{profile:1,delivery:1,units:1,unitAccounts:1},message:'API đang hoạt động.',timestamp:new Date().toISOString()});
+  }catch(error){return jsonOutput_({success:false,code:error.code||'SERVER_ERROR',message:error.publicMessage||'Chưa tải được dữ liệu. Vui lòng thử lại.'});}
+}
+
+/**
+ * API chính.
+ */
+function doPost(e) {
+  portalV4BeginRequest_();
+  try {
+    if(!e||!e.postData||e.postData.contents.length>7500000)throw apiError_('INVALID_REQUEST','Yêu cầu không hợp lệ.');
+    const body=parseBody_(e),action=cleanText_(body.action,60);let result;
+    switch(action){
+      case 'createApplication':result=portalV3Create_(body);break;
+      case 'listMyApplications':result=portalV3ListMine_(body);break;
+      case 'listMyNotifications':result=listMyNotifications_(body);break;
+      case 'verifyAdmin':result=verifyAdmin_(body);result.capabilities=portalV3Capabilities_();result.capabilities.news={version:1,actions:['listNewsAdmin','getNewsAdmin','saveNews']};break;
+      case 'listApplications':case 'listAdminApplications':case 'updateApplicationStatus':case 'updateApplication':case 'getApplicationDetails':case 'recordHardcopy':case 'listMailJobs':case 'retryReminder':result=portalV3Route_(action,body);break;
+      case 'listNewsAdmin':case 'getNewsAdmin':case 'saveNews':result=newsAdminRoute_(action,body);break;
+      case 'getPortalContext':case 'saveMyProfile':case 'getUnitDashboard':case 'listUnitsAdmin':case 'saveUnitAdmin':case 'listUnitMembersAdmin':case 'saveUnitMemberAdmin':case 'createUnitAccountAdmin':result=portalV4Route_(action,body);break;
+      default:throw apiError_('UNKNOWN_ACTION','Thao tác không hợp lệ.');
+    }
+    return jsonOutput_(Object.assign({success:true},result));
+  }catch(error){console.error(error.code||'SERVER_ERROR');return jsonOutput_({success:false,code:error.code||'SERVER_ERROR',message:error.publicMessage||'Hệ thống chưa thể xử lý yêu cầu.'});}
+}
+
+/**
+ * Chuẩn bị thư mục Drive và các Sheet.
+ */
+function setupSystem() {
+  var step = "Kiểm tra cấu hình";
+
+  try {
+    var properties =
+      PropertiesService
+        .getScriptProperties()
+        .getProperties();
+
+    var required = [
+      "DRIVE_FOLDER_ID",
+      "SPREADSHEET_ID",
+      "SHEET_NAME",
+      "FIREBASE_API_KEY",
+      "ADMIN_EMAILS"
+    ];
+
+    var missing = [];
+    var i;
+
+    for (i = 0; i &lt; required.length; i++) {
+      if (
+        !properties[required[i]] ||
+        !String(properties[required[i]]).trim()
+      ) {
+        missing.push(required[i]);
+      }
+    }
+
+    if (missing.length) {
+      throw new Error(
+        "Thiếu Script Properties: " +
+        missing.join(", ")
+      );
+    }
+
+    step = "Mở Google Drive";
+
+    var folder = DriveApp.getFolderById(
+      String(properties.DRIVE_FOLDER_ID).trim()
+    );
+
+    var folderName = folder.getName();
+
+    step = "Mở Google Sheets";
+
+    var spreadsheet = SpreadsheetApp.openById(
+      String(properties.SPREADSHEET_ID).trim()
+    );
+
+    var spreadsheetName = spreadsheet.getName();
+
+    step = "Chuẩn bị trang Hồ sơ";
+
+    var applicationSheet = ensureSheet_(
+      spreadsheet,
+      String(properties.SHEET_NAME).trim(),
+      APPLICATION_HEADERS
+    );
+
+    step = "Chuẩn bị trang Thông báo";
+
+    var notificationSheet = ensureSheet_(
+      spreadsheet,
+      CONFIG.NOTIFICATION_SHEET,
+      NOTIFICATION_HEADERS
+    );
+
+    step = "Chuẩn bị trang Nhật ký";
+
+    var logSheet = ensureSheet_(
+      spreadsheet,
+      CONFIG.LOG_SHEET,
+      LOG_HEADERS
+    );
+
+    step = "Lưu thay đổi";
+
+    SpreadsheetApp.flush();
+
+    var result = {
+      success: true,
+      driveFolder: folderName,
+      spreadsheet: spreadsheetName,
+      sheets: [
+        applicationSheet.getName(),
+        notificationSheet.getName(),
+        logSheet.getName()
+      ],
+      adminEmails: String(properties.ADMIN_EMAILS).trim()
+    };
+
+    Logger.log(JSON.stringify(result));
+
+    return result;
+
+  } catch (error) {
+    var failure = {
+      success: false,
+      step: step,
+      error: String(
+        error &amp;&amp; error.message
+          ? error.message
+          : error
+      )
+    };
+
+    Logger.log(JSON.stringify(failure));
+
+    return failure;
+  }
+}
+
+/**
+ * Sinh viên nộp hồ sơ.
+ */
+function createApplication_(body) {
+  var user = authenticate_(
+    body.authToken,
+    false
+  );
+
+  if (user.isAnonymous) {
+    throw apiError_(
+      "GUEST_NOT_ALLOWED",
+      "Chế độ khách không thể nộp hồ sơ."
+    );
+  }
+
+  if (!user.emailVerified) {
+    throw apiError_(
+      "EMAIL_NOT_VERIFIED",
+      "Vui lòng xác minh email trước khi nộp hồ sơ."
+    );
+  }
+
+  var raw = body.application || body;
+  var application = validateApplication_(raw, user);
+
+  checkSubmissionRate_(user.uid);
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+
+  var driveFile = null;
+
+  try {
+    var sheet = getApplicationSheet_();
+    var id = generateApplicationId_();
+    var now = new Date();
+
+    if (application.file) {
+      driveFile = uploadFile_(
+        application.file,
+        id,
+        user.uid
+      );
+    }
+
+    sheet.appendRow([
+      safeCell_(id),
+      safeCell_(user.uid),
+      safeCell_(application.studentName),
+      safeCell_(application.studentId),
+      safeCell_(application.studentEmail),
+      safeCell_(application.docType),
+      safeCell_(application.reason),
+      safeCell_(
+        driveFile
+          ? driveFile.getName()
+          : "Không có tệp"
+      ),
+      safeCell_(
+        driveFile
+          ? driveFile.getId()
+          : ""
+      ),
+      safeCell_(
+        driveFile
+          ? driveFile.getUrl()
+          : ""
+      ),
+      "Đang xử lý",
+      now,
+      now,
+      "",
+      "",
+      "Chưa gửi",
+      0
+    ]);
+
+    appendLog_(
+      "CREATE_APPLICATION",
+      id,
+      user,
+      "Sinh viên nộp hồ sơ mới."
+    );
+
+    return {
+      application: {
+        id: id,
+        docType: application.docType,
+        fileName: driveFile
+          ? driveFile.getName()
+          : "Không có tệp",
+        status: "Đang xử lý",
+        submittedAt: now.toISOString()
+      }
+    };
+
+  } catch (error) {
+    if (driveFile) {
+      try {
+        driveFile.setTrashed(true);
+      } catch (ignored) {}
+    }
+
+    throw error;
+
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Danh sách hồ sơ của sinh viên.
+ */
+function listMyApplications_(body) {
+  var user = authenticate_(
+    body.authToken,
+    false
+  );
+
+  var rows = readRows_(
+    getApplicationSheet_(),
+    APPLICATION_HEADERS.length
+  );
+
+  var applications = [];
+  var i;
+
+  for (i = 0; i &lt; rows.length; i++) {
+    if (String(rows[i][1]) === user.uid) {
+      applications.push(
+        applicationFromRow_(rows[i])
+      );
+    }
+  }
+
+  applications.sort(sortNewestFirst_);
+
+  return {
+    applications: applications.slice(
+      0,
+      CONFIG.MAX_ROWS_RETURNED
+    )
+  };
+}
+
+/**
+ * Thông báo của sinh viên.
+ */
+function listMyNotifications_(body) {
+  var user = authenticate_(
+    body.authToken,
+    false
+  );
+
+  var rows = readRows_(
+    getNotificationSheet_(),
+    NOTIFICATION_HEADERS.length
+  );
+
+  var notifications = [];
+  var i;
+
+  for (i = 0; i &lt; rows.length; i++) {
+    if (String(rows[i][2]) === user.uid) {
+      notifications.push({
+        id: String(rows[i][0] || ""),
+        applicationId: String(rows[i][1] || ""),
+        title: String(
+          rows[i][4] || "Thông báo hồ sơ"
+        ),
+        message: String(rows[i][5] || ""),
+        status: String(rows[i][6] || ""),
+        createdAt: toIso_(rows[i][7])
+      });
+    }
+  }
+
+  notifications.sort(sortNewestFirst_);
+
+  return {
+    notifications: notifications.slice(0, 200)
+  };
+}
+
+/**
+ * Xác thực quyền quản trị.
+ */
+function verifyAdmin_(body) {
+  var user = authenticate_(
+    body.authToken,
+    true
+  );
+
+  return {
+    admin: {
+      uid: user.uid,
+      email: user.email,
+      displayName:
+        user.displayName || user.email
+    }
+  };
+}
+
+/**
+ * Danh sách toàn bộ hồ sơ cho quản trị.
+ */
+function listApplications_(body) {
+  authenticate_(
+    body.authToken,
+    true
+  );
+
+  var rows = readRows_(
+    getApplicationSheet_(),
+    APPLICATION_HEADERS.length
+  );
+
+  var statusFilter = cleanText_(
+    body.status,
+    40
+  );
+
+  var applications = [];
+  var i;
+
+  for (i = 0; i &lt; rows.length; i++) {
+    var item = applicationFromRow_(rows[i]);
+
+    if (
+      !statusFilter ||
+      item.status === statusFilter
+    ) {
+      applications.push(item);
+    }
+  }
+
+  applications.sort(sortNewestFirst_);
+
+  return {
+    applications: applications.slice(
+      0,
+      CONFIG.MAX_ROWS_RETURNED
+    ),
+    total: applications.length
+  };
+}
+
+/**
+ * Cập nhật trạng thái hồ sơ.
+ */
+function updateApplicationStatus_(body) {
+  var admin = authenticate_(
+    body.authToken,
+    true
+  );
+
+  var applicationId = cleanText_(
+    body.applicationId,
+    50
+  ).toUpperCase();
+
+  var newStatus = cleanText_(
+    body.status,
+    50
+  );
+
+  var note = cleanText_(
+    body.note,
+    1200
+  );
+
+  if (!applicationId) {
+    throw apiError_(
+      "INVALID_APPLICATION_ID",
+      "Mã hồ sơ không hợp lệ."
+    );
+  }
+
+  if (
+    CONFIG.STATUSES.indexOf(newStatus) === -1
+  ) {
+    throw apiError_(
+      "INVALID_STATUS",
+      "Trạng thái hồ sơ không hợp lệ."
+    );
+  }
+
+  if (
+    newStatus === "Yêu cầu bổ sung" &amp;&amp;
+    note.length &lt; 5
+  ) {
+    throw apiError_(
+      "NOTE_REQUIRED",
+      "Vui lòng ghi rõ nội dung cần bổ sung."
+    );
+  }
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+
+  try {
+    var sheet = getApplicationSheet_();
+
+    var rowNumber = findApplicationRow_(
+      sheet,
+      applicationId
+    );
+
+    if (!rowNumber) {
+      throw apiError_(
+        "APPLICATION_NOT_FOUND",
+        "Không tìm thấy hồ sơ."
+      );
+    }
+
+    var row = sheet
+      .getRange(
+        rowNumber,
+        1,
+        1,
+        APPLICATION_HEADERS.length
+      )
+      .getValues()[0];
+
+    var application = applicationFromRow_(row);
+    var oldStatus = application.status;
+    var changed = oldStatus !== newStatus;
+    var now = new Date();
+    var updateCount = Number(row[16]) || 0;
+
+    sheet
+      .getRange(rowNumber, 11)
+      .setValue(newStatus);
+
+    sheet
+      .getRange(rowNumber, 13)
+      .setValue(now);
+
+    sheet
+      .getRange(rowNumber, 14)
+      .setValue(safeCell_(note));
+
+    sheet
+      .getRange(rowNumber, 15)
+      .setValue(safeCell_(admin.email));
+
+    sheet
+      .getRange(rowNumber, 17)
+      .setValue(updateCount + 1);
+
+    var notification = null;
+
+    if (changed || note) {
+      notification = appendNotification_({
+        applicationId: application.id,
+        uid: application.uid,
+        email: application.studentEmail,
+        status: newStatus,
+        note: note,
+        createdAt: now
+      });
+    }
+
+    var emailResult = {
+      sent: false,
+      skipped: true,
+      message: "Trạng thái không thay đổi."
+    };
+
+    if (
+      changed &amp;&amp;
+      (
+        newStatus === "Hoàn thành" ||
+        newStatus === "Yêu cầu bổ sung"
+      )
+    ) {
+      emailResult = sendStatusEmail_(
+        application,
+        newStatus,
+        note
+      );
+
+      sheet
+        .getRange(rowNumber, 16)
+        .setValue(
+          emailResult.sent
+            ? "Đã gửi " +
+              formatDateTime_(new Date())
+            : "Lỗi: " +
+              cleanText_(
+                emailResult.message,
+                250
+              )
+        );
+    }
+
+    appendLog_(
+      "UPDATE_STATUS",
+      application.id,
+      admin,
+      oldStatus +
+        " -> " +
+        newStatus +
+        (
+          note
+            ? " | " + note
+            : ""
+        )
+    );
+
+    return {
+      application: {
+        id: application.id,
+        previousStatus: oldStatus,
+        status: newStatus,
+        note: note,
+        updatedAt: now.toISOString()
+      },
+      notification: notification,
+      email: emailResult
+    };
+
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Xác thực Firebase ID token.
+ */
+function authenticate_(idToken,requireAdmin) {
+  const token=String(idToken||'').trim();
+  if(token.length&lt;100||token.length>10000)throw apiError_('AUTH_REQUIRED','Phiên đăng nhập không hợp lệ.');
+  const response=UrlFetchApp.fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key='+encodeURIComponent(requiredProperty_('FIREBASE_API_KEY')),{method:'post',contentType:'application/json',payload:JSON.stringify({idToken:token}),muteHttpExceptions:true});
+  if(response.getResponseCode()!==200)throw apiError_('AUTH_EXPIRED','Phiên đăng nhập đã hết hạn.');
+  const data=JSON.parse(response.getContentText()||'{}'),info=data.users&amp;&amp;data.users[0];
+  if(!info||!info.localId||info.disabled)throw apiError_('AUTH_INVALID','Không thể xác thực tài khoản.');
+  let decoded;try{decoded=JSON.parse(Utilities.newBlob(Utilities.base64DecodeWebSafe(token.split('.')[1])).getDataAsString());}catch(error){throw apiError_('AUTH_INVALID','Phiên đăng nhập không hợp lệ.');}
+  if(decoded.aud!=='huit-youth-portal'||decoded.iss!=='https://securetoken.google.com/huit-youth-portal'||decoded.sub!==info.localId||!(decoded.exp*1000>Date.now()))throw apiError_('AUTH_INVALID','Phiên đăng nhập không thuộc hệ thống.');
+  let claims={};try{claims=JSON.parse(info.customAttributes||'{}');}catch(ignored){}
+  const user={uid:String(info.localId),email:String(info.email||'').trim().toLowerCase(),displayName:String(info.displayName||''),emailVerified:info.emailVerified===true,isAnonymous:!info.email,claims};
+  if(portalV4IsUnitEmail_(user.email)&amp;&amp;!portalV4Membership_(user))throw apiError_('UNIT_ACCESS_REQUIRED','Tài khoản đơn vị chưa được cấp quyền hoặc đã tạm khóa.');
+  if(requireAdmin&amp;&amp;(!user.emailVerified||!isAdmin_(user)))throw apiError_('ADMIN_REQUIRED','Tài khoản chưa được cấp quyền quản trị.');
+  return user;
+}
+
+/**
+ * Kiểm tra quyền quản trị.
+ * Có thể dùng custom claim hoặc ADMIN_EMAILS.
+ */
+function isAdmin_(user) {
+  if (
+    user.claims &amp;&amp;
+    (
+      user.claims.admin === true ||
+      user.claims.role === "admin"
+    )
+  ) {
+    return true;
+  }
+
+  var emails = requiredProperty_(
+    "ADMIN_EMAILS"
+  ).split(/[;,\n]/);
+
+  var i;
+
+  for (i = 0; i &lt; emails.length; i++) {
+    if (
+      emails[i]
+        .trim()
+        .toLowerCase() === user.email &amp;&amp;
+      user.emailVerified
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Kiểm tra dữ liệu hồ sơ.
+ */
+function validateApplication_(raw, user) {
+  var studentName = cleanText_(
+    raw.studentName,
+    120
+  );
+
+  var studentId = cleanText_(
+    raw.studentId,
+    30
+  ).toUpperCase();
+
+  var studentEmail = String(
+    raw.studentEmail ||
+    raw.email ||
+    ""
+  ).trim().toLowerCase();
+
+  var docType = cleanText_(
+    raw.docType,
+    160
+  );
+
+  var reason = cleanText_(
+    raw.reason,
+    3000
+  );
+
+  if (studentName.length &lt; 2) {
+    throw apiError_(
+      "INVALID_NAME",
+      "Vui lòng nhập họ và tên hợp lệ."
+    );
+  }
+
+  if (
+    !/^[A-Z0-9._-]{5,30}$/.test(studentId)
+  ) {
+    throw apiError_(
+      "INVALID_STUDENT_ID",
+      "Mã số sinh viên không hợp lệ."
+    );
+  }
+
+  if (!isValidEmail_(studentEmail)) {
+    throw apiError_(
+      "INVALID_EMAIL",
+      "Email nhận thông báo không hợp lệ."
+    );
+  }
+
+  if (
+    !user.email ||
+    studentEmail !== user.email
+  ) {
+    throw apiError_(
+      "EMAIL_MISMATCH",
+      "Email nhận thông báo phải trùng email đăng nhập."
+    );
+  }
+
+  if (docType.length &lt; 3) {
+    throw apiError_(
+      "INVALID_DOCUMENT_TYPE",
+      "Vui lòng chọn loại hồ sơ."
+    );
+  }
+
+  if (reason.length &lt; 10) {
+    throw apiError_(
+      "INVALID_REASON",
+      "Nội dung yêu cầu cần ít nhất 10 ký tự."
+    );
+  }
+
+  return {
+    studentName: studentName,
+    studentId: studentId,
+    studentEmail: studentEmail,
+    docType: docType,
+    reason: reason,
+    file: validateFile_(raw.file)
+  };
+}
+
+/**
+ * Kiểm tra tệp đính kèm.
+ */
+function validateFile_(file) {
+  if (
+    !file ||
+    !file.base64
+  ) {
+    return null;
+  }
+
+  var name = sanitizeFileName_(
+    file.name || "tep-dinh-kem"
+  );
+
+  var mimeType = String(
+    file.mimeType || ""
+  ).toLowerCase();
+
+  var allowed = {
+    "application/pdf": [
+      "pdf"
+    ],
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+      "docx"
+    ],
+    "image/jpeg": [
+      "jpg",
+      "jpeg"
+    ],
+    "image/png": [
+      "png"
+    ]
+  };
+
+  var extension =
+    name.indexOf(".") >= 0
+      ? name
+          .split(".")
+          .pop()
+          .toLowerCase()
+      : "";
+
+  if (
+    !allowed[mimeType] ||
+    allowed[mimeType].indexOf(extension) === -1
+  ) {
+    throw apiError_(
+      "FILE_TYPE_NOT_ALLOWED",
+      "Chỉ chấp nhận PDF, DOCX, JPG hoặc PNG."
+    );
+  }
+
+  var base64 = String(
+    file.base64
+  )
+    .replace(
+      /^data:[^;]+;base64,/,
+      ""
+    )
+    .replace(/\s/g, "");
+
+  if (
+    !base64 ||
+    Math.floor(base64.length * 3 / 4) >
+      CONFIG.MAX_FILE_BYTES + 3
+  ) {
+    throw apiError_(
+      "FILE_TOO_LARGE",
+      "Tệp đính kèm không được vượt quá 5 MB."
+    );
+  }
+
+  var bytes;
+
+  try {
+    bytes = Utilities.base64Decode(base64);
+  } catch (error) {
+    throw apiError_(
+      "INVALID_FILE",
+      "Không thể đọc tệp đính kèm."
+    );
+  }
+
+  if (
+    !bytes.length ||
+    bytes.length > CONFIG.MAX_FILE_BYTES
+  ) {
+    throw apiError_(
+      "FILE_TOO_LARGE",
+      "Tệp đính kèm không được vượt quá 5 MB."
+    );
+  }
+
+  if (
+    !validSignature_(
+      bytes,
+      mimeType
+    )
+  ) {
+    throw apiError_(
+      "INVALID_FILE_SIGNATURE",
+      "Nội dung tệp không khớp với định dạng."
+    );
+  }
+
+  return {
+    name: name,
+    mimeType: mimeType,
+    bytes: bytes
+  };
+}
+
+/**
+ * Kiểm tra chữ ký tệp.
+ */
+function validSignature_(bytes, mimeType) {
+  var b = [];
+  var i;
+
+  for (
+    i = 0;
+    i &lt; 8 &amp;&amp; i &lt; bytes.length;
+    i++
+  ) {
+    b.push(
+      bytes[i] &lt; 0
+        ? bytes[i] + 256
+        : bytes[i]
+    );
+  }
+
+  if (
+    mimeType === "application/pdf"
+  ) {
+    return (
+      b[0] === 37 &amp;&amp;
+      b[1] === 80 &amp;&amp;
+      b[2] === 68 &amp;&amp;
+      b[3] === 70
+    );
+  }
+
+  if (
+    mimeType === "image/png"
+  ) {
+    return (
+      b.join(",") ===
+      "137,80,78,71,13,10,26,10"
+    );
+  }
+
+  if (
+    mimeType === "image/jpeg"
+  ) {
+    return (
+      b[0] === 255 &amp;&amp;
+      b[1] === 216 &amp;&amp;
+      b[2] === 255
+    );
+  }
+
+  if (
+    mimeType ===
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ) {
+    return (
+      b[0] === 80 &amp;&amp;
+      b[1] === 75 &amp;&amp;
+      b[2] === 3 &amp;&amp;
+      b[3] === 4
+    );
+  }
+
+  return false;
+}
+
+/**
+ * Lưu tệp vào Google Drive.
+ */
+function uploadFile_(
+  file,
+  applicationId,
+  uid
+) {
+  var folder = DriveApp.getFolderById(
+    requiredProperty_("DRIVE_FOLDER_ID")
+  );
+
+  var name =
+    applicationId +
+    "_" +
+    file.name;
+
+  var blob = Utilities.newBlob(
+    file.bytes,
+    file.mimeType,
+    name
+  );
+
+  var driveFile = folder.createFile(blob);
+
+  shareFileWithAdmins_(driveFile);
+
+  driveFile.setDescription(
+    "Hồ sơ: " +
+      applicationId +
+      "\nUID: " +
+      uid +
+      "\nNgày tạo: " +
+      formatDateTime_(new Date())
+  );
+
+  return driveFile;
+}
+
+/**
+ * Cấp quyền xem tệp cho quản trị viên.
+ */
+function shareFileWithAdmins_(driveFile) {
+  var rawEmails =
+    PropertiesService
+      .getScriptProperties()
+      .getProperty("ADMIN_EMAILS") ||
+    "";
+
+  var emails =
+    rawEmails.split(/[;,\n]/);
+
+  var i;
+
+  for (i = 0; i &lt; emails.length; i++) {
+    var email = String(
+      emails[i] || ""
+    ).trim();
+
+    if (
+      !email ||
+      !isValidEmail_(email)
+    ) {
+      continue;
+    }
+
+    try {
+      driveFile.addViewer(email);
+    } catch (error) {
+      console.error(
+        "Không thể cấp quyền xem tệp cho " +
+          email,
+        error
+      );
+    }
+  }
+}
+
+/**
+ * Tạo thông báo trong Sheet.
+ */
+function appendNotification_(data) {
+  var sheet = getNotificationSheet_();
+
+  var id =
+    "TB-" +
+    Utilities.getUuid()
+      .replace(/-/g, "")
+      .substring(0, 12)
+      .toUpperCase();
+
+  var title =
+    "Trạng thái hồ sơ đã thay đổi";
+
+  if (
+    data.status === "Hoàn thành"
+  ) {
+    title = "Hồ sơ đã hoàn thành";
+  }
+
+  if (
+    data.status === "Yêu cầu bổ sung"
+  ) {
+    title = "Hồ sơ cần bổ sung";
+  }
+
+  var message =
+    "Hồ sơ " +
+    data.applicationId +
+    " đã chuyển sang trạng thái \"" +
+    data.status +
+    "\".";
+
+  if (data.note) {
+    message +=
+      " Ghi chú: " +
+      data.note;
+  }
+
+  sheet.appendRow([
+    id,
+    safeCell_(data.applicationId),
+    safeCell_(data.uid),
+    safeCell_(data.email),
+    safeCell_(title),
+    safeCell_(message),
+    safeCell_(data.status),
+    data.createdAt
+  ]);
+
+  return {
+    id: id,
+    title: title,
+    message: message,
+    createdAt: data.createdAt.toISOString()
+  };
+}
+
+/**
+ * Gửi email khi hồ sơ hoàn thành hoặc cần bổ sung.
+ */
+function sendStatusEmail_(
+  application,
+  status,
+  note
+) {
+  if (
+    !isValidEmail_(
+      application.studentEmail
+    )
+  ) {
+    return {
+      sent: false,
+      skipped: false,
+      message: "Email sinh viên không hợp lệ."
+    };
+  }
+
+  if (
+    MailApp.getRemainingDailyQuota() &lt; 1
+  ) {
+    return {
+      sent: false,
+      skipped: false,
+      message: "Đã hết hạn mức email trong ngày."
+    };
+  }
+
+  var completed =
+    status === "Hoàn thành";
+
+  var subject = completed
+    ? "[" +
+      application.id +
+      "] Trân trọng thông báo hồ sơ đã hoàn thành"
+    : "[" +
+      application.id +
+      "] Thông báo yêu cầu bổ sung hồ sơ";
+
+  var statusMessage = completed
+    ? "Hồ sơ của bạn đã được xử lý và hoàn thành trên hệ thống."
+    : "Hồ sơ của bạn cần được bổ sung thêm thông tin.";
+
+  var noteText =
+    note ||
+    (
+      completed
+        ? "Không có ghi chú thêm."
+        : "Vui lòng liên hệ bộ phận phụ trách."
+    );
+
+  var plainBody = [
+    "Kính gửi " +
+      application.studentName +
+      ",",
+    "",
+    statusMessage,
+    "",
+    "Mã hồ sơ: " +
+      application.id,
+    "Loại hồ sơ: " +
+      application.docType,
+    "Trạng thái: " +
+      status,
+    "Ghi chú: " +
+      noteText,
+    "",
+    "Vui lòng đăng nhập hệ thống để xem chi tiết.",
+    "",
+    "Trân trọng thông báo,",
+    CONFIG.SYSTEM_NAME,
+    "Email này được gửi tự động, vui lòng không trả lời."
+  ].join("\n");
+
+  var htmlBody =
+    '&lt;div style="background:#f4f8fb;padding:24px;font-family:Arial,sans-serif;color:#17324d">' +
+      '&lt;div style="max-width:620px;margin:auto;background:#fff;border:1px solid #dce9f2;border-radius:14px;overflow:hidden">' +
+        '&lt;div style="background:#0076b5;color:#fff;padding:22px 26px">' +
+          '&lt;div style="font-size:13px;opacity:.85">' +
+            escapeHtml_(CONFIG.SYSTEM_NAME) +
+          '&lt;/div>' +
+          '&lt;h2 style="margin:8px 0 0">' +
+            escapeHtml_(
+              completed
+                ? "Hồ sơ đã hoàn thành"
+                : "Hồ sơ cần bổ sung"
+            ) +
+          '&lt;/h2>' +
+        '&lt;/div>' +
+        '&lt;div style="padding:26px;line-height:1.7">' +
+          '&lt;p>Kính gửi &lt;strong>' +
+            escapeHtml_(application.studentName) +
+          '&lt;/strong>,&lt;/p>' +
+          '&lt;p>' +
+            escapeHtml_(statusMessage) +
+          '&lt;/p>' +
+          '&lt;div style="background:#f6fafc;border:1px solid #e0ebf2;border-radius:10px;padding:16px">' +
+            '&lt;div>&lt;strong>Mã hồ sơ:&lt;/strong> ' +
+              escapeHtml_(application.id) +
+            '&lt;/div>' +
+            '&lt;div>&lt;strong>Loại hồ sơ:&lt;/strong> ' +
+              escapeHtml_(application.docType) +
+            '&lt;/div>' +
+            '&lt;div>&lt;strong>Trạng thái:&lt;/strong> ' +
+              escapeHtml_(status) +
+            '&lt;/div>' +
+            '&lt;div>&lt;strong>Ghi chú:&lt;/strong> ' +
+              escapeHtml_(noteText) +
+            '&lt;/div>' +
+          '&lt;/div>' +
+          '&lt;p>Vui lòng đăng nhập hệ thống để xem chi tiết.&lt;/p>' +
+          '&lt;p>Trân trọng thông báo,&lt;br>&lt;strong>' +
+            escapeHtml_(CONFIG.SYSTEM_NAME) +
+          '&lt;/strong>&lt;/p>' +
+        '&lt;/div>' +
+        '&lt;div style="background:#f7fafc;padding:14px 26px;color:#718096;font-size:12px">' +
+          'Email tự động, vui lòng không trả lời.' +
+        '&lt;/div>' +
+      '&lt;/div>' +
+    '&lt;/div>';
+
+  try {
+    MailApp.sendEmail({
+      to: application.studentEmail,
+      subject: subject,
+      body: plainBody,
+      htmlBody: htmlBody,
+      name: CONFIG.SYSTEM_NAME
+    });
+
+    return {
+      sent: true,
+      skipped: false,
+      message: "Đã gửi email thông báo."
+    };
+
+  } catch (error) {
+    console.error(error);
+
+    return {
+      sent: false,
+      skipped: false,
+      message: "Không thể gửi email."
+    };
+  }
+}
+
+/**
+ * Lấy Sheet Hồ sơ.
+ */
+function getApplicationSheet_() { return portalV4BaseSheet_(PropertiesService.getScriptProperties().getProperty('SHEET_NAME')||CONFIG.APPLICATION_SHEET,APPLICATION_HEADERS);
+}
+
+/**
+ * Lấy Sheet Thông báo.
+ */
+function getNotificationSheet_() { return portalV4BaseSheet_(CONFIG.NOTIFICATION_SHEET,NOTIFICATION_HEADERS);
+}
+
+/**
+ * Lấy Sheet Nhật ký.
+ */
+function getLogSheet_() { return portalV4BaseSheet_(CONFIG.LOG_SHEET,LOG_HEADERS);
+}
+
+/**
+ * Tạo Sheet và tiêu đề.
+ */
+function ensureSheet_(spreadsheet,name,headers) {
+  let sheet=spreadsheet.getSheetByName(name);
+  if(!sheet){sheet=spreadsheet.insertSheet(name);sheet.getRange(1,1,1,headers.length).setValues([headers]);sheet.setFrozenRows(1);return sheet;}
+  if(sheet.getMaxColumns()&lt;headers.length)throw apiError_('SCHEMA_MISMATCH','Bảng '+name+' thiếu cột. Dữ liệu được giữ nguyên.');
+  const actual=sheet.getRange(1,1,1,headers.length).getValues()[0];
+  if(headers.some((h,i)=>h!==actual[i]))throw apiError_('SCHEMA_MISMATCH','Tiêu đề bảng '+name+' chưa khớp. Dữ liệu được giữ nguyên.');
+  return sheet;
+}
+
+/**
+ * Đọc dữ liệu từ Sheet.
+ */
+function readRows_(sheet, width) {
+  var lastRow = sheet.getLastRow();
+
+  if (lastRow &lt; 2) {
+    return [];
+  }
+
+  return sheet
+    .getRange(
+      2,
+      1,
+      lastRow - 1,
+      width
+    )
+    .getValues();
+}
+
+/**
+ * Tìm dòng theo mã hồ sơ.
+ */
+function findApplicationRow_(
+  sheet,
+  id
+) {
+  var lastRow = sheet.getLastRow();
+
+  if (lastRow &lt; 2) {
+    return 0;
+  }
+
+  var match = sheet
+    .getRange(
+      2,
+      1,
+      lastRow - 1,
+      1
+    )
+    .createTextFinder(id)
+    .matchEntireCell(true)
+    .matchCase(false)
+    .findNext();
+
+  return match
+    ? match.getRow()
+    : 0;
+}
+
+/**
+ * Chuyển dữ liệu Sheet thành object.
+ */
+function applicationFromRow_(row) {
+  return {
+    id: String(row[0] || ""),
+    uid: String(row[1] || ""),
+    studentName: String(row[2] || ""),
+    studentId: String(row[3] || ""),
+    studentEmail: String(row[4] || ""),
+    docType: String(row[5] || ""),
+    reason: String(row[6] || ""),
+    fileName: String(
+      row[7] || "Không có tệp"
+    ),
+    fileId: String(row[8] || ""),
+    fileUrl: String(row[9] || ""),
+    status: String(
+      row[10] || "Đang xử lý"
+    ),
+    submittedAt: toIso_(row[11]),
+    updatedAt: toIso_(row[12]),
+    note: String(row[13] || ""),
+    handledBy: String(row[14] || ""),
+    emailDelivery: String(row[15] || ""),
+    updateCount: Number(row[16]) || 0
+  };
+}
+
+/**
+ * Ghi nhật ký xử lý.
+ */
+function appendLog_(
+  action,
+  applicationId,
+  actor,
+  detail
+) {
+  try {
+    getLogSheet_().appendRow([
+      new Date(),
+      safeCell_(action),
+      safeCell_(applicationId),
+      safeCell_(actor.uid || ""),
+      safeCell_(actor.email || ""),
+      safeCell_(detail || "")
+    ]);
+  } catch (error) {
+    console.error(
+      "Không thể ghi nhật ký",
+      error
+    );
+  }
+}
+
+/**
+ * Giới hạn nộp liên tục.
+ */
+function checkSubmissionRate_(uid) {
+  var cache =
+    CacheService.getScriptCache();
+
+  var key = "submit_" + uid;
+
+  if (cache.get(key)) {
+    throw apiError_(
+      "TOO_MANY_REQUESTS",
+      "Vui lòng đợi vài giây rồi thử lại."
+    );
+  }
+
+  cache.put(key, "1", 12);
+}
+
+/**
+ * Sinh mã hồ sơ.
+ */
+function generateApplicationId_() {
+  var date = Utilities.formatDate(
+    new Date(),
+    CONFIG.TIME_ZONE,
+    "yyyyMMdd"
+  );
+
+  var random = Utilities
+    .getUuid()
+    .replace(/-/g, "")
+    .substring(0, 6)
+    .toUpperCase();
+
+  return "HS-" + date + "-" + random;
+}
+
+/**
+ * Phân tích JSON request.
+ */
+function parseBody_(e) {
+  if (
+    !e ||
+    !e.postData ||
+    !e.postData.contents
+  ) {
+    throw apiError_(
+      "EMPTY_REQUEST",
+      "Yêu cầu không có dữ liệu."
+    );
+  }
+
+  try {
+    var body = JSON.parse(
+      e.postData.contents
+    );
+
+    if (
+      !body ||
+      typeof body !== "object" ||
+      Array.isArray(body)
+    ) {
+      throw new Error("Invalid JSON");
+    }
+
+    return body;
+
+  } catch (error) {
+    throw apiError_(
+      "INVALID_JSON",
+      "Dữ liệu gửi lên không đúng định dạng JSON."
+    );
+  }
+}
+
+/**
+ * Đọc Script Properties.
+ */
+function requiredProperty_(key) {
+  var value =
+    PropertiesService
+      .getScriptProperties()
+      .getProperty(key);
+
+  if (
+    !value ||
+    !String(value).trim()
+  ) {
+    throw apiError_(
+      "MISSING_CONFIGURATION",
+      "Thiếu cấu hình " + key + "."
+    );
+  }
+
+  return String(value).trim();
+}
+
+/**
+ * Làm sạch chuỗi.
+ */
+function cleanText_(
+  value,
+  maxLength
+) {
+  return String(
+    value === null ||
+    value === undefined
+      ? ""
+      : value
+  )
+    .replace(
+      /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g,
+      ""
+    )
+    .replace(/\r\n?/g, "\n")
+    .trim()
+    .substring(
+      0,
+      maxLength || 1000
+    );
+}
+
+/**
+ * Chống công thức độc hại trong Sheet.
+ */
+function safeCell_(value) {
+  var text = cleanText_(
+    value,
+    10000
+  );
+
+  return /^[=+\-@]/.test(text)
+    ? "'" + text
+    : text;
+}
+
+/**
+ * Làm sạch tên file.
+ */
+function sanitizeFileName_(name) {
+  var value = cleanText_(
+    name,
+    160
+  )
+    .replace(
+      /[\\/:*?"&lt;>|]/g,
+      "-"
+    )
+    .replace(
+      /\s+/g,
+      " "
+    )
+    .trim();
+
+  return value || "tep-dinh-kem";
+}
+
+/**
+ * Kiểm tra email.
+ */
+function isValidEmail_(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+    String(email || "")
+  );
+}
+
+/**
+ * Chống HTML injection trong email.
+ */
+function escapeHtml_(value) {
+  return String(
+    value === null ||
+    value === undefined
+      ? ""
+      : value
+  )
+    .replace(/&amp;/g, "&amp;amp;")
+    .replace(/&lt;/g, "&amp;lt;")
+    .replace(/>/g, "&amp;gt;")
+    .replace(/"/g, "&amp;quot;")
+    .replace(/'/g, "&amp;#039;");
+}
+
+/**
+ * Đổi ngày thành ISO.
+ */
+function toIso_(value) {
+  if (
+    value instanceof Date &amp;&amp;
+    !isNaN(value.getTime())
+  ) {
+    return value.toISOString();
+  }
+
+  var date = new Date(value);
+
+  return isNaN(date.getTime())
+    ? ""
+    : date.toISOString();
+}
+
+/**
+ * Sắp xếp mới nhất trước.
+ */
+function sortNewestFirst_(a, b) {
+  var aTime = new Date(
+    a.updatedAt ||
+    a.createdAt ||
+    a.submittedAt ||
+    0
+  ).getTime();
+
+  var bTime = new Date(
+    b.updatedAt ||
+    b.createdAt ||
+    b.submittedAt ||
+    0
+  ).getTime();
+
+  return bTime - aTime;
+}
+
+/**
+ * Định dạng ngày giờ Việt Nam.
+ */
+function formatDateTime_(date) {
+  return Utilities.formatDate(
+    date,
+    CONFIG.TIME_ZONE,
+    "dd/MM/yyyy HH:mm:ss"
+  );
+}
+
+/**
+ * Tạo lỗi API.
+ */
+function apiError_(
+  code,
+  message
+) {
+  var error = new Error(message);
+
+  error.code = code;
+  error.publicMessage = message;
+
+  return error;
+}
+
+/**
+ * Trả JSON.
+ */
+function jsonOutput_(data) {
+  return ContentService
+    .createTextOutput(
+      JSON.stringify(data)
+    )
+    .setMimeType(
+      ContentService.MimeType.JSON
+    );
+}
+/** Add-on for the existing Vietnamese 17-column Apps Script project.
+ * Keep the original project functions; route upgraded actions to these helpers.
+ * Does not rename, migrate, or overwrite existing application columns.
+ */
+const PORTAL_V3_HEADERS = {
+  PortalRequests: ['id','uid','applicationId','createdAt'],
+  MailQueue: ['id','applicationId','recipient','studentName','dueAt','state','attempts','updatedAt','sentAt','error'],
+  Hardcopies: ['applicationId','receivedAt','receivedBy','note'],
+  AuditLog: ['id','actorUid','applicationId','fromStatus','toStatus','note','createdAt'],
+  StudentProfiles: ['uid','studentName','studentId','phone','updatedAt'],
+  ApplicationExtras: ['applicationId','phone','deliveryMethod','deliveryPhone','deliveryAddress','unitId','unitName','createdAt'],
+  PortalUnits: ['id','name','type','active','createdAt','updatedAt','updatedBy'],
+  UnitMembers: ['email','uid','unitId','active','username','displayName','createdAt','updatedAt','updatedBy']
+};
+const PORTAL_V3_STATUSES = ['Đang xử lý','Yêu cầu bổ sung','Hoàn thành','Từ chối'];
+
+function portalV3Fail_(code,message) { const e=new Error(message);e.code=code;e.publicMessage=message;throw e; }
+function portalV3Text_(value,min,max,label) {
+  if(typeof value!=='string'||value.trim().length&lt;min||value.length>max)portalV3Fail_('INVALID_INPUT',label+' không hợp lệ.');
+  return value.trim();
+}
+function portalV3Fold_(value) { return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').toLowerCase().trim(); }
+function portalV3IsPlan_(type) { return portalV3Fold_(type).startsWith('ke hoach'); }
+function portalV3MailEnabled_() { return PropertiesService.getScriptProperties().getProperty('MAIL_ENABLED')==='true'; }
+function portalV3Capabilities_() {
+  return {version:3,profile:1,delivery:1,units:1,unitAccounts:1,actions:['listAdminApplications','getApplicationDetails','updateApplication','recordHardcopy','listMailJobs','retryReminder','listUnitsAdmin','saveUnitAdmin','listUnitMembersAdmin','saveUnitMemberAdmin','createUnitAccountAdmin'],reminders:{enabled:portalV3MailEnabled_(),timezone:'Asia/Ho_Chi_Minh',hour:8}};
+}
+// Per-execution references only. Never store authorization in ScriptCache.
+let PORTAL_V4_REQUEST = null;
+function portalV4BeginRequest_() { PORTAL_V4_REQUEST={sheets:{},rows:{},book:null}; }
+function portalV3Book_() {
+  if(!PORTAL_V4_REQUEST)portalV4BeginRequest_();
+  if(!PORTAL_V4_REQUEST.book)PORTAL_V4_REQUEST.book=getApplicationSheet_().getParent();
+  return PORTAL_V4_REQUEST.book;
+}
+function portalV3Sheet_(name) {
+  if(!PORTAL_V4_REQUEST)portalV4BeginRequest_();
+  if(PORTAL_V4_REQUEST.sheets[name])return PORTAL_V4_REQUEST.sheets[name];
+  const sheet=portalV3Book_().getSheetByName(name),headers=PORTAL_V3_HEADERS[name];
+  if(!sheet)portalV3Fail_('SCHEMA_REQUIRED','Chưa có bảng '+name+'. Chạy setupPortalUpgrade trước khi triển khai.');
+  const actual=sheet.getRange(1,1,1,headers.length).getValues()[0];
+  if(headers.some((h,i)=>actual[i]!==h))portalV3Fail_('SCHEMA_MISMATCH','Cấu trúc bảng '+name+' chưa phù hợp. Không tự ghi đè dữ liệu.');
+  PORTAL_V4_REQUEST.sheets[name]=sheet;return sheet;
+}
+function portalV3Rows_(name) {
+  if(!PORTAL_V4_REQUEST)portalV4BeginRequest_();
+  if(PORTAL_V4_REQUEST.rows[name])return PORTAL_V4_REQUEST.rows[name];
+  const sheet=portalV3Sheet_(name),headers=PORTAL_V3_HEADERS[name];
+  if(sheet.getLastRow()&lt;2)return [];
+  return PORTAL_V4_REQUEST.rows[name]=sheet.getRange(2,1,sheet.getLastRow()-1,headers.length).getValues().map((row,i)=>{
+    const data={_row:i+1};headers.forEach((h,j)=>data[h]=row[j] instanceof Date?row[j].toISOString():row[j]);return data;
+  }).filter(r=>r[headers[0]]!=='');
+}
+function portalV3Cells_(values) { return {values:values.map(v=>({userEnteredValue:typeof v==='number'&amp;&amp;Number.isFinite(v)?{numberValue:v}:typeof v==='boolean'?{boolValue:v}:{stringValue:v instanceof Date?v.toISOString():String(v===undefined||v===null?'':v)}}))}; }
+function portalV3Append_(name,data) {
+  return {appendCells:{sheetId:portalV3Sheet_(name).getSheetId(),rows:[portalV3Cells_(PORTAL_V3_HEADERS[name].map(h=>data[h]))],fields:'userEnteredValue'}};
+}
+function portalV3Update_(name,data) {
+  return portalV3RowUpdate_(portalV3Sheet_(name),data._row,PORTAL_V3_HEADERS[name].map(h=>data[h]));
+}
+function portalV3RowUpdate_(sheet,row,values) {
+  return {updateCells:{range:{sheetId:sheet.getSheetId(),startRowIndex:row,endRowIndex:row+1,startColumnIndex:0,endColumnIndex:values.length},rows:[portalV3Cells_(values)],fields:'userEnteredValue'}};
+}
+function portalV3ColumnUpdate_(sheet,row,column,values) {
+  return {updateCells:{range:{sheetId:sheet.getSheetId(),startRowIndex:row,endRowIndex:row+1,startColumnIndex:column,endColumnIndex:column+values.length},rows:[portalV3Cells_(values)],fields:'userEnteredValue'}};
+}
+function portalV3AppendValues_(sheet,values) { return {appendCells:{sheetId:sheet.getSheetId(),rows:[portalV3Cells_(values)],fields:'userEnteredValue'}}; }
+function portalV3Batch_(requests) {
+  if(PORTAL_V4_REQUEST)PORTAL_V4_REQUEST.rows={};
+  const response=UrlFetchApp.fetch('https://sheets.googleapis.com/v4/spreadsheets/'+encodeURIComponent(portalV3Book_().getId())+':batchUpdate',{
+    method:'post',contentType:'application/json',headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},payload:JSON.stringify({requests}),muteHttpExceptions:true
+  });
+  if(response.getResponseCode()&lt;200||response.getResponseCode()>=300)portalV3Fail_('DATABASE_ERROR','Chưa xác nhận được lần lưu dữ liệu. Tải lại danh sách trước khi thử lại.');
+}
+function portalV3Lock_(callback) {
+  const lock=LockService.getScriptLock();if(!lock.tryLock(20000))portalV3Fail_('BUSY','Hệ thống đang bận. Vui lòng thử lại.');
+  try{return callback();}finally{lock.releaseLock();}
+}
+function setupPortalUpgrade() {
+  portalV4BeginRequest_();
+  const book=portalV3Book_();
+  Object.keys(PORTAL_V3_HEADERS).forEach(name=>{
+    if(book.getSheetByName(name)){portalV3Sheet_(name);return;}
+    const sheet=book.insertSheet(name);sheet.getRange(1,1,1,PORTAL_V3_HEADERS[name].length).setValues([PORTAL_V3_HEADERS[name]]);sheet.setFrozenRows(1);
+  });
+  return {success:true,message:'Đã kiểm tra và tạo các bảng bổ sung. Dữ liệu hồ sơ cũ được giữ nguyên.'};
+}
+function portalV3NextMorning_(submittedAt) {
+  const instant=new Date(submittedAt);if(!Number.isFinite(instant.getTime()))portalV3Fail_('INVALID_INPUT','Ngày gửi không hợp lệ.');
+  const vn=new Date(instant.getTime()+7*3600000);
+  return new Date(Date.UTC(vn.getUTCFullYear(),vn.getUTCMonth(),vn.getUTCDate()+1,1)).toISOString();
+}
+function portalV3Reminder_(a) {
+  return {id:'hardcopy-'+a.id,applicationId:a.id,recipient:a.email,studentName:a.studentName,dueAt:portalV3NextMorning_(a.submittedAt),state:'pending',attempts:0,updatedAt:a.submittedAt,sentAt:'',error:''};
+}
+function portalV3Page_(body) {
+  const page=Number(body.page||1),pageSize=Number(body.pageSize||20);
+  if(!Number.isInteger(page)||page&lt;1||!Number.isInteger(pageSize)||pageSize&lt;1||pageSize>100)portalV3Fail_('INVALID_INPUT','Phân trang không hợp lệ.');
+  return {page,pageSize};
+}
+function portalV3Join_(a,jobs,receipts,privateView) {
+  const job=jobs.find(j=>j.applicationId===a.id),receipt=receipts.find(r=>r.applicationId===a.id);
+  const result=Object.assign({},a);delete result._row;delete result._values;
+  result.reminder=job?(privateView?{dueAt:job.dueAt,state:job.state}:portalV3Public_(job)):null;
+  result.hardcopy=receipt?(privateView?{receivedAt:receipt.receivedAt}:portalV3Public_(receipt)):null;return result;
+}
+function portalV3Public_(data) { const result=Object.assign({},data);delete result._row;delete result._values;return result; }
+function portalV3ListAdmin_(body) {
+  const paging=portalV3Page_(body),all=portalV3Applications_(),receipts=portalV3Rows_('Hardcopies'),jobs=portalV3Rows_('MailQueue');
+  const received=new Set(receipts.map(r=>r.applicationId)),summary={total:all.length,pending:0,supplement:0,completed:0,rejected:0,awaitingHardcopy:0};
+  all.forEach(a=>{const key={'Đang xử lý':'pending','Yêu cầu bổ sung':'supplement','Hoàn thành':'completed','Từ chối':'rejected'}[a.status];if(key)summary[key]++;if(portalV3IsPlan_(a.docType)&amp;&amp;a.status!=='Từ chối'&amp;&amp;!received.has(a.id))summary.awaitingHardcopy++;});
+  const query=portalV3Fold_(portalV3Text_(body.query||'',0,150,'Từ khóa')),from=body.from||'',to=body.to||'';
+  if([from,to].some(s=>s&amp;&amp;!/^\d{4}-\d{2}-\d{2}$/.test(s))||(from&amp;&amp;to&amp;&amp;from>to))portalV3Fail_('INVALID_INPUT','Khoảng ngày không hợp lệ.');
+  const filtered=all.filter(a=>{
+    const stamp=new Date(a.submittedAt),day=Number.isFinite(stamp.getTime())?Utilities.formatDate(stamp,'Asia/Ho_Chi_Minh','yyyy-MM-dd'):'';
+    return (!query||portalV3Fold_([a.id,a.studentName,a.studentId,a.docType,a.email,a.phone,a.unitName].join(' ')).includes(query))&amp;&amp;(!body.status||a.status===body.status)&amp;&amp;(!body.docType||a.docType===body.docType)&amp;&amp;(!body.unitId||a.unitId===body.unitId)
+      &amp;&amp;(!from||(day&amp;&amp;day>=from))&amp;&amp;(!to||(day&amp;&amp;day&lt;=to))&amp;&amp;(!body.awaitingHardcopy||(portalV3IsPlan_(a.docType)&amp;&amp;!received.has(a.id)&amp;&amp;a.status!=='Từ chối'));
+  }).sort((a,b)=>{const x=Date.parse(a.submittedAt),y=Date.parse(b.submittedAt);if(!Number.isFinite(x))return Number.isFinite(y)?1:0;if(!Number.isFinite(y))return -1;return(y-x)*(body.sort==='oldest'?-1:1);});
+  const page=Math.min(paging.page,Math.max(1,Math.ceil(filtered.length/paging.pageSize)));
+  return {success:true,applications:filtered.slice((page-1)*paging.pageSize,page*paging.pageSize).map(a=>portalV3Join_(a,jobs,receipts,false)),total:filtered.length,page,pageSize:paging.pageSize,summary,docTypes:[...new Set(all.map(a=>a.docType))].sort(),hasMore:page*paging.pageSize&lt;filtered.length};
+}
+function portalV3Details_(body) {
+  const id=portalV3Text_(body.applicationId,1,150,'Mã hồ sơ'),a=portalV3Applications_().find(r=>r.id===id);
+  if(!a)portalV3Fail_('NOT_FOUND','Không tìm thấy hồ sơ.');
+  const joined=portalV3Join_(a,portalV3Rows_('MailQueue'),portalV3Rows_('Hardcopies'),false);
+  return {success:true,application:portalV3Public_(a),hardcopy:joined.hardcopy,reminder:joined.reminder,audit:portalV3Rows_('AuditLog').filter(r=>r.applicationId===id).reverse().slice(0,50).map(portalV3Public_)};
+}
+function portalV3Receive_(user,body) {
+  const id=portalV3Text_(body.applicationId,1,150,'Mã hồ sơ'),note=portalV3Text_(body.note||'',0,500,'Ghi chú');
+  return portalV3Lock_(()=>{
+    const a=portalV3Applications_().find(r=>r.id===id);if(!a||!portalV3IsPlan_(a.docType))portalV3Fail_('INVALID_INPUT','Hồ sơ này không thuộc nhóm kế hoạch.');
+    const existing=portalV3Rows_('Hardcopies').find(r=>r.applicationId===id);if(existing)return {success:true,hardcopy:portalV3Public_(existing)};
+    const now=new Date().toISOString(),receipt={applicationId:id,receivedAt:now,receivedBy:user.uid,note};
+    const requests=[portalV3Append_('Hardcopies',receipt),portalV3Append_('AuditLog',{id:Utilities.getUuid(),actorUid:user.uid,applicationId:id,fromStatus:a.status,toStatus:a.status,note:'Đã nhận bản cứng. '+note,createdAt:now})];
+    const job=portalV3Rows_('MailQueue').find(j=>j.applicationId===id);if(job&amp;&amp;job.state==='pending')requests.push(portalV3Update_('MailQueue',Object.assign({},job,{state:'cancelled',updatedAt:now,error:'Đã nhận bản cứng.'})));
+    portalV3Batch_(requests);return {success:true,hardcopy:receipt};
+  });
+}
+function portalV3ListJobs_(body) {
+  const paging=portalV3Page_(body),all=portalV3Rows_('MailQueue').reverse(),filtered=all.filter(j=>!body.state||j.state===body.state),page=Math.min(paging.page,Math.max(1,Math.ceil(filtered.length/paging.pageSize)));
+  return {success:true,jobs:filtered.slice((page-1)*paging.pageSize,page*paging.pageSize).map(portalV3Public_),total:filtered.length,page,pageSize:paging.pageSize,enabled:portalV3MailEnabled_(),summary:{pending:all.filter(j=>j.state==='pending').length,sent:all.filter(j=>j.state==='sent').length,uncertain:all.filter(j=>j.state==='uncertain'||j.state==='sending').length,cancelled:all.filter(j=>j.state==='cancelled').length}};
+}
+function portalV3Retry_(user,body) {
+  if(body.confirmDuplicateRisk!==true)portalV3Fail_('CONFIRM_REQUIRED','Cần xác nhận đã kiểm tra kết quả trước khi gửi lại.');
+  return portalV3Lock_(()=>{
+    const job=portalV3Rows_('MailQueue').find(j=>j.id===body.jobId);if(!job||job.state!=='uncertain')portalV3Fail_('CONFLICT','Trạng thái email đã đổi. Hãy tải lại danh sách.');
+    const now=new Date().toISOString(),next=Object.assign({},job,{state:'pending',updatedAt:now,error:''});
+    portalV3Batch_([portalV3Update_('MailQueue',next),portalV3Append_('AuditLog',{id:Utilities.getUuid(),actorUid:user.uid,applicationId:job.applicationId,fromStatus:'uncertain',toStatus:'pending',note:'Quản trị viên xác nhận gửi lại email.',createdAt:now})]);
+    return {success:true,job:portalV3Public_(next)};
+  });
+}
+function portalV3SaveJob_(job) { portalV3Batch_([portalV3Update_('MailQueue',job)]); }
+function portalV3ReminderMessage_(job) {
+  return {to:job.recipient,subject:'[Đoàn - Hội HUIT] Nhắc nộp bản cứng hồ sơ kế hoạch '+job.applicationId,name:'Đoàn - Hội HUIT',body:[
+    'Chào '+job.studentName+',','','Hệ thống đã tiếp nhận hồ sơ kế hoạch của bạn với mã '+job.applicationId+'.',
+    'Vui lòng nộp bản cứng hồ sơ kế hoạch tại Văn phòng Đoàn trường để hoàn tất việc tiếp nhận.',
+    'Khi đến nộp, vui lòng cung cấp mã hồ sơ để cán bộ đối chiếu.','',
+    'Nếu bạn đã nộp bản cứng, vui lòng bỏ qua email này và liên hệ Văn phòng Đoàn để xác nhận.','','Đoàn Thanh niên - Hội Sinh viên HUIT'
+  ].join('\n')};
+}
+function portalV3ProcessReminderQueue() {
+  portalV4BeginRequest_();
+  if(!portalV3MailEnabled_())return;
+  const lock=LockService.getScriptLock();if(!lock.tryLock(1000))return;
+  try {
+    const started=Date.now(),now=new Date(),jobs=portalV3Rows_('MailQueue'),apps=new Map(portalV3Applications_().map(a=>[a.id,a])),receipts=new Set(portalV3Rows_('Hardcopies').map(r=>r.applicationId));
+    let remaining=MailApp.getRemainingDailyQuota(),handled=0;
+    for(const job of jobs) {
+      if(handled>=20||Date.now()-started>=45000)break;
+      if(job.state==='sending'&amp;&amp;(!Number.isFinite(Date.parse(job.updatedAt))||now-new Date(job.updatedAt)>10*60000)) {
+        portalV3SaveJob_(Object.assign({},job,{state:'uncertain',updatedAt:now.toISOString(),error:'Lần gửi trước bị gián đoạn; cần kiểm tra trước khi gửi lại.'}));handled++;continue;
+      }
+      if(job.state!=='pending')continue;
+      const due=new Date(job.dueAt);
+      if(!Number.isFinite(due.getTime())){portalV3SaveJob_(Object.assign({},job,{state:'uncertain',updatedAt:now.toISOString(),error:'Lịch gửi không hợp lệ.'}));handled++;continue;}
+      if(due>now)continue;
+      const a=apps.get(job.applicationId);
+      if(!a||!portalV3IsPlan_(a.docType)||a.status==='Từ chối'||receipts.has(job.applicationId)){portalV3SaveJob_(Object.assign({},job,{state:'cancelled',updatedAt:now.toISOString(),error:'Không còn cần nhắc nộp bản cứng.'}));handled++;continue;}
+      if(typeof portalV4IsUnitEmail_==='function'&amp;&amp;portalV4IsUnitEmail_(a.email)){portalV3SaveJob_(Object.assign({},job,{state:'cancelled',updatedAt:now.toISOString(),error:'Tài khoản đơn vị theo dõi thông báo trong hệ thống.'}));handled++;continue;}
+      if(job.recipient!==a.email){portalV3SaveJob_(Object.assign({},job,{state:'uncertain',updatedAt:now.toISOString(),error:'Người nhận không khớp hồ sơ.'}));handled++;continue;}
+      if(remaining&lt;1)break;
+      const sending=Object.assign({},job,{state:'sending',attempts:Number(job.attempts||0)+1,updatedAt:now.toISOString(),error:''});portalV3SaveJob_(sending);handled++;
+      try{MailApp.sendEmail(portalV3ReminderMessage_(job));remaining--;portalV3SaveJob_(Object.assign({},sending,{state:'sent',sentAt:new Date().toISOString(),updatedAt:new Date().toISOString()}));}
+      catch(error){portalV3SaveJob_(Object.assign({},sending,{state:'uncertain',updatedAt:new Date().toISOString(),error:'Không xác nhận được kết quả gửi. Cần kiểm tra trước khi gửi lại.'}));}
+    }
+  }finally{lock.releaseLock();}
+}
+function installPortalReminderTrigger() {
+  portalV3Book_();portalV3Sheet_('MailQueue');portalV3Sheet_('Hardcopies');MailApp.getRemainingDailyQuota();
+  if(!ScriptApp.getProjectTriggers().some(t=>t.getHandlerFunction()==='portalV3ProcessReminderQueue'))ScriptApp.newTrigger('portalV3ProcessReminderQueue').timeBased().everyMinutes(1).create();
+  PropertiesService.getScriptProperties().setProperty('MAIL_ENABLED','true');
+}
+function pausePortalReminderEmails() { PropertiesService.getScriptProperties().setProperty('MAIL_ENABLED','false'); }
+
+/** Keep physical row offsets even if operators left blank lines in Sheets. */
+function portalV3Applications_() {
+  const applications=readRows_(getApplicationSheet_(),APPLICATION_HEADERS.length).map((row,index)=>{
+    const a=applicationFromRow_(row);a.email=a.studentEmail;a._row=index+1;a._values=row;return a;
+  }).filter(a=>a.id);
+  return typeof portalV4JoinExtras_==='function'?portalV4JoinExtras_(applications):applications;
+}
+function portalV3Route_(action,body) {
+  const user=authenticate_(body.authToken,true);
+  switch(action) {
+    case 'listAdminApplications':case 'listApplications':return portalV3ListAdmin_(body);
+    case 'getApplicationDetails':return portalV3Details_(body);
+    case 'updateApplication':case 'updateApplicationStatus':return portalV3Status_(user,body,action==='updateApplication');
+    case 'recordHardcopy':return portalV3Receive_(user,body);
+    case 'listMailJobs':return portalV3ListJobs_(body);
+    case 'retryReminder':return portalV3Retry_(user,body);
+    default:portalV3Fail_('UNKNOWN_ACTION','Thao tác không hợp lệ.');
+  }
+}
+function portalV3ListMine_(body) {
+  const user=authenticate_(body.authToken,false),jobs=portalV3Rows_('MailQueue'),receipts=portalV3Rows_('Hardcopies');
+  if(typeof portalV4IsUnitEmail_==='function'&amp;&amp;portalV4IsUnitEmail_(user.email)&amp;&amp;!portalV4Membership_(user))portalV3Fail_('UNIT_ACCESS_REQUIRED','Tài khoản đơn vị đã bị ngừng hoạt động.');
+  return {success:true,applications:portalV3Applications_().filter(a=>a.uid===user.uid).sort(sortNewestFirst_).map(a=>portalV3Join_(a,jobs,receipts,true))};
+}
+function portalV3CreateResult_(application) {
+  const job=portalV3Rows_('MailQueue').find(j=>j.applicationId===application.id);
+  return {success:true,application:portalV3Public_(application),reminder:job?{dueAt:job.dueAt,enabled:portalV3MailEnabled_(),state:job.state}:null};
+}
+function portalV3Create_(body) {
+  const user=authenticate_(body.authToken,false);
+  if(user.isAnonymous)portalV3Fail_('GUEST_NOT_ALLOWED','Chế độ khách không thể nộp hồ sơ.');
+  const requestId=body.requestId?portalV3Text_(body.requestId,8,100,'Mã yêu cầu'):Utilities.getUuid();
+  return portalV3Lock_(()=>{
+    const raw=body.application||body,membership=typeof portalV4Membership_==='function'?portalV4Membership_(user):null;
+    if(!user.emailVerified&amp;&amp;!membership)portalV3Fail_('EMAIL_NOT_VERIFIED','Vui lòng xác minh email trước khi nộp hồ sơ.');
+    const extra=typeof portalV4ApplicationInput_==='function'?portalV4ApplicationInput_(raw,user,membership):null;
+    const unit=extra&amp;&amp;extra.unitId?portalV4Unit_(extra.unitId):null;
+    const input=validateApplication_(unit?Object.assign({},raw,{studentName:unit.name,studentId:unit.id,studentEmail:user.email}):raw,user);
+    const all=portalV3Applications_(),previous=portalV3Rows_('PortalRequests').find(r=>r.uid===user.uid&amp;&amp;r.id===requestId);
+    if(previous){const saved=all.find(a=>a.id===previous.applicationId&amp;&amp;a.uid===user.uid);if(!saved)portalV3Fail_('CONFLICT','Hồ sơ đã tiếp nhận nhưng chưa tìm thấy dữ liệu. Liên hệ quản trị trước khi nộp lại.');return portalV3CreateResult_(saved);}
+    checkSubmissionRate_(user.uid);
+    const sheet=getApplicationSheet_(),logSheet=getLogSheet_();portalV3Sheet_('AuditLog');if(portalV3IsPlan_(input.docType))portalV3Sheet_('MailQueue');
+    let id=generateApplicationId_();for(let i=0;all.some(a=>a.id===id)&amp;&amp;i&lt;5;i++)id=generateApplicationId_();
+    if(all.some(a=>a.id===id))portalV3Fail_('BUSY','Chưa tạo được mã hồ sơ. Vui lòng thử lại.');
+    const now=new Date().toISOString();let uploaded=null,batchStarted=false;
+    try {
+      if(input.file)uploaded=uploadFile_(input.file,id,user.uid);
+      const values=[id,user.uid,input.studentName,input.studentId,input.studentEmail,input.docType,input.reason,uploaded?uploaded.getName():'Không có tệp',uploaded?uploaded.getId():'',uploaded?uploaded.getUrl():'','Đang xử lý',now,now,'','','Chưa gửi',0];
+      const application=Object.assign(applicationFromRow_(values),extra||{});application.email=application.studentEmail;
+      const reminder=portalV3IsPlan_(input.docType)&amp;&amp;!(typeof portalV4IsUnitEmail_==='function'&amp;&amp;portalV4IsUnitEmail_(user.email))?portalV3Reminder_(application):null;
+      const requests=[portalV3AppendValues_(sheet,values),portalV3Append_('PortalRequests',{id:requestId,uid:user.uid,applicationId:id,createdAt:now}),
+        portalV3Append_('AuditLog',{id:Utilities.getUuid(),actorUid:user.uid,applicationId:id,fromStatus:'',toStatus:'Đang xử lý',note:'Sinh viên nộp hồ sơ mới.',createdAt:now}),
+        portalV3AppendValues_(logSheet,[now,'CREATE_APPLICATION',id,user.uid,user.email,'Sinh viên nộp hồ sơ mới.'])];
+      if(reminder)requests.push(portalV3Append_('MailQueue',reminder));
+      if(extra)requests.push(portalV3Append_('ApplicationExtras',Object.assign({},extra,{applicationId:id,createdAt:now})));
+      // A lost batch response may still have committed. Keep its Drive file.
+      batchStarted=true;portalV3Batch_(requests);
+      return {success:true,application,reminder:reminder?{dueAt:reminder.dueAt,enabled:portalV3MailEnabled_(),state:reminder.state}:null};
+    }catch(error){if(uploaded&amp;&amp;!batchStarted){try{uploaded.setTrashed(true);}catch(ignored){}}throw error;}
+  });
+}
+function portalV3Status_(admin,body,requireVersion) {
+  const id=portalV3Text_(body.applicationId,1,150,'Mã hồ sơ'),status=body.status,note=portalV3Text_(body.note||'',0,2000,'Ghi chú');
+  if(!PORTAL_V3_STATUSES.includes(status))portalV3Fail_('INVALID_STATUS','Trạng thái hồ sơ không hợp lệ.');
+  if(status==='Yêu cầu bổ sung'&amp;&amp;note.length&lt;5)portalV3Fail_('NOTE_REQUIRED','Vui lòng ghi rõ nội dung cần bổ sung.');
+  if(requireVersion&amp;&amp;(typeof body.expectedStatus!=='string'||typeof body.expectedUpdatedAt!=='string'))portalV3Fail_('CONFLICT','Vui lòng tải lại hồ sơ trước khi cập nhật.');
+  return portalV3Lock_(()=>{
+    const a=portalV3Applications_().find(r=>r.id===id);if(!a)portalV3Fail_('NOT_FOUND','Không tìm thấy hồ sơ.');
+    if((body.expectedStatus!==undefined&amp;&amp;a.status!==body.expectedStatus)||(body.expectedUpdatedAt!==undefined&amp;&amp;a.updatedAt!==body.expectedUpdatedAt))portalV3Fail_('CONFLICT','Hồ sơ đã được người khác cập nhật. Tải lại trước khi lưu.');
+    const now=new Date().toISOString(),changed=a.status!==status,sendMail=changed&amp;&amp;['Hoàn thành','Yêu cầu bổ sung'].includes(status)&amp;&amp;!(typeof portalV4IsUnitEmail_==='function'&amp;&amp;portalV4IsUnitEmail_(a.studentEmail)),sheet=getApplicationSheet_();
+    // Touch only status + processing fields; retain original file ID, dates,
+    // links, formulas, student data, and all unrelated columns exactly.
+    const requests=[portalV3ColumnUpdate_(sheet,a._row,10,[status]),portalV3ColumnUpdate_(sheet,a._row,12,[now,note,admin.email]),portalV3ColumnUpdate_(sheet,a._row,16,[a.updateCount+1]),
+      portalV3Append_('AuditLog',{id:Utilities.getUuid(),actorUid:admin.uid,applicationId:id,fromStatus:a.status,toStatus:status,note,createdAt:now}),
+      portalV3AppendValues_(getLogSheet_(),[now,'UPDATE_STATUS',id,admin.uid,admin.email,a.status+' -> '+status+(note?' | '+note:'')])];
+    let notification=null;
+    if(changed||note){
+      const title=status==='Hoàn thành'?'Hồ sơ đã hoàn thành':status==='Yêu cầu bổ sung'?'Hồ sơ cần bổ sung':'Trạng thái hồ sơ đã thay đổi';
+      const message='Hồ sơ '+id+' đã chuyển sang trạng thái "'+status+'".'+(note?' Ghi chú: '+note:'');
+      notification={id:'TB-'+Utilities.getUuid().replace(/-/g,'').substring(0,12).toUpperCase(),title,message,createdAt:now};
+      requests.push(portalV3AppendValues_(getNotificationSheet_(),[notification.id,id,a.uid,a.studentEmail,title,message,status,now]));
+    }
+    if(sendMail)requests.push(portalV3ColumnUpdate_(sheet,a._row,15,['Đang gửi; cần kiểm tra nếu tiến trình bị gián đoạn.']));
+    if(status==='Từ chối'){
+      const job=portalV3Rows_('MailQueue').find(j=>j.applicationId===id);
+      if(job&amp;&amp;job.state==='pending')requests.push(portalV3Update_('MailQueue',Object.assign({},job,{state:'cancelled',updatedAt:now,error:'Hồ sơ đã bị từ chối.'})));
+    }
+    portalV3Batch_(requests);
+    let email={sent:false,skipped:true,message:'Trạng thái không cần gửi email.'};
+    if(sendMail){
+      try{email=sendStatusEmail_(a,status,note);}catch(error){email={sent:false,skipped:false,message:'Không xác nhận được kết quả gửi; cần kiểm tra trước khi gửi lại.'};}
+      // Status is already committed. A failure to record email delivery must
+      // never present the completed status change as an unsuccessful write.
+      try{portalV3Batch_([portalV3ColumnUpdate_(sheet,a._row,15,[email.sent?'Đã gửi '+formatDateTime_(new Date()):'Cần kiểm tra: '+String(email.message||'Không xác nhận được kết quả').slice(0,250)])]);}
+      catch(error){email.recorded=false;}
+    }
+    return {success:true,applicationId:id,status,application:{id,previousStatus:a.status,status,note,updatedAt:now},notification,email};
+  });
+}
+
+/** Profile, delivery and institution accounts. All access is resolved server-side. */
+const PORTAL_V4_UNIT_DOMAIN='@units.huit-youth-portal.local';
+function portalV4BaseSheet_(name,headers) {
+  if(!PORTAL_V4_REQUEST)portalV4BeginRequest_();
+  const key='base:'+name;
+  if(!PORTAL_V4_REQUEST.book)PORTAL_V4_REQUEST.book=SpreadsheetApp.openById(requiredProperty_('SPREADSHEET_ID'));
+  if(!PORTAL_V4_REQUEST.sheets[key])PORTAL_V4_REQUEST.sheets[key]=ensureSheet_(PORTAL_V4_REQUEST.book,name,headers);
+  return PORTAL_V4_REQUEST.sheets[key];
+}
+function portalV4IsUnitEmail_(email) { return String(email||'').toLowerCase().endsWith(PORTAL_V4_UNIT_DOMAIN); }
+function portalV4Active_(value) { return value===true||String(value).toLowerCase()==='true'; }
+function portalV4Phone_(value,required) {
+  const raw=portalV3Text_(value===undefined?'':value,0,40,'Số điện thoại');
+  const phone=raw.replace(/[\s().-]/g,'').replace(/^\+84/,'0');
+  if(!phone&amp;&amp;!required)return '';
+  if(!/^(?:0[35789]\d{8}|02\d{9})$/.test(phone))portalV3Fail_('INVALID_PHONE','Vui lòng nhập số điện thoại Việt Nam hợp lệ.');
+  return phone;
+}
+function portalV4Unit_(id) { return portalV3Rows_('PortalUnits').find(unit=>unit.id===id)||null; }
+function portalV4PublicUnit_(unit) { return {id:unit.id,unitId:unit.id,name:unit.name,type:unit.type,active:portalV4Active_(unit.active)}; }
+function portalV4Membership_(user) {
+  if(user.isAnonymous||!user.email)return null;
+  const member=portalV3Rows_('UnitMembers').find(row=>String(row.email).toLowerCase()===user.email&amp;&amp;portalV4Active_(row.active));
+  if(!member)return null;
+  // An unverified synthetic address alone is never evidence of membership.
+  if(portalV4IsUnitEmail_(user.email)) { if(!member.uid||member.uid!==user.uid)return null; }
+  else if(!user.emailVerified||(member.uid&amp;&amp;member.uid!==user.uid))return null;
+  const unit=portalV4Unit_(member.unitId);
+  return unit&amp;&amp;portalV4Active_(unit.active)?{unitId:unit.id,name:unit.name,type:unit.type}:null;
+}
+function portalV4RequireUser_(user) {
+  if(user.isAnonymous)portalV3Fail_('GUEST_NOT_ALLOWED','Vui lòng đăng nhập tài khoản để sử dụng chức năng này.');
+}
+function portalV4Context_(user) {
+  portalV4RequireUser_(user);
+  const saved=portalV3Rows_('StudentProfiles').find(row=>row.uid===user.uid);
+  return {profile:saved?{studentName:saved.studentName,studentId:saved.studentId,phone:saved.phone}:{studentName:user.displayName||'',studentId:'',phone:''},membership:portalV4Membership_(user),capabilities:{profile:1,delivery:1,units:1,unitAccounts:1}};
+}
+function portalV4SaveProfile_(user,body) {
+  portalV4RequireUser_(user);
+  const raw=body.profile||{},profile={uid:user.uid,studentName:portalV3Text_(raw.studentName,2,120,'Họ và tên'),studentId:portalV3Text_(raw.studentId||'',0,30,'Mã số sinh viên').toUpperCase(),phone:portalV4Phone_(raw.phone,false),updatedAt:new Date().toISOString()};
+  if(profile.studentId&amp;&amp;!/^[A-Z0-9._-]{5,30}$/.test(profile.studentId))portalV3Fail_('INVALID_STUDENT_ID','Mã số sinh viên không hợp lệ.');
+  return portalV3Lock_(()=>{
+    const existing=portalV3Rows_('StudentProfiles').find(row=>row.uid===user.uid);
+    portalV3Batch_([existing?portalV3Update_('StudentProfiles',Object.assign({},profile,{_row:existing._row})):portalV3Append_('StudentProfiles',profile)]);
+    return {profile:{studentName:profile.studentName,studentId:profile.studentId,phone:profile.phone}};
+  });
+}
+function portalV4ApplicationInput_(raw,user,membership) {
+  const deliveryMethod=raw.deliveryMethod===undefined?'office':raw.deliveryMethod;
+  if(!['office','post'].includes(deliveryMethod))portalV3Fail_('INVALID_DELIVERY','Vui lòng chọn hình thức nhận hồ sơ.');
+  const phone=portalV4Phone_(raw.phone,false),postal=deliveryMethod==='post';
+  const deliveryPhone=postal?portalV4Phone_(raw.deliveryPhone,true):'';
+  const deliveryAddress=postal?portalV3Text_(raw.deliveryAddress,10,500,'Địa chỉ nhận hồ sơ'):'';
+  if(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(deliveryAddress))portalV3Fail_('INVALID_DELIVERY','Địa chỉ nhận hồ sơ không hợp lệ.');
+  const requested=portalV3Text_(raw.unitId||'',0,80,'Mã đơn vị');
+  let unitId=requested||(membership?membership.unitId:'');
+  if(portalV4IsUnitEmail_(user.email)&amp;&amp;!membership)portalV3Fail_('UNIT_ACCESS_REQUIRED','Tài khoản đơn vị chưa được cấp quyền hoặc đã bị ngừng hoạt động.');
+  if(unitId&amp;&amp;(!membership||unitId!==membership.unitId)&amp;&amp;!(user.emailVerified&amp;&amp;isAdmin_(user)))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn không có quyền nộp hồ sơ cho đơn vị này.');
+  const unit=unitId?portalV4Unit_(unitId):null;
+  if(unitId&amp;&amp;(!unit||!portalV4Active_(unit.active)))portalV3Fail_('UNIT_INACTIVE','Đơn vị chưa hoạt động.');
+  return {phone,deliveryMethod,deliveryPhone,deliveryAddress,unitId,unitName:unit?unit.name:''};
+}
+function portalV4JoinExtras_(applications) {
+  const extras=new Map(portalV3Rows_('ApplicationExtras').map(row=>[row.applicationId,row]));
+  return applications.map(application=>{
+    const extra=extras.get(application.id)||{};
+    return Object.assign({},application,{phone:extra.phone||'',deliveryMethod:extra.deliveryMethod==='post'?'post':'office',deliveryPhone:extra.deliveryPhone||'',deliveryAddress:extra.deliveryAddress||'',unitId:extra.unitId||'',unitName:extra.unitName||''});
+  });
+}
+function portalV4SaveUnit_(admin,body) {
+  const raw=body.unit||{},id=raw.id?portalV3Text_(raw.id,5,30,'Mã đơn vị'):'UNIT-'+Utilities.getUuid().replace(/-/g,'').slice(0,16).toUpperCase();
+  if(!/^[A-Z0-9._-]{5,30}$/.test(id))portalV3Fail_('INVALID_UNIT','Mã đơn vị cần 5–30 ký tự viết hoa, số, dấu chấm, gạch ngang hoặc gạch dưới.');
+  const name=portalV3Text_(raw.name,2,120,'Tên đơn vị');
+  if(!['faculty','club'].includes(raw.type)||typeof raw.active!=='boolean')portalV3Fail_('INVALID_UNIT','Loại hoặc trạng thái đơn vị không hợp lệ.');
+  return portalV3Lock_(()=>{
+    const all=portalV3Rows_('PortalUnits'),previous=all.find(row=>row.id===id);
+    if(all.some(row=>row.id!==id&amp;&amp;portalV3Fold_(row.name)===portalV3Fold_(name)))portalV3Fail_('UNIT_EXISTS','Tên đơn vị đã được sử dụng.');
+    const now=new Date().toISOString(),unit={id,name,type:raw.type,active:raw.active,createdAt:previous?previous.createdAt:now,updatedAt:now,updatedBy:admin.uid};
+    portalV3Batch_([previous?portalV3Update_('PortalUnits',Object.assign({},unit,{_row:previous._row})):portalV3Append_('PortalUnits',unit)]);
+    return {unit:portalV4PublicUnit_(unit)};
+  });
+}
+function portalV4SaveMember_(admin,body) {
+  const email=portalV3Text_(body.email,3,254,'Email').toLowerCase(),unitId=portalV3Text_(body.unitId,5,30,'Mã đơn vị');
+  if(!isValidEmail_(email)||typeof body.active!=='boolean')portalV3Fail_('INVALID_MEMBER','Email hoặc trạng thái thành viên không hợp lệ.');
+  return portalV3Lock_(()=>{
+    const unit=portalV4Unit_(unitId);if(!unit||(body.active&amp;&amp;!portalV4Active_(unit.active)))portalV3Fail_('UNIT_INACTIVE','Đơn vị chưa hoạt động.');
+    const previous=portalV3Rows_('UnitMembers').find(row=>row.email===email);
+    if(portalV4IsUnitEmail_(email)&amp;&amp;(!previous||!previous.uid))portalV3Fail_('INVALID_MEMBER','Hãy dùng chức năng tạo tài khoản đơn vị để cấp tên đăng nhập.');
+    const now=new Date().toISOString(),member={email,uid:previous?previous.uid:'',unitId,active:body.active,username:previous?previous.username:'',displayName:previous?previous.displayName:'',createdAt:previous?previous.createdAt:now,updatedAt:now,updatedBy:admin.uid};
+    portalV3Batch_([previous?portalV3Update_('UnitMembers',Object.assign({},member,{_row:previous._row})):portalV3Append_('UnitMembers',member)]);
+    return {member:portalV3Public_(member)};
+  });
+}
+function portalV4FirebasePassword_(method,email,password,displayName) {
+  const payload={email,password,returnSecureToken:true};if(displayName)payload.displayName=displayName;
+  const response=UrlFetchApp.fetch('https://identitytoolkit.googleapis.com/v1/accounts:'+method+'?key='+encodeURIComponent(requiredProperty_('FIREBASE_API_KEY')),{method:'post',contentType:'application/json',payload:JSON.stringify(payload),muteHttpExceptions:true});
+  let data;try{data=JSON.parse(response.getContentText());}catch(error){portalV3Fail_('ACCOUNT_SERVICE_ERROR','Dịch vụ tài khoản chưa trả kết quả hợp lệ.');}
+  return {ok:response.getResponseCode()===200,data};
+}
+function portalV4CreateAccount_(admin,body) {
+  const username=portalV3Text_(body.username,3,40,'Tên đăng nhập').toLowerCase(),unitId=portalV3Text_(body.unitId,5,30,'Mã đơn vị');
+  if(!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(username))portalV3Fail_('INVALID_USERNAME','Tên đăng nhập dùng 3–40 ký tự không dấu: chữ, số, dấu chấm, gạch ngang hoặc gạch dưới.');
+  if(typeof body.password!=='string'||body.password.length&lt;8||body.password.length>128)portalV3Fail_('INVALID_PASSWORD','Mật khẩu cần từ 8 đến 128 ký tự.');
+  const email=username+PORTAL_V4_UNIT_DOMAIN,displayName=portalV3Text_(body.displayName||username,2,120,'Tên hiển thị');
+  return portalV3Lock_(()=>{
+    const unit=portalV4Unit_(unitId);if(!unit||!portalV4Active_(unit.active))portalV3Fail_('UNIT_INACTIVE','Đơn vị chưa hoạt động.');
+    const previous=portalV3Rows_('UnitMembers').find(row=>row.email===email);
+    if(previous)portalV3Fail_('ACCOUNT_EXISTS','Tên đăng nhập đã được cấp. Dùng danh sách tài khoản để quản lý.');
+    // Check schema before creating a Firebase account. Never write the password to Sheets/logs.
+    portalV3Sheet_('UnitMembers');
+    let created=portalV4FirebasePassword_('signUp',email,body.password,displayName);
+    if(!created.ok&amp;&amp;created.data.error&amp;&amp;String(created.data.error.message).startsWith('EMAIL_EXISTS')) {
+      // A prior Sheets save may have failed after signup. Prove the same credentials before attaching.
+      created=portalV4FirebasePassword_('signInWithPassword',email,body.password);
+      if(!created.ok)portalV3Fail_('ACCOUNT_EXISTS','Tên đăng nhập đã tồn tại. Chọn tên khác hoặc dùng đúng mật khẩu của lần tạo trước.');
+    }
+    if(!created.ok||!created.data.localId||String(created.data.email||'').toLowerCase()!==email)portalV3Fail_('ACCOUNT_SERVICE_ERROR','Chưa tạo được tài khoản. Kiểm tra dịch vụ đăng nhập Email/Mật khẩu và chính sách mật khẩu trong Firebase.');
+    const now=new Date().toISOString(),member={email,uid:created.data.localId,unitId,active:true,username,displayName,createdAt:now,updatedAt:now,updatedBy:admin.uid};
+    try{portalV3Batch_([portalV3Append_('UnitMembers',member)]);}catch(error){portalV3Fail_('ACCOUNT_SETUP_PENDING','Firebase đã tiếp nhận tài khoản nhưng chưa xác nhận quyền đơn vị. Tải lại danh sách; nếu chưa có, thử lại cùng tên đăng nhập và mật khẩu.');}
+    return {account:{username,uid:member.uid,unitId,displayName}};
+  });
+}
+function portalV4Dashboard_(user,body) {
+  portalV4RequireUser_(user);
+  const member=portalV4Membership_(user),isAdmin=user.emailVerified&amp;&amp;isAdmin_(user),unitId=portalV3Text_(body.unitId||(member&amp;&amp;member.unitId)||'',0,80,'Mã đơn vị');
+  if(!unitId||(!isAdmin&amp;&amp;(!member||member.unitId!==unitId)))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn chưa được cấp quyền truy cập đơn vị này.');
+  const unit=portalV4Unit_(unitId);if(!unit||(!isAdmin&amp;&amp;!portalV4Active_(unit.active)))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn chưa được cấp quyền truy cập đơn vị này.');
+  const all=portalV3Applications_().filter(application=>application.unitId===unitId).sort(sortNewestFirst_),summary={total:all.length,pending:0,supplement:0,completed:0,rejected:0};
+  all.forEach(application=>{const key={'Đang xử lý':'pending','Yêu cầu bổ sung':'supplement','Hoàn thành':'completed','Từ chối':'rejected'}[application.status];if(key)summary[key]++;});
+  const query=portalV3Fold_(portalV3Text_(body.query||'',0,150,'Từ khóa')),filtered=all.filter(application=>(!body.status||application.status===body.status)&amp;&amp;(!query||portalV3Fold_([application.id,application.docType,application.reason].join(' ')).includes(query)));
+  const paging=portalV3Page_(body),page=Math.min(paging.page,Math.max(1,Math.ceil(filtered.length/paging.pageSize))),jobs=portalV3Rows_('MailQueue'),receipts=portalV3Rows_('Hardcopies');
+  return {unit:portalV4PublicUnit_(unit),applications:filtered.slice((page-1)*paging.pageSize,page*paging.pageSize).map(application=>portalV3Join_(application,jobs,receipts,true)),summary,total:filtered.length,page,pageSize:paging.pageSize,hasMore:page*paging.pageSize&lt;filtered.length};
+}
+function portalV4Route_(action,body) {
+  const adminActions=['listUnitsAdmin','saveUnitAdmin','listUnitMembersAdmin','saveUnitMemberAdmin','createUnitAccountAdmin'],user=authenticate_(body.authToken,adminActions.includes(action));
+  switch(action) {
+    case 'getPortalContext':return portalV4Context_(user);
+    case 'saveMyProfile':return portalV4SaveProfile_(user,body);
+    case 'getUnitDashboard':return portalV4Dashboard_(user,body);
+    case 'listUnitsAdmin':return {units:portalV3Rows_('PortalUnits').map(portalV4PublicUnit_)};
+    case 'saveUnitAdmin':return portalV4SaveUnit_(user,body);
+    case 'listUnitMembersAdmin':return {members:portalV3Rows_('UnitMembers').filter(row=>!body.unitId||row.unitId===body.unitId).map(row=>Object.assign(portalV3Public_(row),{active:portalV4Active_(row.active)}))};
+    case 'saveUnitMemberAdmin':return portalV4SaveMember_(user,body);
+    case 'createUnitAccountAdmin':return portalV4CreateAccount_(user,body);
+    default:portalV3Fail_('UNKNOWN_ACTION','Thao tác không hợp lệ.');
+  }
+}
+
+/** News CMS for the verified existing Apps Script project. No public Drive sharing. */
+var NEWS_HEADERS = ['id','title','summary','content','category','imageFileId','imageMime','imageAlt','status','authorName','authorUid','createdAt','updatedAt','publishedAt','revision','lastRequestId'];
+var NEWS_CATEGORIES = ['Hoạt động Đoàn - Hội','Thông báo','Sự kiện','Gương sáng sinh viên'];
+function newsSheet_() {
+  if(typeof PORTAL_V4_REQUEST!=='undefined'&amp;&amp;PORTAL_V4_REQUEST&amp;&amp;PORTAL_V4_REQUEST.sheets.news)return PORTAL_V4_REQUEST.sheets.news;
+  var sheet=SpreadsheetApp.openById(requiredProperty_('SPREADSHEET_ID')).getSheetByName('NewsPosts');
+  if(!sheet)throw apiError_('NEWS_SETUP_REQUIRED','Chưa khởi tạo kho bài viết. Quản trị hệ thống cần chạy setupNewsCMS.');
+  var actual=sheet.getRange(1,1,1,NEWS_HEADERS.length).getValues()[0];
+  if(NEWS_HEADERS.some(function(h,i){return actual[i]!==h;}))throw apiError_('SCHEMA_MISMATCH','Cấu trúc kho bài viết chưa phù hợp.');
+  if(typeof PORTAL_V4_REQUEST!=='undefined'&amp;&amp;PORTAL_V4_REQUEST)PORTAL_V4_REQUEST.sheets.news=sheet;
+  return sheet;
+}
+function setupNewsCMS() {
+  var book=SpreadsheetApp.openById(requiredProperty_('SPREADSHEET_ID'));
+  if(!book.getSheetByName('NewsPosts')){var sheet=book.insertSheet('NewsPosts');sheet.appendRow(NEWS_HEADERS);sheet.setFrozenRows(1);}
+  newsSheet_();
+  Logger.log('Kho bài viết sẵn sàng. Không thay đổi hồ sơ hoặc bài viết có sẵn.');
+}
+function newsRows_(){return readRows_(newsSheet_(),NEWS_HEADERS.length).map(function(row,index){var item={row:index+2};NEWS_HEADERS.forEach(function(h,i){item[h]=row[i] instanceof Date?row[i].toISOString():row[i];});return item;}).filter(function(p){return p.id;});}
+function newsText_(value,min,max,label){if(typeof value!=='string'||value.trim().length&lt;min||value.length>max)throw apiError_('INVALID_INPUT',label+' không hợp lệ.');return value.trim();}
+function newsSearchText_(value){return String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d');}
+function newsPublic_(post,full){var out={id:post.id,title:post.title,summary:post.summary,category:post.category,imageAlt:post.imageAlt,hasImage:Boolean(post.imageFileId),authorName:post.authorName,publishedAt:post.publishedAt,revision:Number(post.revision)};if(full)out.content=post.content;return out;}
+function newsAdmin_(post){var out={};NEWS_HEADERS.filter(function(k){return k!=='imageFileId'&amp;&amp;k!=='imageMime'&amp;&amp;k!=='lastRequestId';}).forEach(function(k){out[k]=post[k];});out.revision=Number(out.revision);out.hasImage=Boolean(post.imageFileId);return out;}
+function newsImage_(post){
+  if(!post.imageFileId)return '';
+  if(['image/jpeg','image/png'].indexOf(post.imageMime)&lt;0)throw apiError_('INVALID_IMAGE','Ảnh không hợp lệ.');
+  var blob=DriveApp.getFileById(post.imageFileId).getBlob(),bytes=blob.getBytes();
+  if(bytes.length>600000||!validSignature_(bytes,post.imageMime))throw apiError_('INVALID_IMAGE','Không đọc được ảnh bài viết.');
+  return 'data:'+post.imageMime+';base64,'+Utilities.base64Encode(bytes);
+}
+function newsPublicRoute_(action,params){
+  var cacheKey='portal:public-news:v1',isDefault=action==='listPublicNews'&amp;&amp;(!params.page||String(params.page)==='1')&amp;&amp;!params.query&amp;&amp;!params.category;
+  if(isDefault){try{var hit=CacheService.getScriptCache().get(cacheKey);if(hit)return JSON.parse(hit);}catch(ignored){}}
+  var posts=newsRows_().filter(function(p){return p.status==='published';});
+  if(action==='listPublicNews'){
+    var page=Math.max(1,Number(params.page)||1),size=12;
+    if(!Number.isInteger(page)||page>10000)throw apiError_('INVALID_INPUT','Trang không hợp lệ.');
+    var q=newsSearchText_(String(params.query||'').slice(0,150));
+    posts=posts.filter(function(p){return (!params.category||p.category===params.category)&amp;&amp;(!q||newsSearchText_([p.title,p.summary].join(' ')).includes(q));}).sort(function(a,b){return new Date(b.publishedAt)-new Date(a.publishedAt)||String(a.id).localeCompare(String(b.id));});
+    var result={posts:posts.slice((page-1)*size,page*size).map(function(p){return newsPublic_(p,false);}),total:posts.length,page:page,hasMore:page*size&lt;posts.length};
+    if(isDefault){try{var serialized=JSON.stringify(result);if(serialized.length&lt;25000)CacheService.getScriptCache().put(cacheKey,serialized,15);}catch(ignored){}}
+    return result;
+  }
+  var post=posts.find(function(p){return p.id===params.id;});
+  if(!post)throw apiError_('NOT_FOUND','Bài viết không tồn tại hoặc chưa được đăng.');
+  if(action==='getPublicNews')return {post:newsPublic_(post,true)};
+  if(action==='getNewsImage')return {dataUrl:newsImage_(post)};
+  throw apiError_('UNKNOWN_ACTION','Không có thao tác này.');
+}
+function newsAdminRoute_(action,body){
+  var user=authenticate_(body.authToken,true);
+  if(!user.emailVerified)throw apiError_('EMAIL_NOT_VERIFIED','Vui lòng xác minh email quản trị.');
+  if(action==='listNewsAdmin'){
+    var posts=newsRows_().sort(function(a,b){return new Date(b.updatedAt)-new Date(a.updatedAt);});
+    var query=newsSearchText_(String(body.query||'').slice(0,150)),filtered=posts.filter(function(p){return (!body.status||p.status===body.status)&amp;&amp;(!query||newsSearchText_([p.title,p.category].join(' ')).includes(query));});
+    var page=Math.max(1,Math.floor(Number(body.page)||1));
+    return {posts:filtered.slice((page-1)*20,page*20).map(newsAdmin_),total:filtered.length,page:page,hasMore:page*20&lt;filtered.length,summary:{total:posts.length,published:posts.filter(function(p){return p.status==='published';}).length,draft:posts.filter(function(p){return p.status==='draft';}).length,archived:posts.filter(function(p){return p.status==='archived';}).length}};
+  }
+  if(action==='getNewsAdmin'){
+    var post=newsRows_().find(function(p){return p.id===body.id;});
+    if(!post)throw apiError_('NOT_FOUND','Không tìm thấy bài viết.');
+    return {post:newsAdmin_(post),dataUrl:newsImage_(post)};
+  }
+  if(action==='saveNews')return newsSave_(user,body);
+  throw apiError_('UNKNOWN_ACTION','Không có thao tác này.');
+}
+function newsSave_(user,body){
+  var raw=body.post||{},id=newsText_(raw.id,10,80,'Mã bài viết'),requestId=newsText_(body.requestId,8,100,'Mã yêu cầu');
+  if(!/^NEWS-[a-zA-Z0-9-]+$/.test(id))throw apiError_('INVALID_INPUT','Mã bài viết không hợp lệ.');
+  var status=raw.status;
+  if(['draft','published','archived'].indexOf(status)&lt;0)throw apiError_('INVALID_INPUT','Trạng thái không hợp lệ.');
+  var title=newsText_(raw.title,status==='published'?8:1,180,'Tiêu đề'),summary=newsText_(raw.summary||'',status==='published'?20:0,400,'Mô tả ngắn'),content=newsText_(raw.content||'',status==='published'?50:0,30000,'Nội dung'),imageAlt=newsText_(raw.imageAlt||'',status==='published'?3:0,200,'Mô tả ảnh');
+  if(NEWS_CATEGORIES.indexOf(raw.category)&lt;0)throw apiError_('INVALID_INPUT','Chuyên mục không hợp lệ.');
+  var image=null;
+  if(body.image){image=validateFile_(body.image);if(!image||['image/jpeg','image/png'].indexOf(image.mimeType)&lt;0||image.bytes.length>600000)throw apiError_('INVALID_IMAGE','Ảnh cần là JPG hoặc PNG, tối đa 600 KB sau tối ưu.');}
+  var lock=LockService.getScriptLock();lock.waitLock(20000);var uploaded=null,writing=false;
+  try{
+    var sheet=newsSheet_(),existing=newsRows_().find(function(p){return p.id===id;});
+    if(existing&amp;&amp;existing.lastRequestId===requestId)return {post:newsAdmin_(existing)};
+    if(existing&amp;&amp;Number(body.expectedRevision)!==Number(existing.revision)||!existing&amp;&amp;Number(body.expectedRevision)!==0)throw apiError_('CONFLICT','Bài viết đã thay đổi ở phiên khác. Tải lại bài trước khi lưu. Nội dung đang nhập được giữ nguyên.');
+    var imageFileId=existing&amp;&amp;existing.imageFileId||'',imageMime=existing&amp;&amp;existing.imageMime||'';
+    if(body.removeImage===true){imageFileId='';imageMime='';}
+    if(image){
+      // Separate folder; never publish dossier file IDs or change their sharing.
+      var parent=DriveApp.getFolderById(requiredProperty_('DRIVE_FOLDER_ID')),folders=parent.getFoldersByName('Portal News Images');
+      var folder=folders.hasNext()?folders.next():parent.createFolder('Portal News Images');
+      uploaded=folder.createFile(Utilities.newBlob(image.bytes,image.mimeType,id+'-'+Utilities.getUuid()+'.'+(image.mimeType==='image/png'?'png':'jpg')));imageFileId=uploaded.getId();imageMime=image.mimeType;
+    }
+    if(status==='published'&amp;&amp;!imageFileId)throw apiError_('IMAGE_REQUIRED','Chọn ảnh bìa trước khi đăng bài.');
+    var now=new Date().toISOString(),post={id:id,title:title,summary:summary,content:content,category:raw.category,imageFileId:imageFileId,imageMime:imageMime,imageAlt:imageAlt,status:status,authorName:existing?existing.authorName:(user.displayName||'Ban biên tập Đoàn - Hội'),authorUid:existing?existing.authorUid:user.uid,createdAt:existing?existing.createdAt:now,updatedAt:now,publishedAt:status==='published'?(existing&amp;&amp;existing.publishedAt||now):(existing&amp;&amp;existing.publishedAt||''),revision:Number(existing&amp;&amp;existing.revision||0)+1,lastRequestId:requestId};
+    // Literal cells prevent formulas; the full article changes in one atomic request.
+    var values=NEWS_HEADERS.map(function(k){return {userEnteredValue:{stringValue:String(post[k])}};});
+    var req=existing?{updateCells:{range:{sheetId:sheet.getSheetId(),startRowIndex:existing.row-1,endRowIndex:existing.row,startColumnIndex:0,endColumnIndex:NEWS_HEADERS.length},rows:[{values:values}],fields:'userEnteredValue'}}:{appendCells:{sheetId:sheet.getSheetId(),rows:[{values:values}],fields:'userEnteredValue'}};
+    writing=true;
+    try{CacheService.getScriptCache().remove('portal:public-news:v1');}catch(ignored){}
+    var response=UrlFetchApp.fetch('https://sheets.googleapis.com/v4/spreadsheets/'+encodeURIComponent(requiredProperty_('SPREADSHEET_ID'))+':batchUpdate',{method:'post',contentType:'application/json',headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},payload:JSON.stringify({requests:[req]}),muteHttpExceptions:true});
+    if(response.getResponseCode()>=300)throw apiError_('SAVE_FAILED','Chưa xác nhận được kết quả lưu. Hãy thử lưu lại cùng nội dung.');
+    try{CacheService.getScriptCache().remove('portal:public-news:v1');}catch(ignored){}
+    return {post:newsAdmin_(post)};
+  }catch(error){if(uploaded&amp;&amp;!writing){try{uploaded.setTrashed(true);}catch(ignored){}}throw error;}finally{lock.releaseLock();}
+}
+
+function setupWebsiteUpgrade(){const result=setupPortalUpgrade();setupNewsCMS();Logger.log(JSON.stringify(result));return result;}
+function enablePortalReminderEmails(){portalV3Sheet_('MailQueue');PropertiesService.getScriptProperties().setProperty('MAIL_ENABLED','true');Logger.log('Lịch email đã bật. Cần có trình kích hoạt portalV3ProcessReminderQueue mỗi phút.');}
+function inspectWebsiteUpgrade(){portalV4BeginRequest_();const book=portalV3Book_();Logger.log(JSON.stringify({applicationRows:Math.max(0,getApplicationSheet_().getLastRow()-1),newsReady:Boolean(book.getSheetByName('NewsPosts')),queueReady:Boolean(book.getSheetByName('MailQueue')),accountsReady:['StudentProfiles','ApplicationExtras','PortalUnits','UnitMembers'].every(name=>Boolean(book.getSheetByName(name))),mailEnabled:portalV3MailEnabled_()}));}
+function inspectSheetsConnection(){const response=UrlFetchApp.fetch('https://sheets.googleapis.com/v4/spreadsheets/'+encodeURIComponent(requiredProperty_('SPREADSHEET_ID'))+'?fields=spreadsheetId',{headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},muteHttpExceptions:true});let reason='';try{const body=JSON.parse(response.getContentText());reason=body.error&amp;&amp;body.error.status||'';}catch(ignored){}Logger.log(JSON.stringify({sheetsApiStatus:response.getResponseCode(),reason}));}
+</textarea>

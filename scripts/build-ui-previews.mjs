@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(p,'utf8'),write=(p,s)=>fs.writeFileSync(p,s);
+const html=(from,to,script)=>write(to,read(from).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'').replace('</body>',`<script type="module" src="/tests/${script}"></script></body>`));
+html('ho-so/index.html','tests/profile-preview.html','profile-preview.js');
+write('tests/profile-preview.js',`import {mountDossierProfile} from '/assets/js/dossier-profile.js';
+const profile=mountDossierProfile({user:{displayName:'Sinh viên kiểm thử'},request:async(action,payload)=>action==='saveMyProfile'?{profile:payload.profile}:{profile:{studentName:'Sinh viên kiểm thử',studentId:'202600001',phone:'0912345678'},membership:null,capabilities:{profile:1,delivery:1}}});
+document.getElementById('applicationForm').onsubmit=e=>{e.preventDefault();document.getElementById('profileStatus').textContent=JSON.stringify(profile.values());};`);
+const auth=`const testUser={uid:'preview-only',email:'preview@example.test',displayName:'Tài khoản xem thử'};const getApps=()=>[],getApp=()=>({}),initializeApp=()=>({}),getAuth=()=>({}),onAuthStateChanged=(auth,fn)=>queueMicrotask(()=>fn(testUser)),signOut=async()=>{},firebaseConfig={};`;
+const strip=s=>s.replace(/^import .*firebasejs.*;\r?\n/gm,'').replace(/^import .*firebaseConfig.*;\r?\n/gm,'').replace(/^import .*apiRequest.*;\r?\n/gm,'').replace(/^import .*getPortalContext.*;\r?\n/gm,'').replaceAll("'../assets/js/portal-utils.js'","'/assets/js/portal-utils.js'");
+const unit={id:'UNIT-PREVIEW',unitId:'UNIT-PREVIEW',name:'Khoa Công nghệ thông tin (xem thử)',type:'faculty',active:true};
+const applications=Array.from({length:24},(_,i)=>({id:'HS-PREVIEW-'+(i+1),unitId:unit.id,docType:'Kế hoạch tổ chức hoạt động tháng '+(i%3+9),studentName:unit.name,status:['Đang xử lý','Yêu cầu bổ sung','Hoàn thành'][i%3],note:i%3===1?'Bổ sung danh sách sinh viên tham gia.':'',submittedAt:'2026-09-24T02:00:00Z'}));
+html('don-vi/index.html','tests/unit-preview.html','unit-preview.js');
+write('tests/unit-preview.js',auth+`const unit=${JSON.stringify(unit)},records=${JSON.stringify(applications)};
+const getPortalContext=async()=>({membership:unit}),clearPortalContext=()=>{};
+const apiRequest=async(user,action,p)=>{const filtered=records.filter(r=>(!p.status||r.status===p.status)&&(!p.query||r.id.includes(p.query)));return {unit,applications:filtered.slice((p.page-1)*p.pageSize,p.page*p.pageSize),summary:{total:24,pending:8,supplement:8,completed:8},total:filtered.length,page:p.page,hasMore:p.page*p.pageSize<filtered.length};};\n`+strip(read('don-vi/script.js')));
+html('admin/don-vi.html','tests/units-admin-preview.html','units-admin-preview.js');
+write('tests/units-admin-preview.js',auth+`const previewUnits=[${JSON.stringify(unit)},{id:'UNIT-CLB',name:'Câu lạc bộ Tình nguyện (xem thử)',type:'club',active:true}],previewMembers=[{email:'preview@example.test',username:'khoa.cntt',displayName:'Cán bộ phụ trách (xem thử)',unitId:'UNIT-PREVIEW',active:true}];const apiRequest=async(user,action,p)=>{if(action==='listUnitsAdmin')return {units:previewUnits};if(action==='listUnitMembersAdmin')return {members:previewMembers};if(action==='saveUnitAdmin'){const index=previewUnits.findIndex(u=>u.id===p.unit.id);index<0?previewUnits.push({...p.unit,id:'UNIT-NEW'}):previewUnits.splice(index,1,p.unit);}return {};};\n`+strip(read('admin/units.js')));
+console.log('Local-only UI previews generated; excluded from Hosting.');

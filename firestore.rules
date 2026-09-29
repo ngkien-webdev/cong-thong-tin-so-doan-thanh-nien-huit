@@ -1,0 +1,377 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* ================================================
+       HÀM KIỂM TRA QUYỀN
+       ================================================ */
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn()
+        && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.role == "admin";
+    }
+
+    /* ================================================
+       KIỂM TRA DỮ LIỆU TÀI KHOẢN SINH VIÊN
+       ================================================ */
+
+    function validStudentProfile(uid) {
+      return request.resource.data.keys().hasOnly([
+          "uid",
+          "displayName",
+          "email",
+          "photoURL",
+          "role",
+          "authProvider",
+          "lastLoginAt",
+          "updatedAt"
+        ])
+        && request.resource.data.uid == uid
+        && request.resource.data.uid
+            == request.auth.uid
+        && request.resource.data.role
+            == "student"
+        && request.resource.data.email
+            == request.auth.token.email
+        && request.resource.data.displayName
+            is string
+        && request.resource.data.displayName.size()
+            >= 1
+        && request.resource.data.displayName.size()
+            <= 100
+        && request.resource.data.email
+            is string
+        && request.resource.data.email.size()
+            <= 150
+        && (
+          request.resource.data.photoURL == null
+          || request.resource.data.photoURL is string
+        )
+        && request.resource.data.authProvider
+            is string
+        && request.resource.data.lastLoginAt
+            == request.time
+        && request.resource.data.updatedAt
+            == request.time;
+    }
+
+    /* ================================================
+       COLLECTION: users
+       Thông tin tài khoản người dùng
+       ================================================ */
+
+    match /users/{uid} {
+
+      // Personal planner is separate from the existing Sheets/Drive applications.
+      match /tasks/{taskId} {
+        function taskOwner() {
+          return isOwner(uid)
+            && request.auth.token.firebase.sign_in_provider != 'anonymous';
+        }
+        function validTask() {
+          let d = request.resource.data;
+          return d.keys().hasOnly(['title', 'due', 'done', 'updatedAt'])
+            && d.keys().hasAll(['title', 'due', 'done', 'updatedAt'])
+            && d.title is string && d.title.size() >= 1 && d.title.size() <= 160
+            && d.due is string
+            && (d.due == '' || d.due.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))
+            && d.done is bool && d.updatedAt == request.time;
+        }
+        allow read, delete: if taskOwner();
+        allow create, update: if taskOwner() && validTask();
+      }
+
+      /*
+       * Sinh viên chỉ được đọc tài khoản của mình.
+       * Quản trị viên được đọc tất cả tài khoản.
+       */
+      allow read:
+        if isOwner(uid) || isAdmin();
+
+      /*
+       * Sinh viên chỉ được tạo tài khoản
+       * có role là student.
+       */
+      allow create:
+        if isAdmin()
+        || (
+          isOwner(uid)
+          && validStudentProfile(uid)
+        );
+
+      /*
+       * Khi cập nhật, sinh viên không thể:
+       * - Thay đổi UID
+       * - Tự nâng quyền thành admin
+       * - Thay đổi email sang email khác
+       */
+      allow update:
+        if isAdmin()
+        || (
+          isOwner(uid)
+          && request.resource.data.uid
+              == resource.data.uid
+          && request.resource.data.role
+              == resource.data.role
+          && request.resource.data.email
+              == request.auth.token.email
+          && request.resource.data.updatedAt
+              == request.time
+        );
+
+      /*
+       * Chỉ quản trị viên được xóa tài khoản.
+       */
+      allow delete:
+        if isAdmin();
+    }
+
+    /* ================================================
+       COLLECTION: applications
+       Hồ sơ sinh viên gửi lên hệ thống
+       ================================================ */
+
+    match /applications/{applicationId} {
+
+      /*
+       * Sinh viên chỉ được tạo hồ sơ cho chính mình.
+       */
+      allow create:
+        if signedIn()
+        && request.resource.data.keys().hasOnly([
+          "uid",
+          "docType",
+          "studentName",
+          "studentId",
+          "email",
+          "fileName",
+          "reason",
+          "status",
+          "createdAt"
+        ])
+        && request.resource.data.uid
+            == request.auth.uid
+        && request.resource.data.docType
+            is string
+        && request.resource.data.docType.size()
+            >= 1
+        && request.resource.data.docType.size()
+            <= 150
+        && request.resource.data.studentName
+            is string
+        && request.resource.data.studentName.size()
+            >= 1
+        && request.resource.data.studentName.size()
+            <= 100
+        && request.resource.data.studentId
+            is string
+        && request.resource.data.studentId.size()
+            >= 5
+        && request.resource.data.studentId.size()
+            <= 30
+        && request.resource.data.email
+            is string
+        && request.resource.data.email.size()
+            <= 150
+        && request.resource.data.fileName
+            is string
+        && request.resource.data.fileName.size()
+            <= 255
+        && request.resource.data.reason
+            is string
+        && request.resource.data.reason.size()
+            >= 1
+        && request.resource.data.reason.size()
+            <= 3000
+        && request.resource.data.status
+            == "Đang xử lý"
+        && request.resource.data.createdAt
+            == request.time;
+
+      /*
+       * Sinh viên chỉ được đọc hồ sơ của mình.
+       * Quản trị viên được đọc toàn bộ hồ sơ.
+       */
+      allow read:
+        if signedIn()
+        && (
+          resource.data.uid
+              == request.auth.uid
+          || isAdmin()
+        );
+
+      /*
+       * Chỉ quản trị viên được cập nhật.
+       * Không được thay đổi chủ sở hữu
+       * hoặc ngày tạo ban đầu.
+       */
+      allow update:
+        if isAdmin()
+        && request.resource.data.uid
+            == resource.data.uid
+        && request.resource.data.createdAt
+            == resource.data.createdAt
+        && request.resource.data.status in [
+          "Đang xử lý",
+          "Yêu cầu bổ sung",
+          "Hoàn thành",
+          "Từ chối"
+        ];
+
+      /*
+       * Chỉ quản trị viên được xóa hồ sơ.
+       */
+      allow delete:
+        if isAdmin();
+    }
+
+    /* ================================================
+       COLLECTION: notifications
+       Thông báo gửi đến sinh viên
+       ================================================ */
+
+    match /notifications/{notificationId} {
+
+      /*
+       * Sinh viên chỉ đọc được thông báo
+       * gửi cho chính mình.
+       */
+      allow read:
+        if signedIn()
+        && (
+          resource.data.recipientUid
+              == request.auth.uid
+          || isAdmin()
+        );
+
+      /*
+       * Chỉ quản trị viên được tạo,
+       * cập nhật hoặc xóa thông báo.
+       */
+      allow create, update, delete:
+        if isAdmin();
+    }
+
+    /* ================================================
+       COLLECTION: trainingPoints
+       Dữ liệu điểm rèn luyện
+       ================================================ */
+
+    match /trainingPoints/{pointId} {
+
+      /*
+       * Sinh viên chỉ xem được điểm của mình.
+       */
+      allow read:
+        if signedIn()
+        && (
+          resource.data.uid
+              == request.auth.uid
+          || isAdmin()
+        );
+
+      /*
+       * Chỉ quản trị viên được nhập
+       * hoặc sửa điểm rèn luyện.
+       */
+      allow create, update, delete:
+        if isAdmin();
+    }
+
+    /* ================================================
+       COLLECTION: feedback
+       Góp ý và phản hồi
+       ================================================ */
+
+    match /feedback/{feedbackId} {
+
+      /*
+       * Người dùng đăng nhập được gửi góp ý
+       * dưới danh nghĩa chính mình.
+       */
+      allow create:
+        if signedIn()
+        && request.resource.data.keys().hasOnly([
+          "uid",
+          "name",
+          "email",
+          "type",
+          "content",
+          "status",
+          "createdAt"
+        ])
+        && request.resource.data.uid
+            == request.auth.uid
+        && request.resource.data.name
+            is string
+        && request.resource.data.name.size()
+            >= 1
+        && request.resource.data.name.size()
+            <= 100
+        && request.resource.data.email
+            is string
+        && request.resource.data.email.size()
+            <= 150
+        && request.resource.data.type
+            is string
+        && request.resource.data.type.size()
+            <= 100
+        && request.resource.data.content
+            is string
+        && request.resource.data.content.size()
+            >= 1
+        && request.resource.data.content.size()
+            <= 3000
+        && request.resource.data.status
+            == "Mới"
+        && request.resource.data.createdAt
+            == request.time;
+
+      /*
+       * Chỉ quản trị viên được xem
+       * và xử lý góp ý.
+       */
+      allow read, update, delete:
+        if isAdmin();
+    }
+
+    /* ================================================
+       COLLECTION: publicContent
+       Tin tức và nội dung công khai
+       ================================================ */
+
+    match /publicContent/{document=**} {
+
+      /*
+       * Mọi người đều có thể xem.
+       */
+      allow read:
+        if true;
+
+      /*
+       * Chỉ quản trị viên được thay đổi.
+       */
+      allow write:
+        if isAdmin();
+    }
+
+    /* ================================================
+       CHẶN TẤT CẢ ĐƯỜNG DẪN KHÔNG KHAI BÁO
+       ================================================ */
+
+    match /{document=**} {
+      allow read, write:
+        if false;
+    }
+  }
+}

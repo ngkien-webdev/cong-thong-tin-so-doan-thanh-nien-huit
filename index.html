@@ -1,588 +1,883 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta name="robots" content="index, follow">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="pEew_2CJlUSJuP5GdHiD8a7IUQ7tJs54yy8cxxweR5w" />
-    <title>Cổng Thông Tin Số Đoàn Thanh Niên - Hội Sinh Viên Trường Đại học Công thương TP.HCM</title>
-    
-    <!-- Favicon chuẩn logo HUIT -->
-    <link rel="icon" type="image/png" href="assets/images/logo-huit-doan.png">
-    
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        :root { --primary: #c90000; --primary-dark: #990000; --text: #1e293b; --text-light: #64748b; --bg: #f8fafc; }
-        * { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--text); overflow-x: hidden; }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0076b5">
+  <meta name="description" content="Cổng Thông Tin Số Đoàn - Hội HUIT">
+  <meta name="robots" content="index, follow">
+  <title>Cổng Thông Tin Số Đoàn - Hội HUIT</title>
 
-        /* HEADER & MOBILE NAVIGATION */
-        .site-header { position: sticky; top: 0; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1000; }
-        .header-inner { max-width: 1350px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; height: 80px; }
-        .logo-container a { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-        .logo-container img { height: 42px; }
-        .logo-text { font-weight: 800; font-size: 0.9rem; color: var(--primary); line-height: 1.2; }
-        .logo-text span { display: block; font-size: 0.7rem; color: var(--text-light); font-weight: 600; }
+  <link rel="icon" type="image/png" href="assets/images/logo-huit-doan.png">
 
-        .main-nav ul { display: flex; list-style: none; gap: 25px; margin: 0; padding: 0; align-items: center; }
-        .main-nav a { text-decoration: none; color: var(--text); font-weight: 600; font-size: 0.95rem; transition: color 0.2s; }
-        .main-nav a:hover, .main-nav a.active { color: var(--primary); }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-        .header-actions { display: flex; align-items: center; gap: 12px; }
-        .btn { padding: 10px 20px; border-radius: 10px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; transition: all 0.2s; border: none; cursor: pointer; }
-        .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(201,0,0,0.2); }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
-        .mobile-toggle { display: none; background: none; font-size: 1.5rem; color: var(--text); cursor: pointer; border: none; }
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        /* HERO SECTION */
-        .hero { background: linear-gradient(135deg, #c90000 0%, #7f0000 100%); color: #fff; padding: 80px 20px; text-align: center; position: relative; overflow: hidden; }
-        .hero h1 { font-size: 2.8rem; font-weight: 900; margin-bottom: 15px; letter-spacing: -0.5px; }
-        .hero p { font-size: 1.15rem; opacity: 0.95; max-width: 700px; margin: 0 auto 30px auto; line-height: 1.6; }
-        .hero-btns { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-
-        /* CONTAINER & SECTION TITLES */
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        .section-title { text-align: center; margin-bottom: 45px; }
-        .section-title span { color: var(--primary); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 8px; }
-        .section-title h2 { font-size: 2.1rem; font-weight: 800; color: #0f172a; margin: 0; }
-
-        /* TIN TỨC NỔI BẬT */
-        .news-section { padding: 80px 0; background: #fff; }
-        .news-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; }
-        .news-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); transition: all 0.3s; display: flex; flex-direction: column; }
-        .news-card:hover { transform: translateY(-5px); box-shadow: 0 15px 25px -5px rgba(0,0,0,0.08); border-color: #cbd5e1; }
-        .news-img { width: 100%; height: 210px; object-fit: cover; }
-        .news-content { padding: 24px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
-        .news-date { font-size: 0.8rem; color: var(--text-light); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .news-title { font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 0 0 12px 0; line-height: 1.4; }
-        .news-excerpt { font-size: 0.92rem; color: #475569; line-height: 1.6; margin-bottom: 20px; }
-
-        /* PHẦN VINH QUANG THÀNH TÍCH */
-        .vinh-quang-page { font-family: 'Be Vietnam Pro', sans-serif; background: #fff; padding: 60px 0; }
-        .grid-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 35px; max-width: 1200px; margin: 40px auto 0; padding: 20px 0; }
-        .honor-card { flex: 1 1 280px; max-width: 360px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-decoration: none; border-radius: 20px; padding: 40px 20px 30px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.15); transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); position: relative; overflow: hidden; min-height: 260px; border: 2px solid rgba(255, 215, 0, 0.4); cursor: pointer; }
-        .honor-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%); transform: skewX(-25deg); transition: all 0.7s ease; z-index: 10; }
-        .honor-card:hover { transform: translateY(-12px); box-shadow: 0 25px 50px rgba(0,0,0,0.3); border-color: rgba(255, 215, 0, 1); }
-        .honor-card:hover::before { left: 200%; }
-        .honor-card:hover .card-logo { transform: scale(1.1) rotate(5deg); }
-        .card-bac { background: linear-gradient(135deg, #b71c1c 0%, #e53935 100%); box-shadow: 0 15px 30px rgba(183, 28, 28, 0.4); }
-        .card-doan { background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%); box-shadow: 0 15px 30px rgba(13, 71, 161, 0.4); }
-        .card-hoi { background: linear-gradient(135deg, #00838f 0%, #00acc1 100%); box-shadow: 0 15px 30px rgba(0, 131, 143, 0.4); }
-        .card-giaovien { background: linear-gradient(135deg, #4a148c 0%, #9c27b0 100%); box-shadow: 0 15px 30px rgba(74, 20, 140, 0.4); }
-        .sunburst { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: repeating-conic-gradient(rgba(255, 255, 255, 0.08) 0deg 15deg, transparent 15deg 30deg); animation: rotateRay 30s linear infinite; z-index: 1; }
-        @keyframes rotateRay { 100% { transform: rotate(360deg); } }
-        .card-logo { width: 85px; height: 85px; margin-bottom: 20px; position: relative; z-index: 2; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.4)); transition: transform 0.4s ease; }
-        .card-title { font-size: 1.35rem; font-weight: 800; margin: 0; position: relative; z-index: 2; text-transform: uppercase; line-height: 1.4; background: linear-gradient(to bottom, #fffde7 0%, #ffd700 50%, #ff8f00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.6)); }
-        .card-action { display: inline-block; margin-top: 15px; padding: 6px 20px; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 30px; color: #fff; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; position: relative; z-index: 2; }
-        .honor-card:hover .card-action { background: #ffd700; color: #b71c1c; border-color: #ffd700; }
-
-        /* TIỆN ÍCH NHANH */
-        .quick-section { padding: 80px 0; background: #f8fafc; }
-        .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .quick-card { background: #fff; padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; text-decoration: none; color: inherit; transition: all 0.2s; display: block; }
-        .quick-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.04); }
-        .quick-icon { width: 50px; height: 50px; background: #fef2f2; color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 20px; }
-        .quick-card h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px 0; color: #0f172a; }
-        .quick-card p { font-size: 0.9rem; color: var(--text-light); margin: 0; line-height: 1.5; }
-
-        /* FOOTER ĐỎ CHỦ ĐẠO */
-        .site-footer { background: linear-gradient(135deg, #c90000 0%, #8a0000 100%); color: #fff; padding: 60px 0 30px 0; font-size: 0.9rem; }
-        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; margin-bottom: 40px; }
-        .footer-col h4 { color: #fff; font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; position: relative; padding-bottom: 8px; }
-        .footer-col h4::after { content: ''; position: absolute; left: 0; bottom: 0; width: 30px; height: 2px; background: #fbbf24; }
-        .footer-col p, .footer-col a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.88rem; line-height: 1.6; }
-        .footer-col a:hover { color: #fff; }
-        .footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.2); padding-top: 25px; text-align: center; color: rgba(255,255,255,0.7); font-size: 0.85rem; }
-
-        /* POPUP & LIGHTBOX STYLES */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .modal-content { background-color: #fff; border-radius: 20px; width: 100%; max-width: 1000px; max-height: 90vh; padding: 30px; position: relative; box-shadow: 0 15px 40px rgba(0,0,0,0.5); overflow-y: auto; animation: zoomIn 0.3s ease-out; }
-        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 30px; font-weight: bold; color: #aaa; cursor: pointer; }
-        .close-btn:hover { color: #d32f2f; }
-        .modal-header { text-align: center; color: #b71c1c; font-size: 1.5rem; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .image-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .image-gallery img { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s; cursor: zoom-in; }
-        .image-gallery img:hover { transform: scale(1.05); }
-
-        .lightbox-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.9); z-index: 9999; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .lightbox-overlay img { max-width: 100%; max-height: 90vh; border-radius: 10px; box-shadow: 0 0 30px rgba(255,255,255,0.2); animation: zoomIn 0.3s ease; }
-        .lightbox-close { position: absolute; top: 20px; right: 30px; font-size: 40px; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .lightbox-close:hover { color: #ffd700; transform: scale(1.1); }
-
-        /* ================= RESPONSIVE MOBILE TỐI ƯU HÓA HOÀN TOÀN ================= */
-        @media (max-width: 768px) {
-            /* Menu Mobile */
-            .main-nav { position: fixed; top: 80px; left: -100%; width: 100%; height: calc(100vh - 80px); background: #fff; flex-direction: column; align-items: flex-start; padding: 30px; transition: left 0.3s ease; box-shadow: 0 10px 10px rgba(0,0,0,0.05); overflow-y: auto; }
-            .main-nav.active { left: 0; }
-            .main-nav ul { flex-direction: column; width: 100%; gap: 25px; align-items: flex-start; }
-            .mobile-toggle { display: block; }
-            
-            /* Thu gọn Logo */
-            .logo-text { font-size: 0.8rem; }
-            .logo-text span { font-size: 0.65rem; }
-
-            /* Hero Section */
-            .hero { padding: 50px 15px; }
-            .hero h1 { font-size: 2rem; }
-            .hero p { font-size: 1rem; margin-bottom: 25px; padding: 0 10px; }
-            .hero-btns { flex-direction: column; width: 100%; padding: 0 15px; gap: 12px; }
-            .hero-btns .btn { width: 100%; } /* Trải dài nút trên Mobile */
-
-            /* Căn lề các Section */
-            .news-section, .vinh-quang-page, .quick-section { padding: 45px 0; }
-            .section-title { margin-bottom: 30px; }
-            .section-title h2 { font-size: 1.7rem; }
-
-            /* Lưới 1 cột trên Mobile */
-            .news-grid { grid-template-columns: 1fr; gap: 20px; }
-            .quick-grid { grid-template-columns: 1fr; gap: 15px; }
-            .grid-container { gap: 20px; margin-top: 25px; padding: 10px; }
-            .honor-card { min-height: 230px; padding: 30px 15px 20px; }
-            
-            /* Tối ưu Popup & Lưới ảnh Modal */
-            .modal-overlay { padding: 10px; }
-            .modal-content { padding: 20px 15px; max-height: 95vh; border-radius: 12px; }
-            .modal-header { font-size: 1.25rem; margin-bottom: 15px; padding-bottom: 10px; }
-            .close-btn { top: 8px; right: 15px; font-size: 28px; }
-            .image-gallery { grid-template-columns: repeat(2, 1fr); gap: 10px; } /* Hiển thị 2 ảnh 1 hàng trên ĐT */
-
-            /* Footer */
-            .site-footer { padding: 40px 0 20px 0; }
-            .footer-grid { grid-template-columns: 1fr; gap: 30px; text-align: center; }
-            .footer-col h4::after { left: 50%; transform: translateX(-50%); } /* Căn giữa gạch chân */
-            .footer-col div { justify-content: center; } /* Căn giữa MXH */
-        }
-
-        @media (max-width: 480px) {
-            /* Điện thoại siêu nhỏ */
-            .hero h1 { font-size: 1.75rem; }
-            .card-title { font-size: 1.2rem; }
-            .card-logo { width: 70px; height: 70px; margin-bottom: 15px; }
-        }
-    </style>
+  <link rel="stylesheet" href="assets/css/global.css?v=20260924-1">
+  <link rel="stylesheet" href="assets/css/style.css?v=20260924-1">
+    <link rel="stylesheet" href="assets/css/upgrade.css?v=20260924-1">
+    <link rel="stylesheet" href="assets/css/header.css?v=20260924-1">
 </head>
-<body>
 
-    <!-- HEADER -->
-    <header class="site-header">
-        <div class="header-inner">
-            <div class="logo-container">
-                <a href="./">
-                    <img src="assets/images/logo-huit-doan.png" alt="Logo HUIT" onerror="this.src='https://upload.wikimedia.org/wikipedia/vi/0/09/Huy_Hi%E1%BB%87u_%C4%90o%C3%A0n.png'">
-                    <div class="logo-text">
-                        ĐOÀN THANH NIÊN - HỘI SINH VIÊN
-                        <span>TRƯỜNG ĐẠI HỌC CÔNG THƯƠNG TP.HCM</span>
-                    </div>
-                </a>
-            </div>
+<body data-page="home">
+  <a class="skip-link" href="#main-content">Bỏ qua đến nội dung chính</a>
 
-            <nav class="main-nav" id="mainNav">
-                <ul>
-                    <li><a href="./" class="active">Trang chủ</a></li>
-                    <li><a href="van-hoa-hcm/">Không gian VH HCM</a></li>
-                    <li><a href="ho-so/">Hồ sơ</a></li>
-                    <li><a href="faq/">FAQ & Hướng dẫn</a></li>
-                    <li><a href="diem-ren-luyen/">Điểm rèn luyện</a></li>
-                    <li><a href="vinh-quang/">Vinh quang</a></li>
-                </ul>
-            </nav>
+  <div class="site-announcement" role="status">
+    <div class="container announcement-inner">
+      <p>
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        Đồng hành cùng sinh viên HUIT
+      </p>
 
-            <div class="header-actions">
-                <a href="ho-so/login.html" class="btn btn-primary">Đăng nhập</a>
-                <button class="mobile-toggle" id="mobileToggle"><i class="fas fa-bars"></i></button>
-            </div>
+      <a href="faq/">
+        Xem hướng dẫn sử dụng
+        <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <header id="header" class="site-header">
+    <div class="header-inner">
+      <div class="logo-container">
+        <a href="./" aria-label="Trang chủ Cổng Thông Tin Số Đoàn - Hội HUIT">
+          <img
+            src="assets/images/logo-huit-doan.png"
+            width="48"
+            height="48"
+            alt="Logo Đoàn - Hội HUIT"
+          >
+
+          <span class="logo-text">
+            Cổng Thông Tin Số Đoàn - Hội HUIT
+            <span>Đoàn Thanh niên · Hội Sinh viên HUIT</span>
+          </span>
+        </a>
+      </div>
+
+      <nav id="mainNav" class="main-nav" aria-label="Điều hướng chính">
+        <ul>
+          <li>
+            <a class="active" aria-current="page" href="./">
+              <i class="fa-solid fa-house" aria-hidden="true"></i>
+              Trang chủ
+            </a>
+          </li>
+
+          <li>
+            <a href="van-hoa-hcm/">Không gian VH HCM</a>
+          </li>
+
+          <li>
+            <a href="ho-so/">Hồ sơ</a>
+          </li>
+
+          <li>
+            <a href="tin-tuc/">Tin tức</a>
+          </li>
+
+          <li>
+            <a href="faq/">FAQ &amp; Hướng dẫn</a>
+          </li>
+
+          <li>
+            <a href="diem-ren-luyen/">Điểm rèn luyện</a>
+          </li>
+
+          <li>
+            <a href="vinh-quang/">Vinh quang</a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a
+          class="btn btn-primary"
+          data-auth-login hidden
+          href="ho-so/login.html"
+        >
+          <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+          Đăng nhập
+        </a>
+
+        <button
+          id="mobileToggle"
+          class="mobile-toggle"
+          type="button"
+          aria-label="Mở menu"
+          aria-controls="mainNav"
+          aria-expanded="false"
+        >
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero" aria-labelledby="home-title">
+      <div class="hero-orb hero-orb-one" aria-hidden="true"></div>
+      <div class="hero-orb hero-orb-two" aria-hidden="true"></div>
+
+      <div class="container hero-container">
+        <span class="hero-eyebrow" data-reveal>
+          <i class="fa-solid fa-star" aria-hidden="true"></i>
+          Một điểm chạm cho mọi hoạt động Đoàn - Hội
+        </span>
+
+        <h1 id="home-title" data-reveal>
+          Cổng Thông Tin Số
+          <span>Đoàn - Hội HUIT</span>
+        </h1>
+
+        <p data-reveal>
+          Hệ thống quản lý trực tuyến tích hợp nộp hồ sơ tự động,
+          tra cứu điểm rèn luyện và vinh danh những tấm gương sinh viên tiêu biểu.
+        </p>
+
+        <div class="hero-btns">
+          <a class="btn btn-hero-primary" href="ho-so/">
+            <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+            Nộp hồ sơ trực tuyến
+          </a>
+
+          <a class="btn btn-hero-secondary" href="faq/">
+            <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+            Trung tâm trợ giúp
+          </a>
         </div>
-    </header>
 
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <div class="container" style="max-width: 800px;">
-            <h1>Cổng Thông Tin Số Đoàn - Hội Trường Đại học Công Thương TP.HCM</h1>
-            <p>Hệ thống quản lý trực tuyến tích hợp nộp hồ sơ tự động, tra cứu điểm rèn luyện và vinh danh những tấm gương sinh viên tiêu biểu.</p>
-            <div class="hero-btns">
-                <a href="ho-so/" class="btn" style="background: #fff; color: var(--primary); font-weight: 700;"><i class="fas fa-folder-open"></i> Nộp hồ sơ trực tuyến</a>
-                <a href="faq/" class="btn" style="background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3);"><i class="fas fa-question-circle"></i> Trung tâm trợ giúp</a>
-            </div>
+        <div class="hero-trust" data-reveal>
+          <span>
+            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+            Bảo mật tài khoản
+          </span>
+
+          <span>
+            <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+            Đồng bộ nhanh
+          </span>
+
+          <span>
+            <i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i>
+            Tối ưu di động
+          </span>
         </div>
+      </div>
     </section>
 
-    <!-- SECTION 1: TIN TỨC NỔI BẬT -->
-    <section class="news-section">
-        <div class="container">
-            <div class="section-title">
-                <span>Hoạt động phong trào</span>
-                <h2>Tin Tức & Sự Kiện Nổi Bật</h2>
-            </div>
+    <section class="account-spotlight-section" aria-labelledby="account-title">
+      <div class="container">
+        <div class="account-spotlight" data-account-spotlight data-reveal>
+          <div class="account-spotlight-icon" data-account-icon aria-hidden="true">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          </div>
 
-            <div class="news-grid" id="newsContainer">
-                <!-- Tin tức 1 -->
-                <div class="news-card">
-                    <img src="https://scontent.fsgn5-22.fna.fbcdn.net/v/t39.99422-6/806894136_1092223779960040_3724065418666686743_n.png?stp=dst-jpg_tt6&cstp=mx2048x2048&ctp=s2048x2048&_nc_cat=108&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeEK6nn6D7l4sQFUUUJLiuVTJ_Z4zLil3XYn9njMuKXddqFrQR5q_90pZp37dTdoWarL2hH9OySi5UgrhCHJfDQR&_nc_ohc=xOBfJnUrz9AQ7kNvwHVir-N&_nc_oc=AdqL74B8VfpctRGGI58eF7xi214u_xNpmoc5UJBFLM-nyL4S04U433zdfr6SZgGxlp0&_nc_zt=14&_nc_ht=scontent.fsgn5-22.fna&_nc_gid=1NJ9Y0_FqU4YNBsaRBy2GA&_nc_ss=7b2a8&oh=00_AQIQwLQWv1Pi_VMkkdS8p_QQAHcnRcHaEWuqdAh0a6BPcw&oe=6AAC40FB" alt="News" class="news-img">
-                    <div class="news-content">
-                        <div>
-                            <span class="news-date"><i class="far fa-calendar-alt"></i> 13 Tháng 9, 2026</span>
-                            <h3 class="news-title">ĐẶC QUYỀN DÀNH RIÊNG CHO SINH VIÊN, GIẢNG VIÊN HUIT!</h3>
-                            <p class="news-excerpt">Bạn đã sẵn sàng ra rạp thưởng thức “HỘ LINH TRÁNG SĨ” chưa? Đặc biệt, thành viên Nhà trường nay có thể săn vé ưu đãi hấp dẫn!</p>
-                        </div>
-                        <a href="https://www.facebook.com/share/p/1DpiY42pwE/" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px; width: fit-content;">Đọc chi tiết</a>
-                    </div>
-                </div>
+          <div class="account-spotlight-copy">
+            <span class="account-spotlight-status" data-account-status>
+              Khu vực cá nhân
+            </span>
 
-                <!-- Tin tức 2 -->
-                <div class="news-card">
-                    <img src="https://scontent.fsgn5-21.fna.fbcdn.net/v/t39.99422-6/786374466_1614948150030488_421981723850859495_n.png?stp=dst-jpg_tt6&cstp=mx1448x2048&ctp=s720x720&_nc_cat=100&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGSxOd4-bTvOGsAXCKBpbjiQ6LWe0hTsJpDotZ7SFOwmjg4n5bFDZYaCYJFWyAyynFrr0CFCDASCYCRwYmcR010&_nc_ohc=soBpSc2wJqsQ7kNvwGh6SMx&_nc_oc=Adr8-5DA-pxDvdXL5Px3V60-7K8AEjDz2UdTVWxifH5Y3hKCW3ABJxsZ0eG3_OwJHQw&_nc_zt=14&_nc_ht=scontent.fsgn5-21.fna&_nc_gid=7N-aH_1e5R9vSkoB_n4PGQ&_nc_ss=7b2a8&oh=00_AQIVZWOIPtH9xyKU1rAwoF39b4xdSDTyhTObJkXssEyHKA&oe=6AAC49BE" alt="News" class="news-img">
-                    <div class="news-content">
-                        <div>
-                            <span class="news-date"><i class="far fa-calendar-alt"></i> 05 Tháng 9, 2026</span>
-                            <h3 class="news-title">THÔNG BÁO THU SỔ ĐOÀN SINH VIÊN K26</h3>
-                            <p class="news-excerpt">Ban Thường vụ Đoàn Trường thông báo về việc thu sổ Đoàn của sinh viên khóa K26 nhằm phục vụ công tác quản lý, tiếp nhận và tổng hợp hồ sơ Đoàn viên.</p>
-                        </div>
-                        <a href="https://www.facebook.com/share/p/1dBoSmakWS/" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px; width: fit-content;">Đọc chi tiết</a>
-                    </div>
-                </div>
+            <h2 id="account-title" data-account-title>
+              Đăng nhập để quản lý hồ sơ
+            </h2>
 
-                <!-- Tin tức 3 -->
-                <div class="news-card">
-                    <img src="https://scontent.fsgn5-3.fna.fbcdn.net/v/t39.99422-6/796098160_1372306325018112_734524903572883075_n.png?stp=dst-jpg_tt6&cstp=mx2048x2048&ctp=p526x296&_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeGnlOoVs0gcGGx1biCt-23Ly2Mptk8o8pnLYym2TyjymRGVXWGBh_k8U1hlZnvKXe6h54fwod4hoztHo4ZkC2ZJ&_nc_ohc=xifN7SH-cVwQ7kNvwG8FEJO&_nc_oc=Adpjb_KTAwfnCuGvSwnFu9UcwStlXOWZe5aQm4SUUb_XWNswe1El1R8U0Q-vvn7NZs8&_nc_zt=14&_nc_ht=scontent.fsgn5-3.fna&_nc_gid=7N-aH_1e5R9vSkoB_n4PGQ&_nc_ss=7b2a8&oh=00_AQLF58R7Neo3VwP2G1DAw1H0pCZY1nBhjyOkQ-Qv33sbWQ&oe=6AAC2739" alt="News" class="news-img">
-                    <div class="news-content">
-                        <div>
-                            <span class="news-date"><i class="far fa-calendar-alt"></i> 28 Tháng 4, 2026</span>
-                            <h3 class="news-title">CÔNG BỐ DANH SÁCH CỘNG ĐIỂM RÈN LUYỆN HK2</h3>
-                            <p class="news-excerpt">Đoàn Thanh niên Trường Đại học Công Thương TPHCM trân trọng công bố danh sách sinh viên được cộng điểm rèn luyện trong học kỳ 2.</p>
-                        </div>
-                        <a href="https://www.facebook.com/share/p/19YA3j5YXJ/" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px; width: fit-content;">Đọc chi tiết</a>
-                    </div>
-                </div>
+            <p data-account-description>
+              Một tài khoản giúp nộp hồ sơ, xem thông báo và sử dụng trọn vẹn
+              các tiện ích của cổng thông tin.
+            </p>
+          </div>
 
-                <!-- CÁC TIN TỨC ẨN (Bấm XEM THÊM ĐỂ HIỆN) -->
-                <div class="news-card extra-news" style="display: none;">
-                    <img src="https://scontent.fsgn5-9.fna.fbcdn.net/v/t39.99422-6/787531360_2135677057374943_1423763259934405362_n.png?stp=dst-jpg_tt6&cstp=mx2048x1365&ctp=s590x590&_nc_cat=101&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeFYJC_v2o7wNFbtywTJYNYP_1b8OfnXzdb_Vvw5-dfN1uGlod4lHi70hoDmb5PxT-9C4mb16zjMKO2wNuPGoUh3&_nc_ohc=6oGGLDw_svAQ7kNvwFOwc6X&_nc_oc=AdrxH9PmkJ9rCf2wV_ExkLB7sDUJMSZgCSrq6ISLM5spjwiB_uqWJv5KNfKKGsrK-Fk&_nc_zt=14&_nc_ht=scontent.fsgn5-9.fna&_nc_gid=Kg0B6vUDjWZaRnNAAPl0QA&_nc_ss=7b2a8&oh=00_AQLthwKum4G1PjJXvExJkwpyzTmyZKiaSg172q38pIvXXg&oe=6AAC2B74" alt="News" class="news-img">
-                    <div class="news-content">
-                        <div>
-                            <span class="news-date"><i class="far fa-calendar-alt"></i> 28 Tháng 8, 2026</span>
-                            <h3 class="news-title"> TỪ THE VOICE HUIT ĐẾN GƯƠNG MẶT DẪN SÓNG PHÁP LUẬT TV - HÀNH TRÌNH CỦA NGUYỄN HOÀNG YẾN NGÂN ✨</h3>
-                            <p class="news-excerpt">Từ sân khấu The Voice HUIT, Yến Ngân tiếp tục theo đuổi niềm đam mê với micro, không ngừng trau dồi kỹ năng và tích lũy trải nghiệm. Để rồi hôm nay, cô nàng đã có thêm một dấu mốc đáng tự hào khi trở thành gương mặt dẫn sóng của Pháp Luật TV. 🎥🎙️</p>
-                        </div>
-                        <a href="https://www.facebook.com/share/p/1BfnRuzkRb/" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px; width: fit-content;">Đọc chi tiết</a>
-                    </div>
-                </div>
-
-                <div class="news-card extra-news" style="display: none;">
-                    <img src="https://scontent.fsgn5-9.fna.fbcdn.net/v/t39.99422-6/805959507_1090782133649151_6983938080989030924_n.png?stp=dst-jpg_tt6&cstp=mx2048x1536&ctp=s590x590&_nc_cat=103&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeF6m-BJrv9pMNJUcWq4ysJPUal8B0Ir239RqXwHQivbfwcqWKamhFV4zFpOuw5pgle4CX2V0F0mjigtvdye1RqK&_nc_ohc=O4SGGrIhBPIQ7kNvwEkW2F6&_nc_oc=AdoJLAqtm1yX1k_2xe3KTfYMaAveXPtsk-hVFzz2E9xi7JfNoruGd2LxSE4h7m4Kak0&_nc_zt=14&_nc_ht=scontent.fsgn5-9.fna&_nc_gid=MQj1UTPhUn2PvgNvHVsDWA&_nc_ss=7b2a8&oh=00_AQJ36eu_tngV5LLsM2VhxHWGedcO9h4QEWRaXt8ZKPZBjg&oe=6AAC247C" alt="News" class="news-img">
-                    <div class="news-content">
-                        <div>
-                            <span class="news-date"><i class="far fa-calendar-alt"></i> 21 Tháng 8, 2026</span>
-                            <h3 class="news-title">RECAP MÙA HÈ XANH HUIT 2026 | MỘT MÙA HÈ - VẠN HÀNH TRÌNH - NGÀN DẤU ẤN 💙</h3>
-                            <p class="news-excerpt">Một mùa hè nữa lại đi qua, nhưng những màu áo xanh, những nụ cười và những câu chuyện đẹp của Chiến dịch Mùa Hè Xanh Trường Đại học Công Thương TP. Hồ Chí Minh (HUIT) 2026 vẫn còn ở lại.</p>
-                        </div>
-                        <a href="https://www.facebook.com/share/v/1GhPaj5UE4/" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px; width: fit-content;">Đọc chi tiết</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- NÚT XEM THÊM -->
-            <div style="text-align: center; margin-top: 40px;">
-                <button id="toggleNewsBtn" class="btn btn-primary" onclick="toggleNews()" style="padding: 12px 30px; border-radius: 25px;">
-                    Xem thêm tin tức <i class="fas fa-chevron-down" style="margin-left: 5px;"></i>
-                </button>
-            </div>
+          <a
+            class="btn btn-primary account-spotlight-action"
+            data-account-action
+            href="ho-so/login.html"
+          >
+            Đăng nhập
+          </a>
         </div>
+      </div>
     </section>
 
-    <!-- SECTION 2: BẢNG VINH QUANG THÀNH TÍCH -->
-    <main class="vinh-quang-page">
-        <div class="container">
-            <div class="section-title">
-                <span>Gương sáng tiêu biểu</span>
-                <h2 style="font-size: 2.1rem; font-weight: 800; color: #1e293b; text-transform: uppercase;">BẢNG VINH QUANG THÀNH TÍCH</h2>
-                <div style="width: 80px; height: 4px; background: #fbbf24; margin: 12px auto 0 auto; border-radius: 2px;"></div>
-            </div>
-            
-            <div class="grid-container">
-                <div class="honor-card card-bac" onclick="openModal('modal-bac')">
-                    <div class="sunburst"></div>
-                    <svg class="card-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="url(#gold-grad)"/>
-                        <defs><linearGradient id="gold-grad" x1="12" y1="2" x2="12" y2="21" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF59D"/><stop offset="0.5" stop-color="#FFD54F"/><stop offset="1" stop-color="#F57F17"/></linearGradient></defs>
-                    </svg>
-                    <h3 class="card-title">Thanh Niên Tiên Tiến<br>Làm Theo Lời Bác</h3>
-                    <div class="card-action">Xem danh sách &raquo;</div>
-                </div>
+    <section class="portal-workspace"><div class="container" id="portal-planner"></div></section>
 
-                <div class="honor-card card-doan" onclick="openModal('modal-doan')">
-                    <div class="sunburst"></div>
-                    <img src="https://upload.wikimedia.org/wikipedia/vi/0/09/Huy_Hi%E1%BB%87u_%C4%90o%C3%A0n.png" alt="Huy hiệu Đoàn" class="card-logo">
-                    <h3 class="card-title">Cán Bộ Đoàn - Hội<br>Tiêu Biểu</h3>
-                    <div class="card-action">Xem danh sách &raquo;</div>
-                </div>
+    <section class="service-strip" aria-label="Tổng quan dịch vụ">
+      <div class="container service-strip-grid">
+        <div class="service-stat" data-reveal>
+          <span class="service-stat-icon">
+            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+          </span>
 
-                <div class="honor-card card-hoi" onclick="openModal('modal-hoi')">
-                    <div class="sunburst"></div>
-                    <img src="https://upload.wikimedia.org/wikipedia/vi/thumb/d/dd/Huy_hi%E1%BB%87u_H%E1%BB%99i_SVVN.svg/1280px-Huy_hi%E1%BB%87u_H%E1%BB%99i_SVVN.svg.png" alt="Huy hiệu Hội Sinh viên" class="card-logo">
-                    <h3 class="card-title">Sinh Viên 5 Tốt Tiêu Biểu<br>Cấp Trường</h3>
-                    <div class="card-action">Xem danh sách &raquo;</div>
-                </div>
-
-                <div class="honor-card card-giaovien" onclick="openModal('modal-giaovien')">
-                    <div class="sunburst"></div>
-                    <svg class="card-logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 3L1 9L5 11.18V17.18L12 21L19 17.18V11.18L21 10.09V17H23V9L12 3ZM18.82 9L12 12.72L5.18 9L12 5.28L18.82 9ZM17 15.95L12 18.72L7 15.95V12.27L12 15L17 12.27V15.95Z" fill="url(#purple-grad)"/>
-                        <defs><linearGradient id="purple-grad" x1="12" y1="3" x2="12" y2="21" gradientUnits="userSpaceOnUse"><stop stop-color="#E1BEE7"/><stop offset="0.5" stop-color="#BA68C8"/><stop offset="1" stop-color="#F3E5F5"/></linearGradient></defs>
-                    </svg>
-                    <h3 class="card-title">Nhà Giáo Trẻ<br>Tiêu Biểu</h3>
-                    <div class="card-action">Xem danh sách &raquo;</div>
-                </div>
-            </div>
+          <span>
+            <strong>01</strong>
+            <small>Nền tảng tập trung</small>
+          </span>
         </div>
-    </main>
 
-    <!-- SECTION 3: TIỆN ÍCH NHANH -->
-    <section class="quick-section">
-        <div class="container">
-            <div class="section-title">
-                <span>Dịch vụ trực tuyến</span>
-                <h2>Khám Phá Cổng Thông Tin</h2>
-            </div>
-            <div class="quick-grid">
-                <a href="ho-so/" class="quick-card">
-                    <div class="quick-icon"><i class="fas fa-file-signature"></i></div>
-                    <h3>Quản lý & Nộp hồ sơ</h3>
-                    <p>Thực hiện chuyển sinh hoạt Đoàn, đăng ký kế hoạch và theo dõi trạng thái duyệt thời gian thực.</p>
-                </a>
-                <a href="diem-ren-luyen/" class="quick-card">
-                    <div class="quick-icon"><i class="fas fa-chart-line"></i></div>
-                    <h3>Điểm rèn luyện</h3>
-                    <p>Tra cứu minh chứng, điểm danh chương trình và tổng hợp điểm rèn luyện tự động.</p>
-                </a>
-                <a href="van-hoa-hcm/" class="quick-card">
-                    <div class="quick-icon"><i class="fas fa-landmark"></i></div>
-                    <h3>Không gian Văn Hóa Hồ Chí Minh</h3>
-                    <p>Tìm hiểu tư liệu, học tập và làm bài kiểm tra trực tuyến về tư tưởng, đạo đức Chủ tịch Hồ Chí Minh.</p>
-                </a>
-                <a href="faq/" class="quick-card">
-                    <div class="quick-icon"><i class="fas fa-headset"></i></div>
-                    <h3>FAQ & Góp ý</h3>
-                    <p>Giải đáp thắc mắc, tải biểu mẫu văn bản chính thống và gửi ý kiến phản hồi về cho Đoàn trường.</p>
-                </a>
-            </div>
+        <div class="service-stat" data-reveal>
+          <span class="service-stat-icon">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+          </span>
+
+          <span>
+            <strong>24/7</strong>
+            <small>Tra cứu mọi lúc</small>
+          </span>
         </div>
+
+        <div class="service-stat" data-reveal>
+          <span class="service-stat-icon">
+            <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+          </span>
+
+          <span>
+            <strong>Trực tuyến</strong>
+            <small>Cập nhật trạng thái</small>
+          </span>
+        </div>
+
+        <div class="service-stat" data-reveal>
+          <span class="service-stat-icon">
+            <i class="fa-solid fa-users" aria-hidden="true"></i>
+          </span>
+
+          <span>
+            <strong>HUIT</strong>
+            <small>Phục vụ sinh viên</small>
+          </span>
+        </div>
+      </div>
     </section>
 
-    <!-- ================= CÁC POPUP (MODALS) VINH QUANG ================= -->
-    <div id="modal-bac" class="modal-overlay" onclick="closeOutside(event, 'modal-bac')">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-bac')">&times;</span>
-            <h2 class="modal-header">Thanh Niên Tiên Tiến Làm Theo Lời Bác</h2>
-            <div class="image-gallery">
-                <img src="https://i.postimg.cc/GpPgNkSY/1.png" alt="Ảnh 1">
-                <img src="https://i.postimg.cc/hjSZqfHj/2.png" alt="Ảnh 2">
-                <img src="https://i.postimg.cc/XJV10pTX/3.png" alt="Ảnh 3">
-                <img src="https://i.postimg.cc/B6q7GXdP/4.png" alt="Ảnh 4">
-                <img src="https://i.postimg.cc/d1qNKLzX/5.png" alt="Ảnh 5">
-                <img src="https://i.postimg.cc/zB0tDqrp/6.png" alt="Ảnh 6">
-                <img src="https://i.postimg.cc/vB3q8Gs2/7.png" alt="Ảnh 7">
-                <img src="https://i.postimg.cc/sXw6f3zs/8.png" alt="Ảnh 8">
-                <img src="https://i.postimg.cc/cCCDrP1n/9.png" alt="Ảnh 9">
-                <img src="https://i.postimg.cc/8ccyjxkf/10.png" alt="Ảnh 10">
-                <img src="https://i.postimg.cc/7hhBfjPM/11.png" alt="Ảnh 11">
-                <img src="https://i.postimg.cc/5yrsvpjB/12.png" alt="Ảnh 12">
-                <img src="https://i.postimg.cc/BZ7YdZNS/13.png" alt="Ảnh 13">
-                <img src="https://i.postimg.cc/qqF1nQgP/14.png" alt="Ảnh 14">
-                <img src="https://i.postimg.cc/J7Y697KG/15.png" alt="Ảnh 15">
-                <img src="https://i.postimg.cc/026WxgHH/16.png" alt="Ảnh 16">
-                <img src="https://i.postimg.cc/13wvnGS2/17.png" alt="Ảnh 17">
-                <img src="https://i.postimg.cc/hGnp9XPS/18.png" alt="Ảnh 18">
-                <img src="https://i.postimg.cc/MGwdynK6/19.png" alt="Ảnh 19">
-                <img src="https://i.postimg.cc/MGwdynKG/20.png" alt="Ảnh 20">
-                <img src="https://i.postimg.cc/PqMKKdPt/21.png" alt="Ảnh 21">
-                <img src="https://i.postimg.cc/pTXC63Fg/22.png" alt="Ảnh 22">
-                <img src="https://i.postimg.cc/Y9qRsTW5/23.png" alt="Ảnh 23">
-                <img src="https://i.postimg.cc/x8XR0Hg8/24.png" alt="Ảnh 24">
-                <img src="https://i.postimg.cc/0jzf8mZm/25.png" alt="Ảnh 25">
-                <img src="https://i.postimg.cc/sfLmT6Dw/26.png" alt="Ảnh 26">
-                <img src="https://i.postimg.cc/4Nh5q6YN/27.png" alt="Ảnh 27">
-                <img src="https://i.postimg.cc/15NH2G8Q/28.png" alt="Ảnh 28">
-                <img src="https://i.postimg.cc/GhsQVF4t/29.png" alt="Ảnh 29">
-                <img src="https://i.postimg.cc/9Q5phD9X/30.png" alt="Ảnh 30">
-            </div>
+    <section id="tin-tuc" class="news-section" aria-labelledby="news-title">
+      <div class="container">
+        <div class="section-title" data-reveal>
+          <span>Hoạt động phong trào</span>
+          <h2 id="news-title">Tin tức &amp; sự kiện nổi bật</h2>
         </div>
-    </div>
 
-    <div id="modal-doan" class="modal-overlay" onclick="closeOutside(event, 'modal-doan')">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-doan')">&times;</span>
-            <h2 class="modal-header" style="color: #1976d2;">Cán Bộ Đoàn - Hội Tiêu Biểu</h2>
-            <div class="image-gallery">
-                <img src="https://i.postimg.cc/YCnxZdtZ/1.png" alt="Cán bộ 1">
-                <img src="https://i.postimg.cc/Hn9w22Sn/2.png" alt="Cán bộ 2">
-                <img src="https://i.postimg.cc/5Nfqth0Y/3.png" alt="Cán bộ 3">
-                <img src="https://i.postimg.cc/NG6kBsg9/4.png" alt="Cán bộ 4">
-                <img src="https://i.postimg.cc/Sxs66cc2/6.png" alt="Cán bộ 6">
-                <img src="https://i.postimg.cc/85hMp4gH/7.png" alt="Cán bộ 7">
-                <img src="https://i.postimg.cc/NjSHRSgb/8.png" alt="Cán bộ 8">
-                <img src="https://i.postimg.cc/Z5CNB4hN/9.png" alt="Cán bộ 9">
-                <img src="https://i.postimg.cc/HxC8hM87/10.png" alt="Cán bộ 10">
-                <img src="https://i.postimg.cc/V6c0Vt02/11.png" alt="Cán bộ 11">
-                <img src="https://i.postimg.cc/QNmKfH8T/12.png" alt="Cán bộ 12">
-                <img src="https://i.postimg.cc/ncLjgprg/13.png" alt="Cán bộ 13">
-                <img src="https://i.postimg.cc/cLgK1hQ8/14.png" alt="Cán bộ 14">
-                <img src="https://i.postimg.cc/MpMcZ5yb/15.png" alt="Cán bộ 15">
-                <img src="https://i.postimg.cc/jqB2gPVN/16.png" alt="Cán bộ 16">
-                <img src="https://i.postimg.cc/RFySY5Dp/17.png" alt="Cán bộ 17">
-                <img src="https://i.postimg.cc/HnMYDvG8/18.png" alt="Cán bộ 18">
-                <img src="https://i.postimg.cc/7PJY2hCY/19.png" alt="Cán bộ 19">
-                <img src="https://i.postimg.cc/8PVDfHQm/20.png" alt="Cán bộ 20">
-                <img src="https://i.postimg.cc/jdQTH7RS/21.png" alt="Cán bộ 21">
-                <img src="https://i.postimg.cc/43MRfvQd/22.png" alt="Cán bộ 22">
-                <img src="https://i.postimg.cc/SK5bSLf3/23.png" alt="Cán bộ 23">
+        <div id="newsContainer" class="news-grid">
+          <article class="news-card" data-reveal>
+            <img
+              class="news-img"
+              src="https://scontent.fsgn5-22.fna.fbcdn.net/v/t39.99422-6/806894136_1092223779960040_3724065418666686743_n.png?stp=dst-jpg_tt6&amp;cstp=mx2048x2048&amp;ctp=s2048x2048&amp;_nc_cat=108&amp;_nc_map=urlgen_bucketless&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_eui2=AeEK6nn6D7l4sQFUUUJLiuVTJ_Z4zLil3XYn9njMuKXddqFrQR5q_90pZp37dTdoWarL2hH9OySi5UgrhCHJfDQR&amp;_nc_ohc=xOBfJnUrz9AQ7kNvwHVir-N&amp;_nc_oc=AdqL74B8VfpctRGGI58eF7xi214u_xNpmoc5UJBFLM-nyL4S04U433zdfr6SZgGxlp0&amp;_nc_zt=14&amp;_nc_ht=scontent.fsgn5-22.fna&amp;_nc_gid=1NJ9Y0_FqU4YNBsaRBy2GA&amp;_nc_ss=7b2a8&amp;oh=00_AQIQwLQWv1Pi_VMkkdS8p_QQAHcnRcHaEWuqdAh0a6BPcw&amp;oe=6AAC40FB"
+              alt="Ưu đãi dành cho sinh viên HUIT"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='assets/images/logo-huit-doan.png';"
+            >
+
+            <div class="news-content">
+              <div>
+                <span class="news-date">
+                  <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                  13 tháng 9, 2026
+                </span>
+
+                <h3 class="news-title">
+                  ĐẶC QUYỀN DÀNH RIÊNG CHO SINH VIÊN, GIẢNG VIÊN HUIT!
+                </h3>
+
+                <p class="news-excerpt">
+                  Bạn đã sẵn sàng ra rạp thưởng thức “HỘ LINH TRÁNG SĨ” chưa?
+                  Đặc biệt, thành viên Nhà trường nay có thể săn vé ưu đãi hấp dẫn.
+                </p>
+              </div>
+
+              <a
+                class="btn btn-primary news-readmore"
+                href="https://www.facebook.com/share/p/1DpiY42pwE/"
+                target="_blank"
+                rel="noopener"
+              >
+                Đọc chi tiết
+              </a>
             </div>
+          </article>
+
+          <article class="news-card" data-reveal>
+            <img
+              class="news-img"
+              src="https://scontent.fsgn5-21.fna.fbcdn.net/v/t39.99422-6/786374466_1614948150030488_421981723850859495_n.png?stp=dst-jpg_tt6&amp;cstp=mx1448x2048&amp;ctp=s720x720&amp;_nc_cat=100&amp;_nc_map=urlgen_bucketless&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_eui2=AeGSxOd4-bTvOGsAXCKBpbjiQ6LWe0hTsJpDotZ7SFOwmjg4n5bFDZYaCYJFWyAyynFrr0CFCDASCYCRwYmcR010&amp;_nc_ohc=soBpSc2wJqsQ7kNvwGh6SMx&amp;_nc_oc=Adr8-5DA-pxDvdXL5Px3V60-7K8AEjDz2UdTVWxifH5Y3hKCW3ABJxsZ0eG3_OwJHQw&amp;_nc_zt=14&amp;_nc_ht=scontent.fsgn5-21.fna&amp;_nc_gid=7N-aH_1e5R9vSkoB_n4PGQ&amp;_nc_ss=7b2a8&amp;oh=00_AQIVZWOIPtH9xyKU1rAwoF39b4xdSDTyhTObJkXssEyHKA&amp;oe=6AAC49BE"
+              alt="Thông báo thu sổ Đoàn sinh viên khóa K26"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='assets/images/logo-huit-doan.png';"
+            >
+
+            <div class="news-content">
+              <div>
+                <span class="news-date">
+                  <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                  05 tháng 9, 2026
+                </span>
+
+                <h3 class="news-title">
+                  THÔNG BÁO THU SỔ ĐOÀN SINH VIÊN K26
+                </h3>
+
+                <p class="news-excerpt">
+                  Ban Thường vụ Đoàn Trường thông báo về việc thu sổ Đoàn
+                  của sinh viên khóa K26 nhằm phục vụ công tác quản lý,
+                  tiếp nhận và tổng hợp hồ sơ Đoàn viên.
+                </p>
+              </div>
+
+              <a
+                class="btn btn-primary news-readmore"
+                href="https://www.facebook.com/share/p/1dBoSmakWS/"
+                target="_blank"
+                rel="noopener"
+              >
+                Đọc chi tiết
+              </a>
+            </div>
+          </article>
+
+          <article class="news-card" data-reveal>
+            <img
+              class="news-img"
+              src="https://scontent.fsgn5-3.fna.fbcdn.net/v/t39.99422-6/796098160_1372306325018112_734524903572883075_n.png?stp=dst-jpg_tt6&amp;cstp=mx2048x2048&amp;ctp=p526x296&amp;_nc_cat=101&amp;_nc_map=urlgen_bucketless&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_eui2=AeGnlOoVs0gcGGx1biCt-23Ly2Mptk8o8pnLYym2TyjymRGVXWGBh_k8U1hlZnvKXe6h54fwod4hoztHo4ZkC2ZJ&amp;_nc_ohc=xifN7SH-cVwQ7kNvwG8FEJO&amp;_nc_oc=Adpjb_KTAwfnCuGvSwnFu9UcwStlXOWZe5aQm4SUUb_XWNswe1El1R8U0Q-vvn7NZs8&amp;_nc_zt=14&amp;_nc_ht=scontent.fsgn5-3.fna&amp;_nc_gid=7N-aH_1e5R9vSkoB_n4PGQ&amp;_nc_ss=7b2a8&amp;oh=00_AQLF58R7Neo3VwP2G1DAw1H0pCZY1nBhjyOkQ-Qv33sbWQ&amp;oe=6AAC2739"
+              alt="Danh sách cộng điểm rèn luyện học kỳ 2"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='assets/images/logo-huit-doan.png';"
+            >
+
+            <div class="news-content">
+              <div>
+                <span class="news-date">
+                  <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                  28 tháng 4, 2026
+                </span>
+
+                <h3 class="news-title">
+                  CÔNG BỐ DANH SÁCH CỘNG ĐIỂM RÈN LUYỆN HK2
+                </h3>
+
+                <p class="news-excerpt">
+                  Đoàn Thanh niên Trường Đại học Công Thương TPHCM trân trọng
+                  công bố danh sách sinh viên được cộng điểm rèn luyện trong học kỳ 2.
+                </p>
+              </div>
+
+              <a
+                class="btn btn-primary news-readmore"
+                href="https://www.facebook.com/share/p/19YA3j5YXJ/"
+                target="_blank"
+                rel="noopener"
+              >
+                Đọc chi tiết
+              </a>
+            </div>
+          </article>
+
+          <article class="news-card extra-news" data-reveal hidden>
+            <img
+              class="news-img"
+              src="https://scontent.fsgn5-9.fna.fbcdn.net/v/t39.99422-6/787531360_2135677057374943_1423763259934405362_n.png?stp=dst-jpg_tt6&amp;cstp=mx2048x1365&amp;ctp=s590x590&amp;_nc_cat=101&amp;_nc_map=urlgen_bucketless&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_eui2=AeFYJC_v2o7wNFbtywTJYNYP_1b8OfnXzdb_Vvw5-dfN1uGlod4lHi70hoDmb5PxT-9C4mb16zjMKO2wNuPGoUh3&amp;_nc_ohc=6oGGLDw_svAQ7kNvwFOwc6X&amp;_nc_oc=AdrxH9PmkJ9rCf2wV_ExkLB7sDUJMSZgCSrq6ISLM5spjwiB_uqWJv5KNfKKGsrK-Fk&amp;_nc_zt=14&amp;_nc_ht=scontent.fsgn5-9.fna&amp;_nc_gid=Kg0B6vUDjWZaRnNAAPl0QA&amp;_nc_ss=7b2a8&amp;oh=00_AQLthwKum4G1PjJXvExJkwpyzTmyZKiaSg172q38pIvXXg&amp;oe=6AAC2B74"
+              alt="Gương mặt sinh viên HUIT trên sóng truyền hình"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='assets/images/logo-huit-doan.png';"
+            >
+
+            <div class="news-content">
+              <div>
+                <span class="news-date">
+                  <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                  28 tháng 8, 2026
+                </span>
+
+                <h3 class="news-title">
+                  TỪ THE VOICE HUIT ĐẾN GƯƠNG MẶT DẪN SÓNG PHÁP LUẬT TV
+                </h3>
+
+                <p class="news-excerpt">
+                  Từ sân khấu The Voice HUIT, Yến Ngân tiếp tục theo đuổi
+                  niềm đam mê với micro, không ngừng trau dồi kỹ năng
+                  và tích lũy trải nghiệm.
+                </p>
+              </div>
+
+              <a
+                class="btn btn-primary news-readmore"
+                href="https://www.facebook.com/share/p/1BfnRuzkRb/"
+                target="_blank"
+                rel="noopener"
+              >
+                Đọc chi tiết
+              </a>
+            </div>
+          </article>
+
+          <article class="news-card extra-news" data-reveal hidden>
+            <img
+              class="news-img"
+              src="https://scontent.fsgn5-9.fna.fbcdn.net/v/t39.99422-6/805959507_1090782133649151_6983938080989030924_n.png?stp=dst-jpg_tt6&amp;cstp=mx2048x1536&amp;ctp=s590x590&amp;_nc_cat=103&amp;_nc_map=urlgen_bucketless&amp;ccb=1-7&amp;_nc_sid=127cfc&amp;_nc_eui2=AeF6m-BJrv9pMNJUcWq4ysJPUal8B0Ir239RqXwHQivbfwcqWKamhFV4zFpOuw5pgle4CX2V0F0mjigtvdye1RqK&amp;_nc_ohc=O4SGGrIhBPIQ7kNvwEkW2F6&amp;_nc_oc=AdoJLAqtm1yX1k_2xe3KTfYMaAveXPtsk-hVFzz2E9xi7JfNoruGd2LxSE4h7m4Kak0&amp;_nc_zt=14&amp;_nc_ht=scontent.fsgn5-9.fna&amp;_nc_gid=MQj1UTPhUn2PvgNvHVsDWA&amp;_nc_ss=7b2a8&amp;oh=00_AQJ36eu_tngV5LLsM2VhxHWGedcO9h4QEWRaXt8ZKPZBjg&amp;oe=6AAC247C"
+              alt="Mùa hè xanh HUIT 2026"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='assets/images/logo-huit-doan.png';"
+            >
+
+            <div class="news-content">
+              <div>
+                <span class="news-date">
+                  <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                  21 tháng 8, 2026
+                </span>
+
+                <h3 class="news-title">
+                  RECAP MÙA HÈ XANH HUIT 2026: MỘT MÙA HÈ - VẠN HÀNH TRÌNH
+                </h3>
+
+                <p class="news-excerpt">
+                  Một mùa hè nữa lại đi qua, nhưng những màu áo xanh,
+                  nụ cười và câu chuyện đẹp của chiến dịch Mùa Hè Xanh HUIT
+                  vẫn còn ở lại.
+                </p>
+              </div>
+
+              <a
+                class="btn btn-primary news-readmore"
+                href="https://www.facebook.com/share/v/1GhPaj5UE4/"
+                target="_blank"
+                rel="noopener"
+              >
+                Đọc chi tiết
+              </a>
+            </div>
+          </article>
         </div>
-    </div>
 
-    <div id="modal-hoi" class="modal-overlay" onclick="closeOutside(event, 'modal-hoi')">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-hoi')">&times;</span>
-            <h2 class="modal-header" style="color: #00acc1;">Sinh Viên 5 Tốt Tiêu Biểu Cấp Trường</h2>
-            <div class="image-gallery">
-                <img src="https://i.postimg.cc/5N6CRbkx/1.png" alt="SV5T 1">
-                <img src="https://i.postimg.cc/QN67mHmP/2.png" alt="SV5T 2">
-                <img src="https://i.postimg.cc/kMjSsBw3/3.png" alt="SV5T 3">
-                <img src="https://i.postimg.cc/2jHWGVTY/4.png" alt="SV5T 4">
-                <img src="https://i.postimg.cc/bvjSrbYy/5.png" alt="SV5T 5">
-                <img src="https://i.postimg.cc/1zZVX6R4/6.png" alt="SV5T 6">
-                <img src="https://i.postimg.cc/TPX51m2K/7.png" alt="SV5T 7">
-                <img src="https://i.postimg.cc/7LyJh7P2/8.png" alt="SV5T 8">
-                <img src="https://i.postimg.cc/YSfGW9j3/9.png" alt="SV5T 9">
-                <img src="https://i.postimg.cc/j5xWQb7L/10.png" alt="SV5T 10">
-                <img src="https://i.postimg.cc/C1hZHgqy/11.png" alt="SV5T 11">
-            </div>
+        <div class="news-more">
+          <button
+            id="toggleNewsBtn"
+            class="btn btn-primary news-toggle"
+            type="button"
+            aria-expanded="false"
+          >
+            Xem thêm tin tức
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+          </button>
         </div>
-    </div>
+      </div>
+    </section>
 
-    <div id="modal-giaovien" class="modal-overlay" onclick="closeOutside(event, 'modal-giaovien')">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal-giaovien')">&times;</span>
-            <h2 class="modal-header" style="color: #9c27b0;">Nhà Giáo Trẻ Tiêu Biểu</h2>
-            <div class="image-gallery">
-                <img src="https://i.postimg.cc/3Rq6Fn0X/1.png" alt="Nhà giáo trẻ 1">
-                <img src="https://i.postimg.cc/KzWVDJ3n/2.png" alt="Nhà giáo trẻ 2">
-                <img src="https://i.postimg.cc/V6hTWD0W/3.png" alt="Nhà giáo trẻ 3">
-                <img src="https://i.postimg.cc/ZRQgxVvL/4.png" alt="Nhà giáo trẻ 4">
-                <img src="https://i.postimg.cc/br25Ck13/5.png" alt="Nhà giáo trẻ 5">
-            </div>
+    <section id="vinh-quang" class="vinh-quang-page" aria-labelledby="honor-title">
+      <div class="container">
+        <div class="section-title" data-reveal>
+          <span>Gương sáng tiêu biểu</span>
+          <h2 id="honor-title">Bảng vinh quang thành tích</h2>
         </div>
-    </div>
 
-    <!-- KHUNG XEM ẢNH PHÓNG TO (LIGHTBOX) -->
-    <div id="image-lightbox" class="lightbox-overlay" onclick="closeLightbox(event)">
-        <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
-        <img id="lightbox-img" src="" alt="Ảnh phóng to">
-    </div>
+        <div class="grid-container">
+          <article
+            class="honor-card card-bac"
+            data-reveal
+            data-modal-target="modal-bac"
+            role="button"
+            tabindex="0"
+            aria-controls="modal-bac"
+          >
+            <div class="sunburst" aria-hidden="true"></div>
+            <i class="fa-solid fa-star card-logo" aria-hidden="true"></i>
+            <h3 class="card-title">
+              Thanh niên tiên tiến<br>
+              Làm theo lời Bác
+            </h3>
+            <span class="card-action">Xem danh sách »</span>
+          </article>
 
-    <!-- FOOTER MÀU ĐỎ CHỦ ĐẠO -->
-    <footer class="site-footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>Đoàn Thanh niên - Hội Sinh viên HUIT</h4>
-                    <p><i class="fas fa-map-marker-alt"></i> 140 Lê Trọng Tấn, P. Tây Thạnh, Q. Tân Phú, TP.HCM</p>
-                    <p><i class="fas fa-phone"></i> (028) 3816 1673</p>
-                    <p><i class="fas fa-envelope"></i> doanthanhnien@huit.edu.vn</p>
-                </div>
-                <div class="footer-col">
-                    <h4>Liên kết nhanh</h4>
-                    <ul>
-                        <li><a href="./">Trang chủ</a></li>
-                        <li><a href="ho-so/">Nộp hồ sơ trực tuyến</a></li>
-                        <li><a href="diem-ren-luyen/">Tra cứu điểm rèn luyện</a></li>
-                        <li><a href="faq/">Văn bản & Biểu mẫu</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Mạng xã hội</h4>
-                    <div style="display: flex; gap: 15px; font-size: 1.5rem; margin-top: 10px;">
-                        <a href="https://www.facebook.com/dtn.hsv.huit" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                        <a href="#" aria-label="Tiktok"><i class="fab fa-tiktok"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                &copy; 2026 Bản quyền thuộc về Đoàn Thanh niên - Hội Sinh viên Trường Đại học Công Thương TP.HCM.
-            </div>
+          <article
+            class="honor-card card-doan"
+            data-reveal
+            data-modal-target="modal-doan"
+            role="button"
+            tabindex="0"
+            aria-controls="modal-doan"
+          >
+            <div class="sunburst" aria-hidden="true"></div>
+
+            <img
+              class="card-logo"
+              src="https://upload.wikimedia.org/wikipedia/vi/0/09/Huy_Hi%E1%BB%87u_%C4%90o%C3%A0n.png"
+              alt="Huy hiệu Đoàn"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='assets/images/logo-huit-doan.png';"
+            >
+
+            <h3 class="card-title">
+              Cán bộ Đoàn - Hội<br>
+              tiêu biểu
+            </h3>
+
+            <span class="card-action">Xem danh sách »</span>
+          </article>
+
+          <article
+            class="honor-card card-hoi"
+            data-reveal
+            data-modal-target="modal-hoi"
+            role="button"
+            tabindex="0"
+            aria-controls="modal-hoi"
+          >
+            <div class="sunburst" aria-hidden="true"></div>
+
+            <img
+              class="card-logo"
+              src="https://upload.wikimedia.org/wikipedia/vi/thumb/d/dd/Huy_hi%E1%BB%87u_H%E1%BB%99i_SVVN.svg/1280px-Huy_hi%E1%BB%87u_H%E1%BB%99i_SVVN.svg.png"
+              alt="Huy hiệu Hội Sinh viên"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='assets/images/logo-huit-doan.png';"
+            >
+
+            <h3 class="card-title">
+              Sinh viên 5 tốt tiêu biểu<br>
+              cấp trường
+            </h3>
+
+            <span class="card-action">Xem danh sách »</span>
+          </article>
+
+          <article
+            class="honor-card card-giaovien"
+            data-reveal
+            data-modal-target="modal-giaovien"
+            role="button"
+            tabindex="0"
+            aria-controls="modal-giaovien"
+          >
+            <div class="sunburst" aria-hidden="true"></div>
+            <i class="fa-solid fa-chalkboard-user card-logo" aria-hidden="true"></i>
+
+            <h3 class="card-title">
+              Nhà giáo trẻ<br>
+              tiêu biểu
+            </h3>
+
+            <span class="card-action">Xem danh sách »</span>
+          </article>
         </div>
-    </footer>
+      </div>
+    </section>
 
-    <!-- SCRIPTS TỔNG HỢP (MOBILE MENU, TIN TỨC, MODAL & LIGHTBOX) -->
-    <script>
-        // 1. Mobile Menu Toggle
-        const mobileToggle = document.getElementById('mobileToggle');
-        const mainNav = document.getElementById('mainNav');
-        if (mobileToggle && mainNav) {
-            mobileToggle.addEventListener('click', () => {
-                mainNav.classList.toggle('active');
-            });
-        }
+    <section id="tien-ich" class="quick-section" aria-labelledby="quick-title">
+      <div class="container">
+        <div class="section-title" data-reveal>
+          <span>Dịch vụ trực tuyến</span>
+          <h2 id="quick-title">Khám phá cổng thông tin</h2>
+        </div>
 
-        // 2. Chức năng Xem thêm / Thu gọn Tin Tức
-        function toggleNews() {
-            const extraNews = document.querySelectorAll('.extra-news');
-            const btn = document.getElementById('toggleNewsBtn');
-            let isHidden = extraNews[0].style.display === 'none';
+        <div class="quick-grid">
+          <a class="quick-card" data-reveal href="ho-so/">
+            <span class="quick-icon">
+              <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+            </span>
+            <h3>Quản lý &amp; nộp hồ sơ</h3>
+            <p>
+              Thực hiện chuyển sinh hoạt Đoàn, đăng ký kế hoạch và theo dõi
+              trạng thái xử lý hồ sơ.
+            </p>
+          </a>
 
-            extraNews.forEach(news => {
-                news.style.display = isHidden ? 'flex' : 'none';
-            });
+          <a class="quick-card" data-reveal href="diem-ren-luyen/">
+            <span class="quick-icon">
+              <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
+            </span>
+            <h3>Điểm rèn luyện</h3>
+            <p>
+              Tra cứu tổng điểm và xem chi tiết các tiêu chí rèn luyện.
+            </p>
+          </a>
 
-            btn.innerHTML = isHidden 
-                ? 'Thu gọn <i class="fas fa-chevron-up" style="margin-left: 5px;"></i>' 
-                : 'Xem thêm tin tức <i class="fas fa-chevron-down" style="margin-left: 5px;"></i>';
-        }
+          <a class="quick-card" data-reveal href="van-hoa-hcm/">
+            <span class="quick-icon">
+              <i class="fa-solid fa-landmark" aria-hidden="true"></i>
+            </span>
+            <h3>Không gian Văn hóa Hồ Chí Minh</h3>
+            <p>
+              Tìm hiểu tư liệu và học tập về tư tưởng, đạo đức Chủ tịch Hồ Chí Minh.
+            </p>
+          </a>
 
-        // 3. Chức năng mở/đóng Modal Vinh Quang
-        function openModal(modalId) { 
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.style.display = "flex"; 
-                document.body.style.overflow = 'hidden';
-            }
-        }
-        
-        function closeModal(modalId) { 
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.style.display = "none"; 
-                document.body.style.overflow = 'auto';
-            }
-        }
-        
-        function closeOutside(event, modalId) { 
-            if (event.target.id === modalId) { closeModal(modalId); } 
-        }
+          <a class="quick-card" data-reveal href="faq/">
+            <span class="quick-icon">
+              <i class="fa-solid fa-headset" aria-hidden="true"></i>
+            </span>
+            <h3>FAQ &amp; góp ý</h3>
+            <p>
+              Giải đáp thắc mắc, tải biểu mẫu chính thống và gửi ý kiến
+              phản hồi về cho Đoàn trường.
+            </p>
+          </a>
+        </div>
+      </div>
+    </section>
 
-        // 4. Chức năng Phóng to ảnh (Lightbox) - Dùng Event Delegation cho hiệu suất cao
-        document.addEventListener('click', function(e) {
-            if (e.target.tagName === 'IMG' && e.target.closest('.image-gallery')) {
-                const lightbox = document.getElementById('image-lightbox');
-                const lightboxImg = document.getElementById('lightbox-img');
-                if (lightbox && lightboxImg) {
-                    lightboxImg.src = e.target.src;
-                    lightbox.style.display = 'flex';
-                }
-            }
-        });
+    <section class="journey-section" aria-labelledby="journey-title">
+      <div class="container">
+        <div class="section-title" data-reveal>
+          <span>Quy trình đơn giản</span>
+          <h2 id="journey-title">Hoàn thành hồ sơ trong 3 bước</h2>
+        </div>
 
-        function closeLightbox(e) {
-            const lightbox = document.getElementById('image-lightbox');
-            if (lightbox && (e.target.id === 'image-lightbox' || e.target.classList.contains('lightbox-close'))) {
-                lightbox.style.display = 'none';
-            }
-        }
-    </script>
+        <div class="journey-grid">
+          <article class="journey-card" data-reveal>
+            <span class="journey-number">01</span>
+            <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+            <h3>Đăng nhập tài khoản</h3>
+            <p>
+              Sử dụng tài khoản của bạn để bảo vệ thông tin cá nhân
+              và liên kết các trang trong hệ thống.
+            </p>
+          </article>
+
+          <article class="journey-card" data-reveal>
+            <span class="journey-number">02</span>
+            <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i>
+            <h3>Gửi hồ sơ</h3>
+            <p>
+              Điền biểu mẫu, đính kèm minh chứng và gửi yêu cầu trực tuyến
+              đến bộ phận phụ trách.
+            </p>
+          </article>
+
+          <article class="journey-card" data-reveal>
+            <span class="journey-number">03</span>
+            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+            <h3>Nhận thông báo</h3>
+            <p>
+              Theo dõi trạng thái xử lý trên tài khoản và nhận thông báo
+              khi hồ sơ được cập nhật.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal-bac" class="modal-overlay" data-modal-overlay aria-hidden="true">
+    <div class="modal-content">
+      <button
+        class="close-btn"
+        type="button"
+        data-modal-close="modal-bac"
+        aria-label="Đóng"
+      >
+        &times;
+      </button>
+
+      <h2 class="modal-header">
+        Thanh niên tiên tiến làm theo lời Bác
+      </h2>
+
+      <div class="image-gallery">
+        <img src="https://i.postimg.cc/GpPgNkSY/1.png" alt="Thanh niên tiên tiến 1" loading="lazy">
+        <img src="https://i.postimg.cc/hjSZqfHj/2.png" alt="Thanh niên tiên tiến 2" loading="lazy">
+        <img src="https://i.postimg.cc/XJV10pTX/3.png" alt="Thanh niên tiên tiến 3" loading="lazy">
+        <img src="https://i.postimg.cc/B6q7GXdP/4.png" alt="Thanh niên tiên tiến 4" loading="lazy">
+        <img src="https://i.postimg.cc/d1qNKLzX/5.png" alt="Thanh niên tiên tiến 5" loading="lazy">
+        <img src="https://i.postimg.cc/zB0tDqrp/6.png" alt="Thanh niên tiên tiến 6" loading="lazy">
+        <img src="https://i.postimg.cc/vB3q8Gs2/7.png" alt="Thanh niên tiên tiến 7" loading="lazy">
+        <img src="https://i.postimg.cc/sXw6f3zs/8.png" alt="Thanh niên tiên tiến 8" loading="lazy">
+        <img src="https://i.postimg.cc/cCCDrP1n/9.png" alt="Thanh niên tiên tiến 9" loading="lazy">
+        <img src="https://i.postimg.cc/8ccyjxkf/10.png" alt="Thanh niên tiên tiến 10" loading="lazy">
+        <img src="https://i.postimg.cc/7hhBfjPM/11.png" alt="Thanh niên tiên tiến 11" loading="lazy">
+        <img src="https://i.postimg.cc/5yrsvpjB/12.png" alt="Thanh niên tiên tiến 12" loading="lazy">
+        <img src="https://i.postimg.cc/BZ7YdZNS/13.png" alt="Thanh niên tiên tiến 13" loading="lazy">
+        <img src="https://i.postimg.cc/qqF1nQgP/14.png" alt="Thanh niên tiên tiến 14" loading="lazy">
+        <img src="https://i.postimg.cc/J7Y697KG/15.png" alt="Thanh niên tiên tiến 15" loading="lazy">
+        <img src="https://i.postimg.cc/026WxgHH/16.png" alt="Thanh niên tiên tiến 16" loading="lazy">
+        <img src="https://i.postimg.cc/13wvnGS2/17.png" alt="Thanh niên tiên tiến 17" loading="lazy">
+        <img src="https://i.postimg.cc/hGnp9XPS/18.png" alt="Thanh niên tiên tiến 18" loading="lazy">
+        <img src="https://i.postimg.cc/MGwdynK6/19.png" alt="Thanh niên tiên tiến 19" loading="lazy">
+        <img src="https://i.postimg.cc/MGwdynKG/20.png" alt="Thanh niên tiên tiến 20" loading="lazy">
+        <img src="https://i.postimg.cc/PqMKKdPt/21.png" alt="Thanh niên tiên tiến 21" loading="lazy">
+        <img src="https://i.postimg.cc/pTXC63Fg/22.png" alt="Thanh niên tiên tiến 22" loading="lazy">
+        <img src="https://i.postimg.cc/Y9qRsTW5/23.png" alt="Thanh niên tiên tiến 23" loading="lazy">
+        <img src="https://i.postimg.cc/x8XR0Hg8/24.png" alt="Thanh niên tiên tiến 24" loading="lazy">
+        <img src="https://i.postimg.cc/0jzf8mZm/25.png" alt="Thanh niên tiên tiến 25" loading="lazy">
+        <img src="https://i.postimg.cc/sfLmT6Dw/26.png" alt="Thanh niên tiên tiến 26" loading="lazy">
+        <img src="https://i.postimg.cc/4Nh5q6YN/27.png" alt="Thanh niên tiên tiến 27" loading="lazy">
+        <img src="https://i.postimg.cc/15NH2G8Q/28.png" alt="Thanh niên tiên tiến 28" loading="lazy">
+        <img src="https://i.postimg.cc/GhsQVF4t/29.png" alt="Thanh niên tiên tiến 29" loading="lazy">
+        <img src="https://i.postimg.cc/9Q5phD9X/30.png" alt="Thanh niên tiên tiến 30" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-doan" class="modal-overlay" data-modal-overlay aria-hidden="true">
+    <div class="modal-content">
+      <button
+        class="close-btn"
+        type="button"
+        data-modal-close="modal-doan"
+        aria-label="Đóng"
+      >
+        &times;
+      </button>
+
+      <h2 class="modal-header">Cán bộ Đoàn - Hội tiêu biểu</h2>
+
+      <div class="image-gallery">
+        <img src="https://i.postimg.cc/YCnxZdtZ/1.png" alt="Cán bộ Đoàn - Hội 1" loading="lazy">
+        <img src="https://i.postimg.cc/Hn9w22Sn/2.png" alt="Cán bộ Đoàn - Hội 2" loading="lazy">
+        <img src="https://i.postimg.cc/5Nfqth0Y/3.png" alt="Cán bộ Đoàn - Hội 3" loading="lazy">
+        <img src="https://i.postimg.cc/NG6kBsg9/4.png" alt="Cán bộ Đoàn - Hội 4" loading="lazy">
+        <img src="https://i.postimg.cc/Sxs66cc2/6.png" alt="Cán bộ Đoàn - Hội 6" loading="lazy">
+        <img src="https://i.postimg.cc/85hMp4gH/7.png" alt="Cán bộ Đoàn - Hội 7" loading="lazy">
+        <img src="https://i.postimg.cc/NjSHRSgb/8.png" alt="Cán bộ Đoàn - Hội 8" loading="lazy">
+        <img src="https://i.postimg.cc/Z5CNB4hN/9.png" alt="Cán bộ Đoàn - Hội 9" loading="lazy">
+        <img src="https://i.postimg.cc/HxC8hM87/10.png" alt="Cán bộ Đoàn - Hội 10" loading="lazy">
+        <img src="https://i.postimg.cc/V6c0Vt02/11.png" alt="Cán bộ Đoàn - Hội 11" loading="lazy">
+        <img src="https://i.postimg.cc/QNmKfH8T/12.png" alt="Cán bộ Đoàn - Hội 12" loading="lazy">
+        <img src="https://i.postimg.cc/ncLjgprg/13.png" alt="Cán bộ Đoàn - Hội 13" loading="lazy">
+        <img src="https://i.postimg.cc/cLgK1hQ8/14.png" alt="Cán bộ Đoàn - Hội 14" loading="lazy">
+        <img src="https://i.postimg.cc/MpMcZ5yb/15.png" alt="Cán bộ Đoàn - Hội 15" loading="lazy">
+        <img src="https://i.postimg.cc/jqB2gPVN/16.png" alt="Cán bộ Đoàn - Hội 16" loading="lazy">
+        <img src="https://i.postimg.cc/RFySY5Dp/17.png" alt="Cán bộ Đoàn - Hội 17" loading="lazy">
+        <img src="https://i.postimg.cc/HnMYDvG8/18.png" alt="Cán bộ Đoàn - Hội 18" loading="lazy">
+        <img src="https://i.postimg.cc/7PJY2hCY/19.png" alt="Cán bộ Đoàn - Hội 19" loading="lazy">
+        <img src="https://i.postimg.cc/8PVDfHQm/20.png" alt="Cán bộ Đoàn - Hội 20" loading="lazy">
+        <img src="https://i.postimg.cc/jdQTH7RS/21.png" alt="Cán bộ Đoàn - Hội 21" loading="lazy">
+        <img src="https://i.postimg.cc/43MRfvQd/22.png" alt="Cán bộ Đoàn - Hội 22" loading="lazy">
+        <img src="https://i.postimg.cc/SK5bSLf3/23.png" alt="Cán bộ Đoàn - Hội 23" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-hoi" class="modal-overlay" data-modal-overlay aria-hidden="true">
+    <div class="modal-content">
+      <button
+        class="close-btn"
+        type="button"
+        data-modal-close="modal-hoi"
+        aria-label="Đóng"
+      >
+        &times;
+      </button>
+
+      <h2 class="modal-header">Sinh viên 5 tốt tiêu biểu cấp trường</h2>
+
+      <div class="image-gallery">
+        <img src="https://i.postimg.cc/5N6CRbkx/1.png" alt="Sinh viên 5 tốt 1" loading="lazy">
+        <img src="https://i.postimg.cc/QN67mHmP/2.png" alt="Sinh viên 5 tốt 2" loading="lazy">
+        <img src="https://i.postimg.cc/kMjSsBw3/3.png" alt="Sinh viên 5 tốt 3" loading="lazy">
+        <img src="https://i.postimg.cc/2jHWGVTY/4.png" alt="Sinh viên 5 tốt 4" loading="lazy">
+        <img src="https://i.postimg.cc/bvjSrbYy/5.png" alt="Sinh viên 5 tốt 5" loading="lazy">
+        <img src="https://i.postimg.cc/1zZVX6R4/6.png" alt="Sinh viên 5 tốt 6" loading="lazy">
+        <img src="https://i.postimg.cc/TPX51m2K/7.png" alt="Sinh viên 5 tốt 7" loading="lazy">
+        <img src="https://i.postimg.cc/7LyJh7P2/8.png" alt="Sinh viên 5 tốt 8" loading="lazy">
+        <img src="https://i.postimg.cc/YSfGW9j3/9.png" alt="Sinh viên 5 tốt 9" loading="lazy">
+        <img src="https://i.postimg.cc/j5xWQb7L/10.png" alt="Sinh viên 5 tốt 10" loading="lazy">
+        <img src="https://i.postimg.cc/C1hZHgqy/11.png" alt="Sinh viên 5 tốt 11" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-giaovien" class="modal-overlay" data-modal-overlay aria-hidden="true">
+    <div class="modal-content">
+      <button
+        class="close-btn"
+        type="button"
+        data-modal-close="modal-giaovien"
+        aria-label="Đóng"
+      >
+        &times;
+      </button>
+
+      <h2 class="modal-header">Nhà giáo trẻ tiêu biểu</h2>
+
+      <div class="image-gallery">
+        <img src="https://i.postimg.cc/3Rq6Fn0X/1.png" alt="Nhà giáo trẻ 1" loading="lazy">
+        <img src="https://i.postimg.cc/KzWVDJ3n/2.png" alt="Nhà giáo trẻ 2" loading="lazy">
+        <img src="https://i.postimg.cc/V6hTWD0W/3.png" alt="Nhà giáo trẻ 3" loading="lazy">
+        <img src="https://i.postimg.cc/ZRQgxVvL/4.png" alt="Nhà giáo trẻ 4" loading="lazy">
+        <img src="https://i.postimg.cc/br25Ck13/5.png" alt="Nhà giáo trẻ 5" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <div id="image-lightbox" class="lightbox-overlay" aria-hidden="true">
+    <button
+      class="lightbox-close"
+      type="button"
+      data-lightbox-close
+      aria-label="Đóng ảnh"
+    >
+      &times;
+    </button>
+
+    <img id="lightbox-img" src="" alt="Ảnh phóng to">
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>Đoàn Thanh niên - Hội Sinh viên HUIT</h4>
+          <p>
+            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+            140 Lê Trọng Tấn, P. Tây Thạnh, TP.HCM
+          </p>
+          <p>
+            <i class="fa-solid fa-phone" aria-hidden="true"></i>
+            (028) 3816 1673
+          </p>
+          <p>
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+            doanthanhnien@huit.edu.vn
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Liên kết nhanh</h4>
+          <ul>
+            <li><a href="./">Trang chủ</a></li>
+            <li><a href="#tin-tuc">Tin tức &amp; sự kiện</a></li>
+            <li><a href="#vinh-quang">Bảng vinh quang</a></li>
+            <li><a href="#tien-ich">Tiện ích trực tuyến</a></li>
+            <li><a href="ho-so/">Nộp hồ sơ trực tuyến</a></li>
+            <li><a href="diem-ren-luyen/">Tra cứu điểm rèn luyện</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Mạng xã hội</h4>
+
+          <div class="footer-social">
+            <a
+              href="https://www.facebook.com/dtn.hsv.huit"
+              target="_blank"
+              rel="noopener"
+              aria-label="Facebook"
+            >
+              <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+            </a>
+
+            <a href="faq/" aria-label="Hướng dẫn">
+              <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 Cổng Thông Tin Số Đoàn - Hội HUIT</span>
+        <span>Trường Đại học Công Thương TP.HCM</span>
+      </div>
+    </div>
+  </footer>
+
+  <noscript>
+    <div class="noscript-notice">
+      Vui lòng bật JavaScript để sử dụng đăng nhập,
+      menu tài khoản và các cửa sổ thành tích.
+    </div>
+  </noscript>
+
+  <script src="assets/js/main.js?v=20260924-1" defer></script>
+    <script type="module" src="assets/js/portal.js?v=20260924-1"></script>
+    <script type="module" src="assets/js/home-news.js?v=20260924-1"></script>
 </body>
 </html>

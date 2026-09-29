@@ -1,3 +1,4 @@
+const normalizeText = value => String(value).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g,"d").replace(/Đ/g,"D").toLowerCase();
 // 1. Chức năng mở/đóng câu hỏi FAQ (Accordion)
 function toggleFaq(element) {
     const item = element.parentElement;
@@ -8,11 +9,13 @@ function toggleFaq(element) {
     // });
 
     item.classList.toggle('active');
+    element.setAttribute('aria-expanded', String(item.classList.contains('active')));
+    const answer=item.querySelector('.faq-answer'); if(answer) answer.hidden=!item.classList.contains('active');
 }
 
 // 2. Tìm kiếm / Lọc câu hỏi FAQ thời gian thực
 function filterFaq() {
-    const input = document.getElementById('faqSearch').value.toLowerCase().trim();
+    const input = normalizeText(document.getElementById('faqSearch').value).trim();
     const faqItems = document.querySelectorAll('.faq-item');
     const noResult = document.getElementById('noFaqResult');
     let visibleCount = 0;
@@ -22,7 +25,7 @@ function filterFaq() {
         const answerText = item.querySelector('.faq-answer').innerText.toLowerCase();
         const category = item.getAttribute('data-category').toLowerCase();
 
-        if (questionText.includes(input) || answerText.includes(input) || category.includes(input)) {
+        if (normalizeText(questionText).includes(input) || normalizeText(answerText).includes(input) || normalizeText(category).includes(input)) {
             item.style.display = 'block';
             visibleCount++;
         } else {
@@ -39,14 +42,14 @@ function filterFaq() {
 
 // 3. Tìm kiếm / Lọc Kho văn bản theo từ khóa
 function filterDocs() {
-    const input = document.getElementById('docSearch').value.toLowerCase().trim();
+    const input = normalizeText(document.getElementById('docSearch').value).trim();
     const docCards = document.querySelectorAll('.doc-card');
 
     docCards.forEach(card => {
         const code = card.querySelector('.doc-code').innerText.toLowerCase();
         const name = card.querySelector('.doc-name').innerText.toLowerCase();
 
-        if (code.includes(input) || name.includes(input)) {
+        if (normalizeText(code).includes(input) || normalizeText(name).includes(input)) {
             card.style.display = 'flex';
         } else {
             card.style.display = 'none';
@@ -76,7 +79,7 @@ async function submitFeedback(e) {
     const GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycbxlCUG3FCDEBanlmV1JRJmVD3qwodGfRq5CqZ-HJKofxo7w3sAqjhM_xYL63ED5k-IUpw/exec";
 
     try {
-        await fetch(GOOGLE_SHEET_API, {
+        const response = await fetch(GOOGLE_SHEET_API, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
@@ -88,8 +91,8 @@ async function submitFeedback(e) {
             })
         });
 
-        alert(`Cảm ơn bạn [${name}], ý kiến của bạn đã được gửi thành công đến Ban chấp hành Đoàn - Hội HUIT!`);
-        document.getElementById('feedbackForm').reset();
+        alert(response.type === "opaque" ? "Yêu cầu đã được chuyển đi, nhưng kết nối hiện tại không cho phép xác nhận máy chủ đã lưu. Nội dung được giữ lại để bạn kiểm tra với bộ phận hỗ trợ." : "Máy chủ đã phản hồi yêu cầu.");
+
     } catch (err) {
         console.error("Lỗi gửi góp ý:", err);
         alert("Có lỗi xảy ra khi gửi ý kiến. Vui lòng thử lại sau.");
@@ -98,3 +101,4 @@ async function submitFeedback(e) {
         btn.disabled = false;
     }
 }
+document.querySelectorAll(".faq-question").forEach((node,i)=>{node.tabIndex=0;node.setAttribute("role","button");node.setAttribute("aria-expanded","false");const answer=node.parentElement.querySelector(".faq-answer");if(answer){answer.hidden=!node.parentElement.classList.contains("active");answer.id="faq-answer-"+i;node.setAttribute("aria-controls",answer.id);}node.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();node.click();}});});

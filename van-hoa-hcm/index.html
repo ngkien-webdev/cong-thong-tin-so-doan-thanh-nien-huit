@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
+<head><base href="/van-hoa-hcm/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Không gian văn hóa HCM - Cổng thông tin số Đoàn - Hội Trường Đại học Công thương TP.HCM</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="../assets/css/global.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/global.css?v=20260924-1">
+    <link rel="stylesheet" href="style.css?v=20260924-1">
     <!-- Favicon hiển thị trên tab trình duyệt -->
     <link rel="icon" type="image/png" href="../assets/images/logo-huit-doan.png">
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/upgrade.css?v=20260924-1">
+    <link rel="stylesheet" href="../assets/css/header.css?v=20260924-1">
 </head>
-<body>
+<body data-page="culture">
+    <a class="skip-link" href="#main-content">Chuyển đến nội dung chính</a>
 
     <!-- HEADER -->
     <header class="site-header" id="header">
@@ -34,6 +37,7 @@
                     <li><a href="../index.html">Trang chủ</a></li>
                     <li><a href="index.html" class="active">Không gian VH HCM</a></li>
                     <li><a href="../ho-so/index.html">Hồ sơ</a></li>
+                    <li><a href="../tin-tuc/index.html">Tin tức</a></li>
                     <li><a href="../faq/index.html">FAQ</a></li>
                     <li><a href="../diem-ren-luyen/index.html">Điểm rèn luyện</a></li>
                     <li><a href="../vinh-quang/index.html">Vinh quang</a></li>
@@ -42,7 +46,7 @@
 
             <div class="header-actions">
                 <button class="search-btn" aria-label="Tìm kiếm"><i class="fas fa-search"></i></button>
-                <a href="../ho-so/login.html" class="btn btn-primary">Đăng nhập</a>
+                <a href="../ho-so/login.html" class="btn btn-primary" data-auth-login hidden>Đăng nhập</a>
                 <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
                     <i class="fas fa-bars"></i>
                 </button>
@@ -50,48 +54,62 @@
         </div>
     </header>
 
-    <!-- LANDING PAGE CONTENT -->
-    <main class="hcm-space-page">
-        <div class="container hcm-content">
-            <div class="hcm-text">
-                <span class="badge">Công trình Thanh niên</span>
-                <h1 class="hcm-title">Không gian văn hóa<br>Hồ Chí Minh trực tuyến</h1>
-                <p class="hcm-desc">
-                    Hành trình cứu nước vĩ đại của Chủ tịch Hồ Chí Minh là nguồn cảm hứng bất tận cho thế hệ trẻ. 
-                    Mời các bạn sinh viên HUIT cùng tham quan, tìm hiểu và học tập tư tưởng, đạo đức, phong cách của Người thông qua không gian triển lãm trực tuyến 3D hiện đại và trực quan.
-                </p>
-                <div class="hcm-features">
-                    <div class="feature-item">
-                        <i class="fas fa-landmark"></i>
-                        <span>Tham quan bảo tàng 3D</span>
+    <main class="hcm-space-page" id="main-content">
+        <section class="hcm-intro" aria-labelledby="hcm-title">
+            <div class="container">
+                <nav class="hcm-breadcrumb" aria-label="Vị trí trang">
+                    <a href="../index.html">Trang chủ</a><span aria-hidden="true">/</span><span aria-current="page">Không gian văn hóa</span>
+                </nav>
+                <div class="hcm-content">
+                    <div class="hcm-text">
+                        <span class="hcm-eyebrow"><span aria-hidden="true">✦</span> Công trình Thanh niên HUIT</span>
+                        <h1 id="hcm-title">Không gian văn hóa<br><span>Hồ Chí Minh</span></h1>
+                        <p class="hcm-desc">Cùng tìm hiểu, học tập tư tưởng, đạo đức, phong cách Hồ Chí Minh qua không gian văn hóa trực tuyến của Đoàn – Hội HUIT.</p>
+                        <div class="hcm-actions">
+                            <a id="hcm-visit" class="hcm-button hcm-button-primary" href="https://sites.google.com/view/khonggianvanhoahcmhuit/trang-ch%E1%BB%A7" target="_blank" rel="noopener noreferrer">Bắt đầu khám phá <span aria-hidden="true">↗</span><span class="hcm-sr-only"> (mở trong thẻ mới)</span></a>
+                            <a class="hcm-button hcm-button-light" href="#huong-dan-tham-quan">Hướng dẫn tham quan <span aria-hidden="true">↓</span></a>
+                        </div>
+                        <p class="hcm-link-note">Không gian tham quan mở trên Google Sites trong một thẻ mới.</p>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-book-open"></i>
-                        <span>Tư liệu lịch sử phong phú</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-film"></i>
-                        <span>Video & Phim tư liệu</span>
-                    </div>
+                    <aside class="hcm-cover" aria-label="Cổng kết nối không gian văn hóa HUIT">
+                        <div class="hcm-cover-top"><span class="hcm-cover-dot" aria-hidden="true"></span> ĐOÀN – HỘI HUIT<span class="hcm-cover-code">VĂN HÓA & HỌC TẬP</span></div>
+                        <div class="hcm-cover-body">
+                            <div class="hcm-emblem"><img src="../assets/images/logo-huit-doan.png" alt="Biểu trưng Đoàn Thanh niên HUIT" width="110" height="110"></div>
+                            <p class="hcm-cover-kicker">Không gian văn hóa</p>
+                            <p class="hcm-cover-title">Hồ Chí Minh</p>
+                            <p class="hcm-cover-copy">Tìm hiểu hôm nay<br>Tiếp nối bằng hành động</p>
+                            <div class="hcm-cover-line" aria-hidden="true"></div>
+                            <span class="hcm-cover-school">TRƯỜNG ĐẠI HỌC CÔNG THƯƠNG TP.HCM</span>
+                        </div>
+                        <div class="hcm-cover-bottom"><span>Một điểm đến để cùng học tập</span><span aria-hidden="true">↗</span></div>
+                    </aside>
                 </div>
-                
-                <!-- NÚT TRUY CẬP TRANG GOOGLE SITE CỦA BẠN -->
-                <a href="https://sites.google.com/view/khonggianvanhoahcmhuit/trang-ch%E1%BB%A7" target="_blank" class="btn btn-primary btn-large btn-hcm">
-                    <i class="fas fa-external-link-alt"></i> Truy cập Không gian văn hóa HCM
-                </a>
             </div>
-            
-            <div class="hcm-image">
-                <!-- Bức ảnh minh họa Bác Hồ hoặc hình ảnh trang Google Site -->
-                <img src="https://th.bing.com/th/id/R.d99ff1c386791108b7fb71c930de5c2f?rik=AHHD%2fAYkjh1Xyg&riu=http%3a%2f%2fredsvn.net%2fwp-content%2fuploads%2f2016%2f07%2fHo-Chi-Minh.jpg&ehk=VDOhfHOR%2f%2fcDmMSa0x5eAFcWeVW6ZI7IMPgEE5eSCv4%3d&risl=&pid=ImgRaw&r=0" alt="Chủ tịch Hồ Chí Minh" class="hero-img">
-                <div class="img-backdrop"></div>
+        </section>
+
+        <section class="hcm-explore container" aria-labelledby="hcm-explore-title">
+            <div class="hcm-section-heading"><span class="hcm-section-kicker">Học tập & trải nghiệm</span><h2 id="hcm-explore-title">Khám phá theo cách của bạn</h2><p>Dành thời gian đọc, xem và ghi lại những điều bạn quan tâm trong hành trình tham quan.</p></div>
+            <div class="hcm-topic-grid">
+                <article class="hcm-topic"><span class="hcm-topic-icon" aria-hidden="true"><i class="fas fa-landmark"></i></span><span class="hcm-topic-number" aria-hidden="true">01</span><h3>Tham quan trực tuyến</h3><p>Bắt đầu từ trang chủ của không gian văn hóa, lựa chọn chủ đề và khám phá các nội dung được giới thiệu.</p></article>
+                <article class="hcm-topic"><span class="hcm-topic-icon" aria-hidden="true"><i class="fas fa-book-open"></i></span><span class="hcm-topic-number" aria-hidden="true">02</span><h3>Tìm hiểu tư liệu</h3><p>Đọc kỹ nội dung, chú ý thông tin nguồn và ghi lại những câu hỏi để cùng trao đổi trong buổi sinh hoạt.</p></article>
+                <article class="hcm-topic"><span class="hcm-topic-icon" aria-hidden="true"><i class="fas fa-film"></i></span><span class="hcm-topic-number" aria-hidden="true">03</span><h3>Xem & cùng chia sẻ</h3><p>Khi xem hình ảnh hoặc video, ghi lại điều tâm đắc và chia sẻ đường dẫn để bạn bè cùng tìm hiểu.</p></article>
             </div>
-        </div>
+        </section>
+
+        <section class="hcm-guide container" id="huong-dan-tham-quan" aria-labelledby="hcm-guide-title">
+            <div class="hcm-guide-intro"><span class="hcm-section-kicker">Bắt đầu thật dễ dàng</span><h2 id="hcm-guide-title">Hướng dẫn tham quan</h2><p>Bạn có thể mở không gian văn hóa trên máy tính, máy tính bảng hoặc điện thoại có kết nối Internet.</p><button class="hcm-button hcm-button-outline" type="button" id="hcm-copy-link" hidden><span aria-hidden="true">↗</span> Sao chép liên kết tham quan</button><p class="hcm-copy-status" id="hcm-copy-status" role="status" aria-live="polite"></p><div id="hcm-copy-fallback" hidden><label for="hcm-link-field">Chọn và sao chép đường dẫn bên dưới:</label><input id="hcm-link-field" class="hcm-link-field" type="url" readonly></div></div>
+            <div class="hcm-guide-steps">
+                <details open><summary><span class="hcm-step-number" aria-hidden="true">1</span><span>Mở không gian văn hóa</span><span class="hcm-accordion-mark" aria-hidden="true">+</span></summary><div class="hcm-step-copy"><p>Chọn <strong>“Bắt đầu khám phá”</strong> ở đầu trang. Nội dung tham quan sẽ mở trong thẻ mới; bạn có thể quay lại cổng thông tin bất cứ lúc nào.</p></div></details>
+                <details><summary><span class="hcm-step-number" aria-hidden="true">2</span><span>Chọn nội dung muốn tìm hiểu</span><span class="hcm-accordion-mark" aria-hidden="true">+</span></summary><div class="hcm-step-copy"><p>Dùng thanh điều hướng trên trang tham quan để chuyển giữa các mục. Trên điện thoại, mở nút trình đơn nếu thanh điều hướng đang được thu gọn.</p></div></details>
+                <details><summary><span class="hcm-step-number" aria-hidden="true">3</span><span>Nếu nội dung chưa hiển thị</span><span class="hcm-accordion-mark" aria-hidden="true">+</span></summary><div class="hcm-step-copy"><p>Kiểm tra kết nối Internet và tải lại thẻ tham quan. Nếu Google Sites yêu cầu quyền truy cập, sử dụng tài khoản được cấp quyền hoặc gửi phản hồi để được hỗ trợ.</p><a href="../faq/index.html">Mở trang hướng dẫn & góp ý <span aria-hidden="true">→</span></a></div></details>
+            </div>
+        </section>
     </main>
 
-    <!-- FOOTER (Như cũ) -->
-    <!-- ... (Copy footer từ các file trước) ... -->
+    <footer class="hcm-footer"><div class="container"><p>ĐOÀN THANH NIÊN – HỘI SINH VIÊN HUIT</p><a href="../index.html">Về trang chủ <span aria-hidden="true">↗</span></a></div></footer>
 
-    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/main.js?v=20260924-1"></script>
+    <script src="script.js?v=20260924-1" defer></script>
+    <script type="module" src="../assets/js/portal.js?v=20260924-1"></script>
 </body>
 </html>
