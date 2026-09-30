@@ -22,9 +22,9 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     >
 
-    <link rel="stylesheet" href="../assets/css/global.css?v=20260924-1">
-    <link rel="stylesheet" href="login.css?v=20260924-1">
-    <link rel="stylesheet" href="../assets/css/upgrade.css?v=20260924-1">
+    <link rel="stylesheet" href="../assets/css/global.css?v=20260930-1">
+    <link rel="stylesheet" href="login.css?v=20260930-1">
+    <link rel="stylesheet" href="../assets/css/upgrade.css?v=20260930-1">
 </head>
 
 <body class="login-page-body">
@@ -376,17 +376,19 @@
 
                         <div class="field-group">
                             <label for="adminEmail">
-                                Email cán bộ
+                                Tên đăng nhập hoặc email
                             </label>
 
                             <div class="input-control">
                                 <i class="fa-regular fa-envelope field-icon"></i>
 
                                 <input
-                                    type="email"
+                                    type="text"
                                     id="adminEmail"
+                                    autocapitalize="none"
+                                    spellcheck="false"
                                     autocomplete="username"
-                                    placeholder="katoff1959@gmail.com"
+                                    placeholder="Ví dụ: admin.vanphong"
                                     required
                                 >
                             </div>
@@ -445,7 +447,7 @@
 
                     <p class="helper-note">
                         <i class="fa-solid fa-circle-info"></i>
-                        Chỉ tài khoản được cấp quyền mới truy cập được.
+                        Tài khoản quản trị được cấp bằng tên đăng nhập và mật khẩu không cần xác minh Gmail.
                     </p>
                 </div>
 
@@ -498,7 +500,7 @@
         </button>
     </div>
 
-    <script type="module" src="login.js?v=20260924-1"></script>
-    <script type="module" src="../assets/js/portal.js?v=20260924-1"></script>
+    <script type="module" src="login.js?v=20260930-1"></script>
+    <script type="module" src="../assets/js/portal.js?v=20260930-1"></script>
 </body>
 </html>

@@ -36,11 +36,11 @@ function render() {
   $('showMoreUnit').hidden=!hasMore;
   if(!loading && !$('unitLoadStatus').classList.contains('is-error'))$('unitLoadStatus').textContent=`Hiển thị ${matches.length} / ${total} hồ sơ${status==='all'?'':` · ${status}`}.`;
 }
-async function load({append=false}={}) {
+async function load({append=false,initial=null}={}) {
   if(!user||!membership||(append&&loading))return;
   const current=generation, requestId=++loadId;loading=true;$('refreshUnit').disabled=true;$('showMoreUnit').disabled=true;$('unitLoadStatus').classList.remove('is-error');$('unitLoadStatus').textContent='Đang cập nhật hồ sơ của đơn vị…';
   try{
-    const result=await apiRequest(user,'getUnitDashboard',{unitId:membership.unitId,page:append?page+1:1,pageSize:20,query:$('unitSearch').value.trim(),status:$('unitStatus').value==='all'?'':$('unitStatus').value});
+    const result=initial||await apiRequest(user,'getUnitDashboard',{unitId:membership.unitId,page:append?page+1:1,pageSize:20,query:$('unitSearch').value.trim(),status:$('unitStatus').value==='all'?'':$('unitStatus').value});
     if(current!==generation||requestId!==loadId)return;
     const incoming=Array.isArray(result.applications)?result.applications:[];
     applications=append?[...new Map([...applications,...incoming].map(item=>[item.id,item])).values()]:incoming;
@@ -59,13 +59,15 @@ async function start(currentUser) {
   const current=++generation;user=currentUser;membership=null;applications=[];loading=false;page=1;hasMore=false;total=0;loadId++;$('unitWorkspace').hidden=true;$('unitApplicationList').replaceChildren();
   if(!user||user.isAnonymous){location.replace('../ho-so/login.html?next=%2Fdon-vi%2F&tab=unit');return;}
   try{
-    const context=await getPortalContext(user);if(current!==generation)return;
+    gate('Đang mở không gian đơn vị','Đang kiểm tra quyền và tải hồ sơ…');
+    const context=await apiRequest(user,'getUnitWorkspace',{page:1,pageSize:20});if(current!==generation)return;
     if(!context.membership){gate('Tài khoản chưa được gắn với đơn vị','Liên hệ quản trị viên để được cấp tài khoản khoa hoặc câu lạc bộ. Không gian này chỉ hiển thị hồ sơ thuộc đơn vị được phân công.');return;}
     membership=context.membership;$('unitName').textContent=membership.name;$('unitType').textContent=membership.type==='faculty'?'KHÔNG GIAN KHOA':'KHÔNG GIAN CÂU LẠC BỘ';
     $('newUnitApplication').href='../ho-so/?unit='+encodeURIComponent(membership.unitId);
     $('unitAccount').textContent=`Đang đăng nhập: ${user.displayName||membership.name}.`;
-    $('unitGate').hidden=true;$('unitWorkspace').hidden=false;await load();
+    $('unitGate').hidden=true;$('unitWorkspace').hidden=false;await load({initial:context.dashboard});
   }catch(error){if(current===generation)gate('Chưa mở được không gian đơn vị',error.message||'Kiểm tra kết nối rồi thử lại.',true);}
+  finally {window.dispatchEvent(new Event('huit:workspace-ready'));}
 }
 $('unitSearch').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>load(),300);});
 $('unitStatus').addEventListener('change',()=>setFilter($('unitStatus').value));

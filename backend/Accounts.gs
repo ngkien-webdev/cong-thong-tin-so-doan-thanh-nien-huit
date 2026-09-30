@@ -1,5 +1,22 @@
 /** Profile, delivery and institution accounts. All access is resolved server-side. */
 const PORTAL_V4_UNIT_DOMAIN='@units.huit-youth-portal.local';
+// Read related tables in one Sheets call. Values live only for this execution;
+// active account permissions are never shared across requests or users.
+function portalV4PrimeRows_(names) {
+  if(!PORTAL_V4_REQUEST)portalV4BeginRequest_();
+  const needed=names.filter(name=>!PORTAL_V4_REQUEST.rows[name]);if(!needed.length)return;
+  const ranges=needed.map(name=>'ranges='+encodeURIComponent("'"+name+"'!A:Z")).join('&');
+  const response=UrlFetchApp.fetch('https://sheets.googleapis.com/v4/spreadsheets/'+encodeURIComponent(requiredProperty_('SPREADSHEET_ID'))+'/values:batchGet?'+ranges+'&valueRenderOption=UNFORMATTED_VALUE',{headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},muteHttpExceptions:true});
+  if(response.getResponseCode()!==200)portalV3Fail_('DATABASE_READ_FAILED','Chưa tải được dữ liệu đơn vị. Vui lòng chọn Làm mới để thử lại.');
+  let data;try{data=JSON.parse(response.getContentText());}catch(error){portalV3Fail_('DATABASE_READ_FAILED','Dữ liệu máy chủ chưa hợp lệ. Vui lòng thử lại.');}
+  const pending={};
+  needed.forEach((name,index)=>{
+    const values=data.valueRanges&&data.valueRanges[index]&&data.valueRanges[index].values||[],headers=PORTAL_V3_HEADERS[name];
+    if(!headers||headers.some((header,i)=>!values[0]||values[0][i]!==header))portalV3Fail_('SCHEMA_MISMATCH','Cấu trúc bảng '+name+' chưa phù hợp. Dữ liệu được giữ nguyên.');
+    pending[name]=values.slice(1).map((row,i)=>{const item={_row:i+1};headers.forEach((header,j)=>item[header]=row[j]??'');return item;}).filter(item=>item[headers[0]]!=='');
+  });
+  Object.assign(PORTAL_V4_REQUEST.rows,pending);
+}
 function portalV4BaseSheet_(name,headers) {
   if(!PORTAL_V4_REQUEST)portalV4BeginRequest_();
   const key='base:'+name;
@@ -33,8 +50,9 @@ function portalV4RequireUser_(user) {
 }
 function portalV4Context_(user) {
   portalV4RequireUser_(user);
+  portalV4PrimeRows_(['StudentProfiles','UnitMembers','PortalUnits']);
   const saved=portalV3Rows_('StudentProfiles').find(row=>row.uid===user.uid);
-  return {profile:saved?{studentName:saved.studentName,studentId:saved.studentId,phone:saved.phone}:{studentName:user.displayName||'',studentId:'',phone:''},membership:portalV4Membership_(user),capabilities:{profile:1,delivery:1,units:1,unitAccounts:1}};
+  return {profile:saved?{studentName:saved.studentName,studentId:saved.studentId,phone:saved.phone}:{studentName:user.displayName||'',studentId:'',phone:''},membership:portalV4Membership_(user),admin:portalAdminAllowed_(user),canManageAdmins:portalAdminOwner_(user),capabilities:{profile:1,delivery:1,units:1,unitAccounts:1,adminAccounts:1}};
 }
 function portalV4SaveProfile_(user,body) {
   portalV4RequireUser_(user);
@@ -56,7 +74,7 @@ function portalV4ApplicationInput_(raw,user,membership) {
   const requested=portalV3Text_(raw.unitId||'',0,80,'Mã đơn vị');
   let unitId=requested||(membership?membership.unitId:'');
   if(portalV4IsUnitEmail_(user.email)&&!membership)portalV3Fail_('UNIT_ACCESS_REQUIRED','Tài khoản đơn vị chưa được cấp quyền hoặc đã bị ngừng hoạt động.');
-  if(unitId&&(!membership||unitId!==membership.unitId)&&!(user.emailVerified&&isAdmin_(user)))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn không có quyền nộp hồ sơ cho đơn vị này.');
+  if(unitId&&(!membership||unitId!==membership.unitId)&&!portalAdminAllowed_(user))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn không có quyền nộp hồ sơ cho đơn vị này.');
   const unit=unitId?portalV4Unit_(unitId):null;
   if(unitId&&(!unit||!portalV4Active_(unit.active)))portalV3Fail_('UNIT_INACTIVE','Đơn vị chưa hoạt động.');
   return {phone,deliveryMethod,deliveryPhone,deliveryAddress,unitId,unitName:unit?unit.name:''};
@@ -124,7 +142,7 @@ function portalV4CreateAccount_(admin,body) {
 }
 function portalV4Dashboard_(user,body) {
   portalV4RequireUser_(user);
-  const member=portalV4Membership_(user),isAdmin=user.emailVerified&&isAdmin_(user),unitId=portalV3Text_(body.unitId||(member&&member.unitId)||'',0,80,'Mã đơn vị');
+  const member=portalV4Membership_(user),isAdmin=portalAdminAllowed_(user),unitId=portalV3Text_(body.unitId||(member&&member.unitId)||'',0,80,'Mã đơn vị');
   if(!unitId||(!isAdmin&&(!member||member.unitId!==unitId)))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn chưa được cấp quyền truy cập đơn vị này.');
   const unit=portalV4Unit_(unitId);if(!unit||(!isAdmin&&!portalV4Active_(unit.active)))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn chưa được cấp quyền truy cập đơn vị này.');
   const all=portalV3Applications_().filter(application=>application.unitId===unitId).sort(sortNewestFirst_),summary={total:all.length,pending:0,supplement:0,completed:0,rejected:0};
@@ -134,11 +152,14 @@ function portalV4Dashboard_(user,body) {
   return {unit:portalV4PublicUnit_(unit),applications:filtered.slice((page-1)*paging.pageSize,page*paging.pageSize).map(application=>portalV3Join_(application,jobs,receipts,true)),summary,total:filtered.length,page,pageSize:paging.pageSize,hasMore:page*paging.pageSize<filtered.length};
 }
 function portalV4Route_(action,body) {
-  const adminActions=['listUnitsAdmin','saveUnitAdmin','listUnitMembersAdmin','saveUnitMemberAdmin','createUnitAccountAdmin'],user=authenticate_(body.authToken,adminActions.includes(action));
+  const adminActions=['getUnitAdminWorkspace','listUnitsAdmin','saveUnitAdmin','listUnitMembersAdmin','saveUnitMemberAdmin','createUnitAccountAdmin'],user=authenticate_(body.authToken,adminActions.includes(action));
+  if(action==='getUnitAdminWorkspace')portalV4PrimeRows_(['PortalUnits','UnitMembers']);
   switch(action) {
     case 'getPortalContext':return portalV4Context_(user);
     case 'saveMyProfile':return portalV4SaveProfile_(user,body);
     case 'getUnitDashboard':return portalV4Dashboard_(user,body);
+    case 'getUnitWorkspace':return {membership:portalV4Membership_(user),dashboard:portalV4Dashboard_(user,body)};
+    case 'getUnitAdminWorkspace':return {units:portalV3Rows_('PortalUnits').map(portalV4PublicUnit_),members:portalV3Rows_('UnitMembers').map(row=>Object.assign(portalV3Public_(row),{active:portalV4Active_(row.active)})),canManageAdmins:portalAdminOwner_(user)};
     case 'listUnitsAdmin':return {units:portalV3Rows_('PortalUnits').map(portalV4PublicUnit_)};
     case 'saveUnitAdmin':return portalV4SaveUnit_(user,body);
     case 'listUnitMembersAdmin':return {members:portalV3Rows_('UnitMembers').filter(row=>!body.unitId||row.unitId===body.unitId).map(row=>Object.assign(portalV3Public_(row),{active:portalV4Active_(row.active)}))};

@@ -56,3 +56,16 @@ Chuyển cùng deployment Apps Script về phiên bản trước; Hosting quay l
 ## Trạng thái xác minh
 
 Đã cập nhật cùng deployment Apps Script lên phiên bản 9 (24/09/2026) và xuất bản Firebase Hosting thành công. Bảng bổ sung đã khởi tạo, dữ liệu hồ sơ gốc được giữ nguyên. 54 kiểm tra tự động đạt; kiểm tra cú pháp, tài nguyên và ID HTML đạt. API trả capabilities profile/delivery/units/unitAccounts; yêu cầu tạo tài khoản không có phiên đăng nhập bị từ chối AUTH_REQUIRED. Firebase Email/Password, Google và Anonymous đang bật. Đã kiểm tra bố cục máy tính/điện thoại bằng dữ liệu mẫu và đối chiếu các tệp chính trên Hosting với bản local. Chưa tạo tài khoản đơn vị hoặc nộp hồ sơ thử trên dữ liệu thật. Xem HUONG-DAN-DON-VI-VA-HO-SO.md để cấp tài khoản và bàn giao.
+
+
+## Bản phát hành 30/09/2026 — API phiên bản 14
+
+- Cập nhật đúng deployment `AKfycbxCKRUbVYQDpwa2HeSsRAH7Octz2o575pCVCo1cFDOm7ik50jbcgvPq_4o8tRSiV2gt`; giữ nguyên URL, chủ thực thi và quyền truy cập hiện có. Phiên bản trước quan sát trên hệ thống là 13 (29/09), bản mới là 14 (30/09 07:21).
+- `setupWebsiteUpgrade` chạy thành công, bổ sung bảng AdminAccounts, giữ các bảng và dữ liệu cũ.
+- Hosting phát hành thành công 57 tệp. Các HTML/JS kiểm tra trên máy chủ trùng nội dung cục bộ. HTML yêu cầu xác nhận phiên bản; JS/CSS được tái sử dụng khi máy chủ xác nhận chưa đổi; ảnh tĩnh lưu đệm 24 giờ.
+- Trang khoa dùng getUnitAdminWorkspace (1 lượt xác thực/API thay vì verifyAdmin + 2 API danh sách); đọc hai bảng trong một Sheets batchGet. Không gian đơn vị gộp quyền và trang hồ sơ đầu tiên. Thanh tài khoản dùng quyền admin từ getPortalContext, bỏ lần verifyAdmin riêng.
+- API có hạn chờ toàn bộ token + request + body (đọc 30 giây, ghi 60 giây); không tự gửi lại thao tác ghi khi kết quả chưa chắc chắn. Giao diện mở lại được sau lỗi; lỗi tải module có nút Thử lại.
+- Admin cấp qua username được ràng buộc UID Firebase trong AdminAccounts; mọi API vẫn kiểm tra trạng thái hiện hành. Chỉ quản trị gốc đã xác minh và có quyền từ ADMIN_EMAILS/custom claims được cấp/khóa admin. Không tự cấp quyền qua email giả hoặc thông tin ở trình duyệt.
+- Kiểm tra: 64 bài kiểm tra tự động đạt; kiểm tra cú pháp, JSON, liên kết tệp và ID HTML đạt. Trình duyệt kiểm tra fixture lỗi kết nối rồi tải lại thành công; không gian khoa 24 hồ sơ mô phỏng; giao diện tài khoản admin.
+- Kiểm tra thật: đăng nhập Google bằng tài khoản quản trị hiện có; trang khoa trả danh sách trống đúng trạng thái; trang tài khoản admin xác nhận quyền chủ và 0 tài khoản; trang đăng nhập Cán bộ nhận tên đăng nhập hoặc email. API health trả accountsVersion=2 và adminAccounts=1. Không tạo tài khoản/hồ sơ thử trên dữ liệu thật; tạo/khóa và từ chối UID giả đã kiểm tra bằng mô phỏng.
+- Không công bố con số tăng tốc phần trăm: chưa đo thống kê độ trễ trên nhiều mạng. Đã xác nhận giảm số lượt gọi và chính sách cache thực tế.

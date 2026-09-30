@@ -1,3 +1,4 @@
+import {apiRequest} from '../assets/js/api.js';
 import {
     getApp,
     getApps,
@@ -184,7 +185,7 @@ if (ui.tabs.length) {
         ui.tabs[0];
 
     const params = new URLSearchParams(location.search);
-    activateTab(params.get('tab') === 'unit' || params.get('next') === '/don-vi/' ? 'unit-pane' : firstTab.dataset.tab);
+    activateTab(params.get('tab') === 'admin' ? 'admin-pane' : params.get('tab') === 'unit' || params.get('next') === '/don-vi/' ? 'unit-pane' : firstTab.dataset.tab);
 }
 
 document.querySelectorAll(".password-toggle").forEach((button) => {
@@ -275,82 +276,7 @@ function validateStudentForm({ registering = false } = {}) {
     return valid;
 }
 
-async function callAdminApi(user, forceRefresh = false) {
-    const authToken = await user.getIdToken(forceRefresh);
-
-    const controller = new AbortController();
-
-    const timeout = setTimeout(() => {
-        controller.abort();
-    }, REQUEST_TIMEOUT);
-
-    try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-                "Content-Type": "text/plain;charset=UTF-8",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({
-                action: "verifyAdmin",
-                authToken
-            }),
-            cache: "no-store",
-            redirect: "follow",
-            signal: controller.signal
-        });
-
-        const responseText = await response.text();
-
-        let result;
-
-        try {
-            result = JSON.parse(responseText);
-        } catch {
-            throw new ApiError(
-                "Máy chủ không trả về JSON hợp lệ.",
-                "INVALID_API_RESPONSE"
-            );
-        }
-
-        if (!response.ok || !result.success) {
-            const error = new ApiError(
-                result.message ||
-                    "Tài khoản chưa được cấp quyền quản trị.",
-                result.code || `HTTP_${response.status}`
-            );
-
-            if (
-                !forceRefresh &&
-                ["AUTH_EXPIRED", "AUTH_INVALID"].includes(error.code)
-            ) {
-                return callAdminApi(user, true);
-            }
-
-            throw error;
-        }
-
-        return result.admin;
-    } catch (error) {
-        if (error?.name === "AbortError") {
-            throw new ApiError(
-                "Máy chủ phản hồi quá lâu. Vui lòng thử lại.",
-                "REQUEST_TIMEOUT"
-            );
-        }
-
-        if (error instanceof ApiError) {
-            throw error;
-        }
-
-        throw new ApiError(
-            "Không thể kết nối máy chủ quản trị.",
-            "NETWORK_ERROR"
-        );
-    } finally {
-        clearTimeout(timeout);
-    }
-}
+async function callAdminApi(user) { return (await apiRequest(user,'verifyAdmin')).admin; }
 
 const SESSION_KEYS = [
     "authVersion",
@@ -718,12 +644,14 @@ ui.forgotButton?.addEventListener("click", async () => {
 ui.adminForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const email = normalizeEmail(ui.adminEmail?.value);
+    const identifier = normalizeEmail(ui.adminEmail?.value);
+    const usernameLogin = !identifier.includes("@");
+    const email = usernameLogin ? identifier + "@admins.huit-youth-portal.local" : identifier;
     const password = String(ui.adminPassword?.value || "");
 
-    if (!isValidEmail(email) || !password) {
+    if ((usernameLogin ? !/^[a-z0-9][a-z0-9._-]{2,39}$/.test(identifier) : !isValidEmail(email)) || !password) {
         showToast(
-            "Vui lòng nhập email và mật khẩu cán bộ.",
+            "Vui lòng nhập tên đăng nhập hoặc email, cùng mật khẩu đã được cấp.",
             "error"
         );
 
@@ -750,17 +678,6 @@ ui.adminForm?.addEventListener("submit", async (event) => {
                 email,
                 password
             );
-
-        await reload(result.user);
-
-        if (!result.user.emailVerified) {
-            await sendVerificationAndSignOut(
-                result.user,
-                "Email quản trị chưa được xác minh. Hãy dùng nút Google hoặc kiểm tra hộp thư xác minh."
-            );
-
-            return;
-        }
 
         await finishAdminLogin(result.user);
     } catch (error) {

@@ -49,7 +49,7 @@ function newsPublicRoute_(action,params){
 }
 function newsAdminRoute_(action,body){
   var user=authenticate_(body.authToken,true);
-  if(!user.emailVerified)throw apiError_('EMAIL_NOT_VERIFIED','Vui lòng xác minh email quản trị.');
+  // authenticate_(..., true) checks the active server-side administrator grant.
   if(action==='listNewsAdmin'){
     var posts=newsRows_().sort(function(a,b){return new Date(b.updatedAt)-new Date(a.updatedAt);});
     var query=newsSearchText_(String(body.query||'').slice(0,150)),filtered=posts.filter(function(p){return (!body.status||p.status===body.status)&&(!query||newsSearchText_([p.title,p.category].join(' ')).includes(query));});

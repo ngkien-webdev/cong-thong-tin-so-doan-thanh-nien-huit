@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {normalizePhone,validPhone,deliveryFields} from '../assets/js/dossier-profile.js';
-const source=['live-original/Original.gs','LegacyUpgrade.gs','Accounts.gs'].map(n=>fs.readFileSync(new URL('../backend/'+n,import.meta.url),'utf8')).join('\n');
+const source=['live-original/Original.gs','LegacyUpgrade.gs','Accounts.gs','AdminAccounts.gs'].map(n=>fs.readFileSync(new URL('../backend/'+n,import.meta.url),'utf8')).join('\n');
 function context(){
-  const rows={PortalUnits:[{id:'UNIT-FACULTY1',name:'Khoa kiểm thử',type:'faculty',active:true}],UnitMembers:[],StudentProfiles:[],ApplicationExtras:[],PortalRequests:[],MailQueue:[],Hardcopies:[],AuditLog:[]},writes=[];
+  const rows={PortalUnits:[{id:'UNIT-FACULTY1',name:'Khoa kiểm thử',type:'faculty',active:true}],UnitMembers:[],AdminAccounts:[],StudentProfiles:[],ApplicationExtras:[],PortalRequests:[],MailQueue:[],Hardcopies:[],AuditLog:[]},writes=[];
   const c=vm.createContext({console,Date,JSON,Map,Set,Number,Object,Error,Utilities:{getUuid:()=> 'test-uuid'},LockService:{getScriptLock:()=>({tryLock:()=>true,releaseLock(){}})},PropertiesService:{getScriptProperties:()=>({getProperty:()=> 'true'})}});vm.runInContext(source,c);
   c.portalV3Rows_=name=>rows[name];c.portalV3Append_=(name,data)=>({name,data});c.portalV3Update_=(name,data)=>({name,data});c.portalV3Batch_=requests=>writes.push(requests);c.portalV3Sheet_=()=>({});c.isAdmin_=()=>false;
   return {c,rows,writes};

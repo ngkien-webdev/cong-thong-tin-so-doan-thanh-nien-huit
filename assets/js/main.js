@@ -918,19 +918,14 @@
             const { getPortalContext } = await import(new URL('unit-context.js', configUrl).href);
             const context = await getPortalContext(user);
             if (generation !== authGeneration) return;
+            if (context.admin) {headerSession = {...headerSession, role:'admin'};syncHeader();return;}
             if (context.membership) {
               headerSession = { ...headerSession, role: 'unit', unitName: context.membership.name };
               syncHeader();
               return;
             }
           } catch { /* The basic account menu stays usable if context is unavailable. */ }
-          try {
-            const { apiRequest } = await import(new URL('api.js', configUrl).href);
-            const result = await apiRequest(user, 'verifyAdmin');
-            if (generation !== authGeneration || !result.admin) return;
-            headerSession = { ...headerSession, role: 'admin' };
-            syncHeader();
-          } catch { /* Students retain their normal account menu. */ }
+
         }
       });
     } catch (error) {

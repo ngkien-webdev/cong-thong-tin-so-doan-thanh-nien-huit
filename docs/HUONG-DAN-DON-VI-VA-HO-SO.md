@@ -41,3 +41,22 @@ Khi đơn vị trở lại trang chủ, bảng trạng thái hồ sơ thay thế
 - Chưa tạo tài khoản hoặc nộp hồ sơ giả trên hệ thống thật. Trước khi bàn giao một đơn vị, đăng nhập bằng tài khoản vừa cấp và kiểm tra tên đơn vị hiển thị đúng.
 
 Nếu thấy giao diện cũ, tải lại trang bằng Ctrl + F5. Nếu dữ liệu chưa tải được, dùng **Làm mới**; tránh gửi lại liên tục khi một lần nộp chưa rõ kết quả.
+
+
+## Cấp tài khoản quản trị bằng tên đăng nhập (30/09/2026)
+
+1. Chủ hệ thống đăng nhập tài khoản quản trị hiện có.
+2. Mở **Quản trị → Tài khoản quản trị** (`/admin/tai-khoan.html`).
+3. Nhập tên đăng nhập (3–40 ký tự không dấu), tên cán bộ và mật khẩu ít nhất 12 ký tự; chọn **Cấp tài khoản quản trị**.
+4. Bàn giao thông tin riêng cho cán bộ. Người được cấp mở **Đăng nhập → Cán bộ**, dùng tên đăng nhập và mật khẩu. Không cần xác minh Gmail.
+5. Dùng **Tạm khóa / Mở lại** để quản lý truy cập. Cán bộ được cấp quản lý hồ sơ, tin tức và đơn vị; chỉ chủ hệ thống được cấp thêm admin.
+6. Nếu quên mật khẩu hoặc đổi người phụ trách, tạm khóa tài khoản cũ rồi cấp tài khoản mới. Tài khoản chủ hệ thống hiện tại không bị thay đổi.
+
+Nếu lúc tạo tài khoản máy chủ phản hồi quá lâu, bấm **Làm mới** để kiểm tra danh sách trước khi tạo lại. Nếu hệ thống báo chưa xác nhận quyền, dùng đúng tên và mật khẩu của lần tạo trước để hoàn tất; không tự tạo nhiều tên thay thế.
+
+## Khi trang khoa/CLB chưa tải được
+
+- Trang **Quản trị → Khoa & câu lạc bộ** dùng để tạo đơn vị và cấp tài khoản.
+- Trang **Không gian khoa/CLB** dành cho tài khoản đơn vị đã được cấp, hiển thị hồ sơ thuộc đơn vị đó.
+- Chọn **Làm mới** hoặc **Thử lại** nếu kết nối chậm. Trang sẽ báo lỗi kết nối thay vì giữ trạng thái chờ vô thời hạn.
+- Nếu danh sách trống, tạo đơn vị trước rồi cấp tài khoản cho đơn vị đó. Không sử dụng tài khoản sinh viên để truy cập không gian đơn vị.

@@ -10,7 +10,8 @@ const PORTAL_V3_HEADERS = {
   StudentProfiles: ['uid','studentName','studentId','phone','updatedAt'],
   ApplicationExtras: ['applicationId','phone','deliveryMethod','deliveryPhone','deliveryAddress','unitId','unitName','createdAt'],
   PortalUnits: ['id','name','type','active','createdAt','updatedAt','updatedBy'],
-  UnitMembers: ['email','uid','unitId','active','username','displayName','createdAt','updatedAt','updatedBy']
+  UnitMembers: ['email','uid','unitId','active','username','displayName','createdAt','updatedAt','updatedBy'],
+  AdminAccounts: ['uid','email','username','displayName','active','createdAt','updatedAt','updatedBy']
 };
 const PORTAL_V3_STATUSES = ['Đang xử lý','Yêu cầu bổ sung','Hoàn thành','Từ chối'];
 
@@ -46,8 +47,9 @@ function portalV3Rows_(name) {
   if(!PORTAL_V4_REQUEST)portalV4BeginRequest_();
   if(PORTAL_V4_REQUEST.rows[name])return PORTAL_V4_REQUEST.rows[name];
   const sheet=portalV3Sheet_(name),headers=PORTAL_V3_HEADERS[name];
-  if(sheet.getLastRow()<2)return [];
-  return PORTAL_V4_REQUEST.rows[name]=sheet.getRange(2,1,sheet.getLastRow()-1,headers.length).getValues().map((row,i)=>{
+  const lastRow=sheet.getLastRow();
+  if(lastRow<2)return PORTAL_V4_REQUEST.rows[name]=[];
+  return PORTAL_V4_REQUEST.rows[name]=sheet.getRange(2,1,lastRow-1,headers.length).getValues().map((row,i)=>{
     const data={_row:i+1};headers.forEach((h,j)=>data[h]=row[j] instanceof Date?row[j].toISOString():row[j]);return data;
   }).filter(r=>r[headers[0]]!=='');
 }

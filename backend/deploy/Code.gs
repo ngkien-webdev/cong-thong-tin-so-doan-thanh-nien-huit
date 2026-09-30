@@ -108,7 +108,7 @@ function doGet(e) {
     const params=e&&e.parameter||{},action=params.action||'';
     if(['listPublicNews','getPublicNews','getNewsImage'].includes(action))return jsonOutput_(Object.assign({success:true},newsPublicRoute_(action,params)));
     if(action)throw apiError_('UNKNOWN_ACTION','Thao tác không hợp lệ.');
-    return jsonOutput_({success:true,service:CONFIG.SYSTEM_NAME,version:3,newsVersion:1,accountsVersion:1,capabilities:{profile:1,delivery:1,units:1,unitAccounts:1},message:'API đang hoạt động.',timestamp:new Date().toISOString()});
+    return jsonOutput_({success:true,service:CONFIG.SYSTEM_NAME,version:3,newsVersion:1,accountsVersion:2,capabilities:{profile:1,delivery:1,units:1,unitAccounts:1,adminAccounts:1},message:'API đang hoạt động.',timestamp:new Date().toISOString()});
   }catch(error){return jsonOutput_({success:false,code:error.code||'SERVER_ERROR',message:error.publicMessage||'Chưa tải được dữ liệu. Vui lòng thử lại.'});}
 }
 
@@ -127,7 +127,8 @@ function doPost(e) {
       case 'verifyAdmin':result=verifyAdmin_(body);result.capabilities=portalV3Capabilities_();result.capabilities.news={version:1,actions:['listNewsAdmin','getNewsAdmin','saveNews']};break;
       case 'listApplications':case 'listAdminApplications':case 'updateApplicationStatus':case 'updateApplication':case 'getApplicationDetails':case 'recordHardcopy':case 'listMailJobs':case 'retryReminder':result=portalV3Route_(action,body);break;
       case 'listNewsAdmin':case 'getNewsAdmin':case 'saveNews':result=newsAdminRoute_(action,body);break;
-      case 'getPortalContext':case 'saveMyProfile':case 'getUnitDashboard':case 'listUnitsAdmin':case 'saveUnitAdmin':case 'listUnitMembersAdmin':case 'saveUnitMemberAdmin':case 'createUnitAccountAdmin':result=portalV4Route_(action,body);break;
+      case 'listAdminAccounts':case 'createAdminAccount':case 'setAdminAccountActive':result=portalAdminRoute_(action,body);break;
+      case 'getUnitAdminWorkspace':case 'getUnitWorkspace':case 'getPortalContext':case 'saveMyProfile':case 'getUnitDashboard':case 'listUnitsAdmin':case 'saveUnitAdmin':case 'listUnitMembersAdmin':case 'saveUnitMemberAdmin':case 'createUnitAccountAdmin':result=portalV4Route_(action,body);break;
       default:throw apiError_('UNKNOWN_ACTION','Thao tác không hợp lệ.');
     }
     return jsonOutput_(Object.assign({success:true},result));
@@ -693,7 +694,8 @@ function authenticate_(idToken,requireAdmin) {
   let claims={};try{claims=JSON.parse(info.customAttributes||'{}');}catch(ignored){}
   const user={uid:String(info.localId),email:String(info.email||'').trim().toLowerCase(),displayName:String(info.displayName||''),emailVerified:info.emailVerified===true,isAnonymous:!info.email,claims};
   if(portalV4IsUnitEmail_(user.email)&&!portalV4Membership_(user))throw apiError_('UNIT_ACCESS_REQUIRED','Tài khoản đơn vị chưa được cấp quyền hoặc đã tạm khóa.');
-  if(requireAdmin&&(!user.emailVerified||!isAdmin_(user)))throw apiError_('ADMIN_REQUIRED','Tài khoản chưa được cấp quyền quản trị.');
+  if(portalAdminAlias_(user.email)&&!portalAdminAccount_(user))throw apiError_('ADMIN_REQUIRED','Tài khoản quản trị chưa được cấp quyền hoặc đã tạm khóa.');
+  if(requireAdmin&&!portalAdminAllowed_(user))throw apiError_('ADMIN_REQUIRED','Tài khoản chưa được cấp quyền quản trị.');
   return user;
 }
 
@@ -1691,7 +1693,8 @@ const PORTAL_V3_HEADERS = {
   StudentProfiles: ['uid','studentName','studentId','phone','updatedAt'],
   ApplicationExtras: ['applicationId','phone','deliveryMethod','deliveryPhone','deliveryAddress','unitId','unitName','createdAt'],
   PortalUnits: ['id','name','type','active','createdAt','updatedAt','updatedBy'],
-  UnitMembers: ['email','uid','unitId','active','username','displayName','createdAt','updatedAt','updatedBy']
+  UnitMembers: ['email','uid','unitId','active','username','displayName','createdAt','updatedAt','updatedBy'],
+  AdminAccounts: ['uid','email','username','displayName','active','createdAt','updatedAt','updatedBy']
 };
 const PORTAL_V3_STATUSES = ['Đang xử lý','Yêu cầu bổ sung','Hoàn thành','Từ chối'];
 
@@ -1727,8 +1730,9 @@ function portalV3Rows_(name) {
   if(!PORTAL_V4_REQUEST)portalV4BeginRequest_();
   if(PORTAL_V4_REQUEST.rows[name])return PORTAL_V4_REQUEST.rows[name];
   const sheet=portalV3Sheet_(name),headers=PORTAL_V3_HEADERS[name];
-  if(sheet.getLastRow()<2)return [];
-  return PORTAL_V4_REQUEST.rows[name]=sheet.getRange(2,1,sheet.getLastRow()-1,headers.length).getValues().map((row,i)=>{
+  const lastRow=sheet.getLastRow();
+  if(lastRow<2)return PORTAL_V4_REQUEST.rows[name]=[];
+  return PORTAL_V4_REQUEST.rows[name]=sheet.getRange(2,1,lastRow-1,headers.length).getValues().map((row,i)=>{
     const data={_row:i+1};headers.forEach((h,j)=>data[h]=row[j] instanceof Date?row[j].toISOString():row[j]);return data;
   }).filter(r=>r[headers[0]]!=='');
 }
@@ -1975,6 +1979,23 @@ function portalV3Status_(admin,body,requireVersion) {
 
 /** Profile, delivery and institution accounts. All access is resolved server-side. */
 const PORTAL_V4_UNIT_DOMAIN='@units.huit-youth-portal.local';
+// Read related tables in one Sheets call. Values live only for this execution;
+// active account permissions are never shared across requests or users.
+function portalV4PrimeRows_(names) {
+  if(!PORTAL_V4_REQUEST)portalV4BeginRequest_();
+  const needed=names.filter(name=>!PORTAL_V4_REQUEST.rows[name]);if(!needed.length)return;
+  const ranges=needed.map(name=>'ranges='+encodeURIComponent("'"+name+"'!A:Z")).join('&');
+  const response=UrlFetchApp.fetch('https://sheets.googleapis.com/v4/spreadsheets/'+encodeURIComponent(requiredProperty_('SPREADSHEET_ID'))+'/values:batchGet?'+ranges+'&valueRenderOption=UNFORMATTED_VALUE',{headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},muteHttpExceptions:true});
+  if(response.getResponseCode()!==200)portalV3Fail_('DATABASE_READ_FAILED','Chưa tải được dữ liệu đơn vị. Vui lòng chọn Làm mới để thử lại.');
+  let data;try{data=JSON.parse(response.getContentText());}catch(error){portalV3Fail_('DATABASE_READ_FAILED','Dữ liệu máy chủ chưa hợp lệ. Vui lòng thử lại.');}
+  const pending={};
+  needed.forEach((name,index)=>{
+    const values=data.valueRanges&&data.valueRanges[index]&&data.valueRanges[index].values||[],headers=PORTAL_V3_HEADERS[name];
+    if(!headers||headers.some((header,i)=>!values[0]||values[0][i]!==header))portalV3Fail_('SCHEMA_MISMATCH','Cấu trúc bảng '+name+' chưa phù hợp. Dữ liệu được giữ nguyên.');
+    pending[name]=values.slice(1).map((row,i)=>{const item={_row:i+1};headers.forEach((header,j)=>item[header]=row[j]??'');return item;}).filter(item=>item[headers[0]]!=='');
+  });
+  Object.assign(PORTAL_V4_REQUEST.rows,pending);
+}
 function portalV4BaseSheet_(name,headers) {
   if(!PORTAL_V4_REQUEST)portalV4BeginRequest_();
   const key='base:'+name;
@@ -2008,8 +2029,9 @@ function portalV4RequireUser_(user) {
 }
 function portalV4Context_(user) {
   portalV4RequireUser_(user);
+  portalV4PrimeRows_(['StudentProfiles','UnitMembers','PortalUnits']);
   const saved=portalV3Rows_('StudentProfiles').find(row=>row.uid===user.uid);
-  return {profile:saved?{studentName:saved.studentName,studentId:saved.studentId,phone:saved.phone}:{studentName:user.displayName||'',studentId:'',phone:''},membership:portalV4Membership_(user),capabilities:{profile:1,delivery:1,units:1,unitAccounts:1}};
+  return {profile:saved?{studentName:saved.studentName,studentId:saved.studentId,phone:saved.phone}:{studentName:user.displayName||'',studentId:'',phone:''},membership:portalV4Membership_(user),admin:portalAdminAllowed_(user),canManageAdmins:portalAdminOwner_(user),capabilities:{profile:1,delivery:1,units:1,unitAccounts:1,adminAccounts:1}};
 }
 function portalV4SaveProfile_(user,body) {
   portalV4RequireUser_(user);
@@ -2031,7 +2053,7 @@ function portalV4ApplicationInput_(raw,user,membership) {
   const requested=portalV3Text_(raw.unitId||'',0,80,'Mã đơn vị');
   let unitId=requested||(membership?membership.unitId:'');
   if(portalV4IsUnitEmail_(user.email)&&!membership)portalV3Fail_('UNIT_ACCESS_REQUIRED','Tài khoản đơn vị chưa được cấp quyền hoặc đã bị ngừng hoạt động.');
-  if(unitId&&(!membership||unitId!==membership.unitId)&&!(user.emailVerified&&isAdmin_(user)))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn không có quyền nộp hồ sơ cho đơn vị này.');
+  if(unitId&&(!membership||unitId!==membership.unitId)&&!portalAdminAllowed_(user))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn không có quyền nộp hồ sơ cho đơn vị này.');
   const unit=unitId?portalV4Unit_(unitId):null;
   if(unitId&&(!unit||!portalV4Active_(unit.active)))portalV3Fail_('UNIT_INACTIVE','Đơn vị chưa hoạt động.');
   return {phone,deliveryMethod,deliveryPhone,deliveryAddress,unitId,unitName:unit?unit.name:''};
@@ -2099,7 +2121,7 @@ function portalV4CreateAccount_(admin,body) {
 }
 function portalV4Dashboard_(user,body) {
   portalV4RequireUser_(user);
-  const member=portalV4Membership_(user),isAdmin=user.emailVerified&&isAdmin_(user),unitId=portalV3Text_(body.unitId||(member&&member.unitId)||'',0,80,'Mã đơn vị');
+  const member=portalV4Membership_(user),isAdmin=portalAdminAllowed_(user),unitId=portalV3Text_(body.unitId||(member&&member.unitId)||'',0,80,'Mã đơn vị');
   if(!unitId||(!isAdmin&&(!member||member.unitId!==unitId)))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn chưa được cấp quyền truy cập đơn vị này.');
   const unit=portalV4Unit_(unitId);if(!unit||(!isAdmin&&!portalV4Active_(unit.active)))portalV3Fail_('UNIT_ACCESS_REQUIRED','Bạn chưa được cấp quyền truy cập đơn vị này.');
   const all=portalV3Applications_().filter(application=>application.unitId===unitId).sort(sortNewestFirst_),summary={total:all.length,pending:0,supplement:0,completed:0,rejected:0};
@@ -2109,16 +2131,74 @@ function portalV4Dashboard_(user,body) {
   return {unit:portalV4PublicUnit_(unit),applications:filtered.slice((page-1)*paging.pageSize,page*paging.pageSize).map(application=>portalV3Join_(application,jobs,receipts,true)),summary,total:filtered.length,page,pageSize:paging.pageSize,hasMore:page*paging.pageSize<filtered.length};
 }
 function portalV4Route_(action,body) {
-  const adminActions=['listUnitsAdmin','saveUnitAdmin','listUnitMembersAdmin','saveUnitMemberAdmin','createUnitAccountAdmin'],user=authenticate_(body.authToken,adminActions.includes(action));
+  const adminActions=['getUnitAdminWorkspace','listUnitsAdmin','saveUnitAdmin','listUnitMembersAdmin','saveUnitMemberAdmin','createUnitAccountAdmin'],user=authenticate_(body.authToken,adminActions.includes(action));
+  if(action==='getUnitAdminWorkspace')portalV4PrimeRows_(['PortalUnits','UnitMembers']);
   switch(action) {
     case 'getPortalContext':return portalV4Context_(user);
     case 'saveMyProfile':return portalV4SaveProfile_(user,body);
     case 'getUnitDashboard':return portalV4Dashboard_(user,body);
+    case 'getUnitWorkspace':return {membership:portalV4Membership_(user),dashboard:portalV4Dashboard_(user,body)};
+    case 'getUnitAdminWorkspace':return {units:portalV3Rows_('PortalUnits').map(portalV4PublicUnit_),members:portalV3Rows_('UnitMembers').map(row=>Object.assign(portalV3Public_(row),{active:portalV4Active_(row.active)})),canManageAdmins:portalAdminOwner_(user)};
     case 'listUnitsAdmin':return {units:portalV3Rows_('PortalUnits').map(portalV4PublicUnit_)};
     case 'saveUnitAdmin':return portalV4SaveUnit_(user,body);
     case 'listUnitMembersAdmin':return {members:portalV3Rows_('UnitMembers').filter(row=>!body.unitId||row.unitId===body.unitId).map(row=>Object.assign(portalV3Public_(row),{active:portalV4Active_(row.active)}))};
     case 'saveUnitMemberAdmin':return portalV4SaveMember_(user,body);
     case 'createUnitAccountAdmin':return portalV4CreateAccount_(user,body);
+    default:portalV3Fail_('UNKNOWN_ACTION','Thao tác không hợp lệ.');
+  }
+}
+
+/** Provisioned administrators are bound to Firebase UID, never to a claimed email alone. */
+const PORTAL_ADMIN_DOMAIN='@admins.huit-youth-portal.local';
+function portalAdminAlias_(email) { return String(email||'').toLowerCase().endsWith(PORTAL_ADMIN_DOMAIN); }
+function portalAdminOwner_(user) { return Boolean(user&&!user.isAnonymous&&user.emailVerified&&!portalAdminAlias_(user.email)&&isAdmin_(user)); }
+function portalAdminAccount_(user) {
+  if(!user||user.isAnonymous||!portalAdminAlias_(user.email))return null;
+  return portalV3Rows_('AdminAccounts').find(row=>row.uid===user.uid&&row.email===user.email&&portalV4Active_(row.active))||null;
+}
+function portalAdminAllowed_(user) { return portalAdminOwner_(user)||Boolean(portalAdminAccount_(user)); }
+function portalAdminPublic_(row) { return {uid:row.uid,username:row.username,displayName:row.displayName,active:portalV4Active_(row.active),createdAt:row.createdAt}; }
+function portalAdminRequireOwner_(user) {
+  if(!portalAdminOwner_(user))portalV3Fail_('OWNER_REQUIRED','Chỉ quản trị viên chủ hệ thống được cấp hoặc khóa tài khoản quản trị.');
+}
+function portalAdminCreate_(user,body) {
+  portalAdminRequireOwner_(user);
+  const username=portalV3Text_(body.username,3,40,'Tên đăng nhập').toLowerCase(),displayName=portalV3Text_(body.displayName,2,120,'Tên hiển thị');
+  if(!/^[a-z0-9][a-z0-9._-]{2,39}$/.test(username))portalV3Fail_('INVALID_USERNAME','Tên đăng nhập dùng 3–40 ký tự không dấu: chữ, số, dấu chấm, gạch ngang hoặc gạch dưới.');
+  if(typeof body.password!=='string'||body.password.length<12||body.password.length>128)portalV3Fail_('INVALID_PASSWORD','Mật khẩu quản trị cần từ 12 đến 128 ký tự.');
+  const email=username+PORTAL_ADMIN_DOMAIN;
+  return portalV3Lock_(()=>{
+    if(portalV3Rows_('AdminAccounts').some(row=>row.email===email))portalV3Fail_('ACCOUNT_EXISTS','Tên đăng nhập đã được cấp. Hãy quản lý tài khoản trong danh sách bên dưới.');
+    portalV3Sheet_('AdminAccounts');
+    let created=portalV4FirebasePassword_('signUp',email,body.password,displayName);
+    if(!created.ok&&String(created.data.error&&created.data.error.message).startsWith('EMAIL_EXISTS')) {
+      created=portalV4FirebasePassword_('signInWithPassword',email,body.password);
+      if(!created.ok)portalV3Fail_('ACCOUNT_EXISTS','Tên đăng nhập đã tồn tại. Chọn tên khác hoặc dùng đúng mật khẩu của lần tạo trước.');
+    }
+    if(!created.ok||!created.data.localId||String(created.data.email||'').toLowerCase()!==email)portalV3Fail_('ACCOUNT_SERVICE_ERROR','Chưa tạo được tài khoản. Kiểm tra chính sách mật khẩu và thử lại.');
+    const now=new Date().toISOString(),account={uid:created.data.localId,email,username,displayName,active:true,createdAt:now,updatedAt:now,updatedBy:user.uid};
+    try{portalV3Batch_([portalV3Append_('AdminAccounts',account)]);}catch(error){portalV3Fail_('ACCOUNT_SETUP_PENDING','Chưa xác nhận được quyền quản trị. Tải lại danh sách; nếu chưa có, thử lại cùng tên đăng nhập và mật khẩu.');}
+    return {account:portalAdminPublic_(account)};
+  });
+}
+function portalAdminSetActive_(user,body) {
+  portalAdminRequireOwner_(user);
+  if(typeof body.active!=='boolean')portalV3Fail_('INVALID_INPUT','Trạng thái tài khoản không hợp lệ.');
+  return portalV3Lock_(()=>{
+    const previous=portalV3Rows_('AdminAccounts').find(row=>row.uid===body.uid);
+    if(!previous)portalV3Fail_('NOT_FOUND','Không tìm thấy tài khoản quản trị.');
+    if(previous.uid===user.uid)portalV3Fail_('SELF_LOCK','Không thể khóa tài khoản đang sử dụng.');
+    const account=Object.assign({},previous,{active:body.active,updatedAt:new Date().toISOString(),updatedBy:user.uid});
+    portalV3Batch_([portalV3Update_('AdminAccounts',account)]);
+    return {account:portalAdminPublic_(account)};
+  });
+}
+function portalAdminRoute_(action,body) {
+  const user=authenticate_(body.authToken,true);portalAdminRequireOwner_(user);
+  switch(action) {
+    case 'listAdminAccounts':return {accounts:portalV3Rows_('AdminAccounts').map(portalAdminPublic_)};
+    case 'createAdminAccount':return portalAdminCreate_(user,body);
+    case 'setAdminAccountActive':return portalAdminSetActive_(user,body);
     default:portalV3Fail_('UNKNOWN_ACTION','Thao tác không hợp lệ.');
   }
 }
@@ -2174,7 +2254,7 @@ function newsPublicRoute_(action,params){
 }
 function newsAdminRoute_(action,body){
   var user=authenticate_(body.authToken,true);
-  if(!user.emailVerified)throw apiError_('EMAIL_NOT_VERIFIED','Vui lòng xác minh email quản trị.');
+  // authenticate_(..., true) checks the active server-side administrator grant.
   if(action==='listNewsAdmin'){
     var posts=newsRows_().sort(function(a,b){return new Date(b.updatedAt)-new Date(a.updatedAt);});
     var query=newsSearchText_(String(body.query||'').slice(0,150)),filtered=posts.filter(function(p){return (!body.status||p.status===body.status)&&(!query||newsSearchText_([p.title,p.category].join(' ')).includes(query));});

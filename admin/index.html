@@ -10,14 +10,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20260924-1">
+  <link rel="stylesheet" href="style.css?v=20260930-1">
 </head>
 <body>
   <a class="skip-link" href="#admin-main">Đến nội dung chính</a>
   <aside class="sidebar">
     <a class="brand" href="../"><img src="../assets/images/logo-huit-doan.png" alt="Logo Đoàn - Hội HUIT"><span><strong>HUIT YOUTH</strong><small>Không gian quản trị</small></span></a>
     <span class="nav-label">ĐIỀU HÀNH</span>
-    <nav aria-label="Quản trị"><button type="button" class="nav-item active" data-view="applications" aria-current="page"><span aria-hidden="true">▦</span> Quản lý hồ sơ</button><button type="button" class="nav-item" data-view="mail"><span aria-hidden="true">✉</span> Email nhắc bản cứng</button><a class="nav-item" href="don-vi.html"><span aria-hidden="true">▤</span> Khoa & câu lạc bộ</a></nav>
+    <nav aria-label="Quản trị"><button type="button" class="nav-item active" data-view="applications" aria-current="page"><span aria-hidden="true">▦</span> Quản lý hồ sơ</button><button type="button" class="nav-item" data-view="mail"><span aria-hidden="true">✉</span> Email nhắc bản cứng</button><a class="nav-item" href="don-vi.html"><span aria-hidden="true">▤</span> Khoa & câu lạc bộ</a><a class="nav-item" href="tai-khoan.html">♙ Tài khoản quản trị</a></nav>
     <div class="sidebar-note"><span class="note-icon" aria-hidden="true">◷</span><strong>Nhắc nộp bản cứng</strong><p>Hồ sơ kế hoạch được lên lịch email lúc 08:00 ngày hôm sau, theo giờ Việt Nam.</p></div>
     <div class="sidebar-bottom"><a href="../dang-bai/">✎ Biên tập tin tức</a><a href="../">← Về cổng thông tin</a><button id="logoutButton" type="button">Đăng xuất</button></div>
   </aside>
@@ -44,7 +44,7 @@
   </div>
   <dialog id="detailDialog" class="detail-dialog" aria-labelledby="detailTitle"><div class="detail-heading"><div><span class="eyebrow">Chi tiết hồ sơ</span><h2 id="detailTitle">Thông tin hồ sơ</h2><p id="detailId"></p></div><button id="closeDetail" type="button" class="icon-button" aria-label="Đóng chi tiết">×</button></div><div id="detailLoading" class="empty-state">Đang tải thông tin…</div><div id="detailContent" hidden><dl id="detailMeta" class="detail-meta"></dl><section class="detail-section"><h3>Nội dung đề nghị</h3><p id="detailReason" class="reason"></p><a id="detailFile" class="file-link" target="_blank" rel="noopener noreferrer" hidden>Mở tệp đính kèm ↗</a></section><form id="updateForm" class="detail-section"><h3>Cập nhật xử lý</h3><label>Trạng thái<select id="detailStatus"><option>Đang xử lý</option><option>Yêu cầu bổ sung</option><option>Hoàn thành</option><option>Từ chối</option></select></label><label>Ghi chú gửi sinh viên<textarea id="detailNote" maxlength="2000" rows="3" placeholder="Nhập hướng dẫn hoặc kết quả xử lý…"></textarea></label><button id="saveDetail" type="submit" class="button primary">Lưu & thông báo sinh viên</button></form><section class="detail-section" id="paperSection"><h3>Bản cứng & email nhắc</h3><p id="paperStatus"></p><p id="reminderStatus"></p><button id="receivePaper" class="button secondary" type="button">Xác nhận đã nhận bản cứng</button></section><section class="detail-section"><h3>Lịch sử xử lý</h3><ol id="auditList" class="audit-list"></ol></section></div><p id="detailError" class="detail-error" role="alert"></p></dialog>
   <div id="adminToast" class="toast" role="status" hidden></div>
-  <script type="module" src="script.js?v=20260924-1"></script>
+  <script type="module" src="script.js?v=20260930-1"></script>
 </body>
 </html>
 
